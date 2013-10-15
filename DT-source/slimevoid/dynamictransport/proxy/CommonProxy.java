@@ -11,9 +11,17 @@ import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import slimevoid.dynamictransport.container.ContainerDynamicElevator;
+import slimevoid.dynamictransport.core.DynamicTransportMod;
+import slimevoid.dynamictransport.core.PacketLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
+import slimevoid.dynamictransport.core.lib.GuiLib;
+import slimevoid.dynamictransport.network.CommonPacketHandler;
+import slimevoid.dynamictransport.tileentity.TileEntityElevator;
 import slimevoidlib.ICommonProxy;
 import slimevoidlib.IPacketHandling;
+import slimevoidlib.util.helpers.SlimevoidHelper;
+import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.Player;
 
 public class CommonProxy  implements ICommonProxy {
@@ -21,7 +29,9 @@ public class CommonProxy  implements ICommonProxy {
     @Override
     public void preInit()
     {
-        // TODO Auto-generated method stub
+    	CommonPacketHandler.init();
+		PacketLib.registerPacketHandlers();
+		NetworkRegistry.instance().registerGuiHandler(DynamicTransportMod.instance, DynamicTransportMod.proxy);
         
     }
 
@@ -42,8 +52,13 @@ public class CommonProxy  implements ICommonProxy {
     @Override
     public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
     {
-        // TODO Auto-generated method stub
-        return null;
+    	if (ID == GuiLib.GUIID_ELEVATOR) {
+			TileEntity tileentity = SlimevoidHelper.getBlockTileEntity(world, x, y, z);
+			if (tileentity != null && tileentity instanceof TileEntityElevator) {
+				return new ContainerDynamicElevator(player.inventory, (TileEntityElevator) tileentity);
+			}
+		}
+		return null;
     }
 
     @Override

@@ -1,0 +1,17 @@
+[
+{
+  "modid": "DynamicTransport",
+  "name": "Dynamic Transport",
+  "description": "The Dynamic Transport mod",
+  "version": "0.0.1",
+  "mcversion": "1.6.4",
+  "url": "https://github.com/SlimeVoid/DynamicElevators-FML",
+  "updateUrl": "",
+  "credits": "IronClad49er, Eurymachus, Tarig0",
+  "authors": ["Slime Void Crew"],
+  "logoFile": "elevators/logo.png",
+  "screenshots": [""],
+  "parent":"",
+  "dependencies": ["EurysCore"]
+}
+]

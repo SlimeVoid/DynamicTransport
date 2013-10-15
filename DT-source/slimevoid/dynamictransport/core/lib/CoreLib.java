@@ -5,7 +5,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class CoreLib {
-    public static final String MOD_ID = "DYnamicTransportMod";
+    public static final String MOD_ID = "DynamicTransportMod";
     public static final String MOD_RESOURCES = "dynamictransport";
     public static final String MOD_NAME = "Dynamic Transport Mod";
     public static final String MOD_VERSION = "0.0.0.3";
