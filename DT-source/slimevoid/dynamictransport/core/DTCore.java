@@ -27,23 +27,20 @@ public class DTCore {
 									BlockLib.BLOCK_TRANSPORT_BASE);
 		GameRegistry.registerTileEntity(TileEntityElevator.class,
 										"SLIMEVOID_ELEVATOR");
-		ConfigurationLib.blockTransportBase.addTileEntityMapping(	BlockLib.BLOCK_ELEVATOR_ID,
-																	TileEntityElevator.class);
-		ConfigurationLib.blockTransportBase.setItemName(BlockLib.BLOCK_ELEVATOR_ID,
+		ConfigurationLib.blockTransportBase.addMapping(	BlockLib.BLOCK_ELEVATOR_ID,
+														TileEntityElevator.class,
 														BlockLib.BLOCK_ELEVATOR);
 
 		GameRegistry.registerTileEntity(TileEntityElevatorComputer.class,
 										"SLIMEVOID_ELEVATOR_COMPUTER");
-		ConfigurationLib.blockTransportBase.addTileEntityMapping(	BlockLib.BLOCK_ELEVATOR_COMPUTER_ID,
-																	TileEntityElevatorComputer.class);
-		ConfigurationLib.blockTransportBase.setItemName(BlockLib.BLOCK_ELEVATOR_COMPUTER_ID,
+		ConfigurationLib.blockTransportBase.addMapping(	BlockLib.BLOCK_ELEVATOR_COMPUTER_ID,
+														TileEntityElevatorComputer.class,
 														BlockLib.BLOCK_ELEVATOR_COMPUTER);
 
 		GameRegistry.registerTileEntity(TileEntityFloorMarker.class,
 										"SLIMEVOID_DYNAMIC_MARKER");
-		ConfigurationLib.blockTransportBase.addTileEntityMapping(	BlockLib.BLOCK_DYNAMIC_MARK_ID,
-																	TileEntityFloorMarker.class);
-		ConfigurationLib.blockTransportBase.setItemName(BlockLib.BLOCK_DYNAMIC_MARK_ID,
+		ConfigurationLib.blockTransportBase.addMapping(	BlockLib.BLOCK_DYNAMIC_MARK_ID,
+														TileEntityFloorMarker.class,
 														BlockLib.BLOCK_DYNAMIC_MARK);
 
 		GameRegistry.addRecipe(	new ItemStack(ConfigurationLib.blockTransportBase, 1, BlockLib.BLOCK_ELEVATOR_ID),

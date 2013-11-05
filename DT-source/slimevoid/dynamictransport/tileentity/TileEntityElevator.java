@@ -1,7 +1,10 @@
 package slimevoid.dynamictransport.tileentity;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChunkCoordinates;
+import slimevoid.dynamictransport.core.lib.BlockLib;
+import slimevoid.dynamictransport.core.lib.ConfigurationLib;
 
 public class TileEntityElevator extends TileEntityTransportBase {
 
@@ -41,8 +44,35 @@ public class TileEntityElevator extends TileEntityTransportBase {
 		return minY;
 	}
 
+	@Override
+	public boolean onBlockActivated(EntityPlayer entityplayer) {
+		if (entityplayer.getHeldItem() != null
+			&& entityplayer.getHeldItem().itemID == ConfigurationLib.itemElevatorTool.itemID) {
+			if (this.worldObj.isRemote) {
+				return true;
+			}
+			NBTTagCompound tags = entityplayer.getHeldItem().getTagCompound();
+			if (tags.hasKey("ComputerX")) {
+				setParentElevatorComputer(new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ")));
+			}
+		}
+		return false;
+	}
+
 	public void setParentElevatorComputer(ChunkCoordinates ComputerLocation) {
-		this.ParentElevatorComputer = ComputerLocation;
+		if ((this.ParentElevatorComputer == null || !this.ParentElevatorComputer.equals(ComputerLocation))
+			&& this.worldObj.getBlockId(ComputerLocation.posX,
+										ComputerLocation.posY,
+										ComputerLocation.posZ) == ConfigurationLib.blockTransportBase.blockID
+			&& this.worldObj.getBlockMetadata(	ComputerLocation.posX,
+												ComputerLocation.posY,
+												ComputerLocation.posZ) == BlockLib.BLOCK_ELEVATOR_COMPUTER_ID) {
+			this.ParentElevatorComputer = ComputerLocation;
+			TileEntityElevatorComputer comTile = (TileEntityElevatorComputer) this.worldObj.getBlockTileEntity(	ComputerLocation.posX,
+																												ComputerLocation.posY,
+																												ComputerLocation.posZ);
+			comTile.addElevator(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord));
+		}
 	}
 
 	public ChunkCoordinates getParentElevatorComputer() {

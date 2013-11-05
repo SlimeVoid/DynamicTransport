@@ -36,13 +36,14 @@ public class BlockTransportBase extends BlockBase {
 	}
 
 	@Override
-	public boolean isBlockNormalCube(World world, int x, int y, int z) {
+	public boolean shouldCheckWeakPower(World world, int x, int y, int z, int side) {
 		return world.getBlockMetadata(	x,
 										y,
-										z) == BlockLib.BLOCK_DYNAMIC_MARK_ID ? true : super.isBlockNormalCube(	world,
-																												x,
-																												y,
-																												z);
+										z) == BlockLib.BLOCK_DYNAMIC_MARK_ID ? false : super.shouldCheckWeakPower(	world,
+																													x,
+																													y,
+																													z,
+																													side);
 	}
 
 }

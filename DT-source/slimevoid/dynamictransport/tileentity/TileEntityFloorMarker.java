@@ -2,6 +2,8 @@ package slimevoid.dynamictransport.tileentity;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChunkCoordinates;
+import net.minecraftforge.common.ForgeDirection;
+import slimevoidlib.blocks.BlockBase;
 
 public class TileEntityFloorMarker extends TileEntityTransportBase {
 
@@ -15,6 +17,11 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 
 	public ChunkCoordinates getParentElevatorComputer() {
 		return this.parentTransportComputer;
+	}
+
+	@Override
+	public boolean isBlockSolidOnSide(BlockBase blockBase, ForgeDirection side) {
+		return true;
 	}
 
 	@Override

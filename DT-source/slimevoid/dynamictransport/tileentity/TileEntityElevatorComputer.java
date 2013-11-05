@@ -3,20 +3,16 @@ package slimevoid.dynamictransport.tileentity;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.MathHelper;
+import slimevoid.dynamictransport.core.lib.BlockLib;
+import slimevoid.dynamictransport.core.lib.ConfigurationLib;
+import slimevoid.dynamictransport.util.XZCoords;
 
 public class TileEntityElevatorComputer extends TileEntityTransportBase {
-	public class XZCoords {
-		public int	x;
-		public int	z;
-
-		XZCoords(int x, int z) {
-			this.x = x;
-			this.z = z;
-		}
-
-	}
 
 	public enum ElevatorMode {
 		Maintenance, Transit, Available
@@ -34,6 +30,76 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 	private int						elevatorPos;
 	private int						MinY;
 	private int						MaxY;
+
+	public void addElevator(ChunkCoordinates elevator) {
+
+		if (!boundElevatorBlocks.contains(new XZCoords(elevator.posX, elevator.posZ))
+			&& elevator.posY - 1 == this.yCoord) {
+			if (MathHelper.sqrt_double(Math.pow((double) this.xCoord
+														- (double) elevator.posX,
+												2)
+										+ Math.pow(	(double) this.zCoord
+															- (double) elevator.posZ,
+													2)) <= 3) {
+				if (this.worldObj.getBlockId(	elevator.posX,
+												elevator.posY,
+												elevator.posZ) == ConfigurationLib.blockTransportBase.blockID
+					&& this.worldObj.getBlockMetadata(	elevator.posX,
+														elevator.posY,
+														elevator.posZ) == BlockLib.BLOCK_ELEVATOR_ID) {
+					this.boundElevatorBlocks.add(new XZCoords(elevator.posX, elevator.posZ));
+				}
+
+			} else {
+				if (boundElevatorBlocks.size() != 0) {
+
+					for (XZCoords boundBlock : boundElevatorBlocks) {
+						if (MathHelper.sqrt_double(Math.pow((double) boundBlock.x
+																	- (double) elevator.posX,
+															2)
+													+ Math.pow(	(double) boundBlock.z
+																		- (double) elevator.posZ,
+																2)) <= 3) {
+							if (this.worldObj.getBlockId(	elevator.posX,
+															elevator.posY,
+															elevator.posZ) == ConfigurationLib.blockTransportBase.blockID
+								&& this.worldObj.getBlockMetadata(	elevator.posX,
+																	elevator.posY,
+																	elevator.posZ) == BlockLib.BLOCK_ELEVATOR_ID) {
+								this.boundElevatorBlocks.add(new XZCoords(elevator.posX, elevator.posZ));
+							}
+						}
+					}
+				}
+			}
+		}
+
+	}
+
+	@Override
+	public boolean onBlockActivated(EntityPlayer entityplayer) {
+		if (entityplayer.getHeldItem() != null
+			&& entityplayer.getHeldItem().itemID == ConfigurationLib.itemElevatorTool.itemID) {
+			if (this.worldObj.isRemote) {
+				return true;
+			}
+			if (entityplayer.isSneaking()) {
+				ItemStack heldItem = entityplayer.getHeldItem();
+				NBTTagCompound tags = new NBTTagCompound();
+				tags.setInteger("ComputerX",
+								this.xCoord);
+				tags.setInteger("ComputerY",
+								this.yCoord);
+				tags.setInteger("ComputerZ",
+								this.zCoord);
+				heldItem.setTagCompound(tags);
+				this.curTechnicianName = entityplayer.username;
+			} else {
+				// open GUI
+			}
+		}
+		return false;
+	}
 
 	@Override
 	public void writeToNBT(NBTTagCompound nbttagcompound) {

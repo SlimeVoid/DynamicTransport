@@ -47,4 +47,10 @@ public class TileEntityTransportBase extends TileEntityBase {
 
 		this.privacyLvl = Privacy.values()[nbttagcompound.getInteger("PrivacyLvl")];
 	}
+
+	@Override
+	public int getExtendedBlockID() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }
