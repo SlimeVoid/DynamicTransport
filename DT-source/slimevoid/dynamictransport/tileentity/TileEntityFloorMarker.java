@@ -20,14 +20,16 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 	@Override
 	public void writeToNBT(NBTTagCompound nbttagcompound) {
 		super.writeToNBT(nbttagcompound);
-		nbttagcompound.setInteger(	"ParentTransportComputerX",
-									parentTransportComputer.posX);
-		nbttagcompound.setInteger(	"ParentTransportComputerY",
-									parentTransportComputer.posY);
-		nbttagcompound.setInteger(	"ParentTransportComputerZ",
-									parentTransportComputer.posZ);
-		nbttagcompound.setString(	"FloorName",
-									floorName);
+		if (parentTransportComputer != null) {
+			nbttagcompound.setInteger(	"ParentTransportComputerX",
+										parentTransportComputer.posX);
+			nbttagcompound.setInteger(	"ParentTransportComputerY",
+										parentTransportComputer.posY);
+			nbttagcompound.setInteger(	"ParentTransportComputerZ",
+										parentTransportComputer.posZ);
+		}
+		if (this.floorName != null && !this.floorName.isEmpty()) nbttagcompound.setString(	"FloorName",
+																							floorName);
 		nbttagcompound.setInteger(	"FloorYLvl",
 									floorYLvl);
 

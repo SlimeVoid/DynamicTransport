@@ -4,6 +4,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.util.Icon;
+import net.minecraft.world.World;
 import slimevoid.dynamictransport.core.lib.BlockLib;
 import slimevoidlib.blocks.BlockBase;
 
@@ -32,6 +33,16 @@ public class BlockTransportBase extends BlockBase {
 		iconList = new Icon[BlockLib.BLOCK_MAX_TILES][6];
 		iconList = BlockLib.registerIcons(	iconRegister,
 											iconList);
+	}
+
+	@Override
+	public boolean isBlockNormalCube(World world, int x, int y, int z) {
+		return world.getBlockMetadata(	x,
+										y,
+										z) == BlockLib.BLOCK_DYNAMIC_MARK_ID ? true : super.isBlockNormalCube(	world,
+																												x,
+																												y,
+																												z);
 	}
 
 }

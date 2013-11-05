@@ -4,15 +4,17 @@ import java.io.File;
 
 import net.minecraftforge.common.Configuration;
 import slimevoid.dynamictransport.blocks.BlockTransportBase;
+import slimevoid.dynamictransport.items.ItemElevatorTool;
 
 public class ConfigurationLib {
 
-    public static BlockTransportBase blockTransportBase;
-    public static int blockTransportBaseID;
-	private static File configurationFile;
-	private static Configuration configuration;
-    
-	
+	public static BlockTransportBase	blockTransportBase;
+	public static int					blockTransportBaseID;
+	public static ItemElevatorTool		itemElevatorTool;
+	public static int					itemElevatorToolID;
+	private static File					configurationFile;
+	private static Configuration		configuration;
+
 	public static void CommonConfig(File configFile) {
 		if (configurationFile == null) {
 			configurationFile = configFile;
@@ -21,8 +23,11 @@ public class ConfigurationLib {
 
 		configuration.load();
 
-		blockTransportBaseID = configuration.getBlock("blockTransportBaseID", 267).getInt();
-		
+		blockTransportBaseID = configuration.getBlock(	"blockTransportBaseID",
+														267).getInt();
+		itemElevatorToolID = configuration.getItem(	"itemElevatorToolID",
+													268).getInt();
+
 	}
 
 }

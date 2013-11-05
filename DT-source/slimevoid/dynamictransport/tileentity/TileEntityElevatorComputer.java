@@ -22,10 +22,6 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 		Maintenance, Transit, Available
 	}
 
-	public enum Privacy {
-		Public, Restricted, Private
-	}
-
 	// Persistent Data
 	private String					elevatorName;
 	private List<ChunkCoordinates>	boundMarkerBlocks	= new ArrayList<ChunkCoordinates>();
@@ -33,7 +29,6 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 	private List<Integer>			floorSpool			= new ArrayList<Integer>();
 	private ElevatorMode			mode				= ElevatorMode.Available;
 	private String					curTechnicianName;
-	private Privacy					privacyLvl			= Privacy.Public;
 
 	// cached results
 	private int						elevatorPos;
@@ -62,9 +57,8 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 		for (int i = 0; i < floorSpool.size(); i++) {
 			tempSpool[i] = floorSpool.get(i);
 		}
-
-		nbttagcompound.setString(	"ElevatorName",
-									elevatorName);
+		if (elevatorName != null && !elevatorName.isEmpty()) nbttagcompound.setString(	"ElevatorName",
+																						elevatorName);
 		nbttagcompound.setIntArray(	"BoundMarkerBlocksX",
 									BoundMarkerBlocksX);
 		nbttagcompound.setIntArray(	"BoundMarkerBlocksY",
@@ -79,10 +73,8 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 									tempSpool);
 		nbttagcompound.setInteger(	"Mode",
 									mode.ordinal());
-		nbttagcompound.setString(	"CurTechnicianName",
-									curTechnicianName);
-		nbttagcompound.setInteger(	"PrivacyLvl",
-									privacyLvl.ordinal());
+		if (curTechnicianName != null && !curTechnicianName.isEmpty()) nbttagcompound.setString("CurTechnicianName",
+																								curTechnicianName);
 
 	}
 
@@ -109,7 +101,6 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
 		this.mode = ElevatorMode.values()[nbttagcompound.getInteger("Mode")];
 		this.curTechnicianName = nbttagcompound.getString("CurTechnicianName");
-		this.privacyLvl = Privacy.values()[nbttagcompound.getInteger("PrivacyLvl")];
 
 		elevatorName = nbttagcompound.getString("ElevatorName");
 	}

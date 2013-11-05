@@ -52,12 +52,14 @@ public class TileEntityElevator extends TileEntityTransportBase {
 	@Override
 	public void writeToNBT(NBTTagCompound nbttagcompound) {
 		super.writeToNBT(nbttagcompound);
-		nbttagcompound.setInteger(	"ParentElevatorComputerX",
-									ParentElevatorComputer.posX);
-		nbttagcompound.setInteger(	"ParentElevatorComputerY",
-									ParentElevatorComputer.posY);
-		nbttagcompound.setInteger(	"ParentElevatorComputerZ",
-									ParentElevatorComputer.posZ);
+		if (ParentElevatorComputer != null) {
+			nbttagcompound.setInteger(	"ParentElevatorComputerX",
+										ParentElevatorComputer.posX);
+			nbttagcompound.setInteger(	"ParentElevatorComputerY",
+										ParentElevatorComputer.posY);
+			nbttagcompound.setInteger(	"ParentElevatorComputerZ",
+										ParentElevatorComputer.posZ);
+		}
 
 	}
 
