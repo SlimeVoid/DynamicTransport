@@ -86,19 +86,40 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 			if (entityplayer.isSneaking()) {
 				ItemStack heldItem = entityplayer.getHeldItem();
 				NBTTagCompound tags = new NBTTagCompound();
-				tags.setInteger("ComputerX",
-								this.xCoord);
-				tags.setInteger("ComputerY",
-								this.yCoord);
-				tags.setInteger("ComputerZ",
-								this.zCoord);
+				if (this.curTechnicianName == entityplayer.username) {
+					this.curTechnicianName = "";
+					this.mode = ElevatorMode.Available;
+				} else if (this.curTechnicianName == null
+							|| this.curTechnicianName.isEmpty()) {
+					tags.setInteger("ComputerX",
+									this.xCoord);
+					tags.setInteger("ComputerY",
+									this.yCoord);
+					tags.setInteger("ComputerZ",
+									this.zCoord);
+					this.curTechnicianName = entityplayer.username;
+					// Move Elevator for Maintenance
+					this.CallElevator(	this.yCoord + 1,
+										true);
+				}
 				heldItem.setTagCompound(tags);
-				this.curTechnicianName = entityplayer.username;
 			} else {
 				// open GUI
 			}
 		}
 		return false;
+	}
+
+	private void CallElevator(int i) {
+		this.CallElevator(	i,
+							false);
+	}
+
+	private void CallElevator(int i, boolean forMaintenance) {
+		// TODO Auto-generated method stub
+		if (forMaintenance) {// will be replaced once we get some moving parts
+			this.mode = ElevatorMode.Maintenance;
+		}
 	}
 
 	@Override
