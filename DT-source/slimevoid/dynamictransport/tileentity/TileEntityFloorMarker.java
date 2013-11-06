@@ -50,4 +50,9 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 		this.floorYLvl = nbttagcompound.getInteger("FloorYLvl");
 	}
 
+	public void RemoveComputer(ChunkCoordinates chunkCoordinates) {
+		this.parentTransportComputer = null;
+
+	}
+
 }
