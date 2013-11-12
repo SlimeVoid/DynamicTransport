@@ -82,6 +82,7 @@ public class TileEntityElevator extends TileEntityTransportBase {
 																					ComputerLocation.posZ);
 			if (comTile.addElevator(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord),
 									entityplayer)) this.ParentElevatorComputer = ComputerLocation;
+
 		} else {
 			ItemStack heldItem = entityplayer.getHeldItem();
 			NBTTagCompound tags = new NBTTagCompound();

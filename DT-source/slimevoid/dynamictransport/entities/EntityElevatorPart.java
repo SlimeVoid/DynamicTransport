@@ -56,4 +56,9 @@ public class EntityElevatorPart extends Entity {
 	public boolean isEntityEqual(Entity par1Entity) {
 		return this == par1Entity || this.entityElevatorObj == par1Entity;
 	}
+
+	public void killElevator() {
+		// TODO Auto-generated method stub
+
+	}
 }

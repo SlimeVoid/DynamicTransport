@@ -30,10 +30,6 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 	private String					curTechnicianName;
 	private int						elevatorPos;
 
-	// cached results
-	private int						MinY;
-	private int						MaxY;
-
 	public boolean addElevator(ChunkCoordinates elevator, EntityPlayer entityplayer) {
 		if (this.mode == ElevatorMode.Maintenance
 			&& this.curTechnicianName != null
@@ -109,6 +105,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 					entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
 																						&& !this.elevatorName.isEmpty() ? String.format("Block Already Bound to Elevator: %0$s",
 																																		this.elevatorName) : "Block Already Bound to Elevator"));
+					return true;
 				}
 			} else {
 				entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
@@ -176,6 +173,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 				entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
 																					&& !this.elevatorName.isEmpty() ? String.format("Block Already Bound to Elevator: %0$s",
 																																	this.elevatorName) : "Block Already Bound to Elevator"));
+
 			}
 		} else {
 			entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
@@ -254,16 +252,21 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 											blockBase);
 	}
 
-	private void CallElevator(int i) {
+	public void CallElevator(int i) {
 		this.CallElevator(	i,
 							false);
 	}
 
 	private void CallElevator(int i, boolean forMaintenance) {
-		// TODO Auto-generated method stub
 		if (forMaintenance) {// will be replaced once we get some moving parts
+			this.floorSpool.clear();
 			this.mode = ElevatorMode.Maintenance;
-			this.elevatorPos = this.yCoord + 1;
+		} else {
+			this.floorSpool.add(i);
+		}
+
+		if (this.mode == ElevatorMode.Available) {
+			// call elevator now
 		}
 	}
 
