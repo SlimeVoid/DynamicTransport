@@ -25,20 +25,14 @@ public class DTCore {
 		GameRegistry.registerBlock(	ConfigurationLib.blockTransportBase,
 									ItemBlockBase.class,
 									BlockLib.BLOCK_TRANSPORT_BASE);
-		GameRegistry.registerTileEntity(TileEntityElevator.class,
-										"SLIMEVOID_ELEVATOR");
 		ConfigurationLib.blockTransportBase.addMapping(	BlockLib.BLOCK_ELEVATOR_ID,
 														TileEntityElevator.class,
 														BlockLib.BLOCK_ELEVATOR);
 
-		GameRegistry.registerTileEntity(TileEntityElevatorComputer.class,
-										"SLIMEVOID_ELEVATOR_COMPUTER");
 		ConfigurationLib.blockTransportBase.addMapping(	BlockLib.BLOCK_ELEVATOR_COMPUTER_ID,
 														TileEntityElevatorComputer.class,
 														BlockLib.BLOCK_ELEVATOR_COMPUTER);
 
-		GameRegistry.registerTileEntity(TileEntityFloorMarker.class,
-										"SLIMEVOID_DYNAMIC_MARKER");
 		ConfigurationLib.blockTransportBase.addMapping(	BlockLib.BLOCK_DYNAMIC_MARK_ID,
 														TileEntityFloorMarker.class,
 														BlockLib.BLOCK_DYNAMIC_MARK);
