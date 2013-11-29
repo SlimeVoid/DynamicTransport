@@ -64,7 +64,8 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 																														this.worldObj.provider.dimensionId,
 																														new Packet3Chat(new ChatMessageComponent().addText("Elevator Called to Floor "
 																																											+ this.floorYLvl)));
-					// comTile.CallElevator(floorYLvl);
+					comTile.CallElevator(	floorYLvl,
+											this.floorName);
 				}
 			}
 		} else if (!flag) {

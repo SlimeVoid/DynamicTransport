@@ -137,10 +137,10 @@ public class RenderElevator extends Render {
 		Icon textureData[] = {
 				Block.blockDiamond.getIcon(	0,
 											0),
-				Block.blockDiamond.getIcon(	0,
-											0),
-				Block.blockDiamond.getIcon(	0,
-											0) };
+				Block.blockIron.getIcon(0,
+										0),
+				Block.blockIron.getIcon(0,
+										0) };
 
 		renderElevatorEntity(	block,
 								world,

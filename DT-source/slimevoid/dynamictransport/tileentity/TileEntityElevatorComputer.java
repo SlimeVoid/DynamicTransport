@@ -1,7 +1,9 @@
 package slimevoid.dynamictransport.tileentity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -12,8 +14,11 @@ import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.MathHelper;
 import slimevoid.dynamictransport.core.lib.BlockLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
+import slimevoid.dynamictransport.entities.EntityElevator;
 import slimevoid.dynamictransport.util.XZCoords;
 import slimevoidlib.blocks.BlockBase;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.relauncher.Side;
 
 public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
@@ -219,8 +224,15 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 																						&& !this.elevatorName.isEmpty() ? String.format("Elevator: {0} Entering Mantinaince Mode",
 																																		this.elevatorName) : "Elevator Entering Mantinaince Mode"));
 					// Move Elevator for Maintenance
-					this.CallElevator(	this.yCoord + 1,
-										true);
+					if (this.boundElevatorBlocks.size() == 0) {
+						this.elevatorPos = this.yCoord + 1;
+						this.mode = ElevatorMode.Maintenance;
+					} else {
+						this.CallElevator(	this.yCoord + 1,
+											true,
+											"");
+					}
+
 				}
 				heldItem.setTagCompound(tags);
 			} else {
@@ -252,12 +264,13 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 											blockBase);
 	}
 
-	public void CallElevator(int i) {
+	public void CallElevator(int i, String Floorname) {
 		this.CallElevator(	i,
-							false);
+							false,
+							Floorname);
 	}
 
-	private void CallElevator(int i, boolean forMaintenance) {
+	private void CallElevator(int i, boolean forMaintenance, String floorname) {
 		if (forMaintenance) {// will be replaced once we get some moving parts
 			this.floorSpool.clear();
 			this.mode = ElevatorMode.Maintenance;
@@ -265,8 +278,31 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 			this.floorSpool.add(i);
 		}
 
-		if (this.mode == ElevatorMode.Available) {
+		if (this.mode != ElevatorMode.Available) {
 			// call elevator now
+			Set<EntityElevator> allEntities = new HashSet<EntityElevator>();
+			EntityElevator centerElevator = null;
+			boolean first = true;
+			for (int iter = 0; iter < this.boundElevatorBlocks.size(); iter++) {
+				XZCoords pos = boundElevatorBlocks.get(iter);
+
+				int metadata = worldObj.getBlockMetadata(	pos.x,
+															this.elevatorPos,
+															pos.z);
+				boolean isCenter = first; // ||
+				first = false; // isClient;
+				EntityElevator curElevator = new EntityElevator(worldObj, pos.x, this.elevatorPos, pos.z);
+
+				curElevator.setProperties(	i,
+											floorname,
+											isCenter,
+											FMLCommonHandler.instance().getSide() == Side.CLIENT,
+											metadata,
+											new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord),
+											false);
+				worldObj.spawnEntityInWorld(curElevator);
+			}
+
 		}
 	}
 

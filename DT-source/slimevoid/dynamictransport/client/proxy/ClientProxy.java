@@ -10,28 +10,36 @@ import slimevoid.dynamictransport.core.lib.GuiLib;
 import slimevoid.dynamictransport.proxy.CommonProxy;
 import slimevoid.dynamictransport.tileentity.TileEntityElevator;
 import slimevoidlib.util.helpers.SlimevoidHelper;
-
+import cpw.mods.fml.client.registry.RenderingRegistry;
 
 public class ClientProxy extends CommonProxy {
-	
+
 	@Override
-	public Object getClientGuiElement(int ID, EntityPlayer player, World world,
-			int x, int y, int z) {
+	public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
 		if (ID == GuiLib.GUIID_ELEVATOR) {
-			TileEntity tileentity = SlimevoidHelper.getBlockTileEntity(world, x, y, z);
+			TileEntity tileentity = SlimevoidHelper.getBlockTileEntity(	world,
+																		x,
+																		y,
+																		z);
 			if (tileentity != null && tileentity instanceof TileEntityElevator) {
-				return new GuiDynamicElevator(player, player.inventory,world, (TileEntityElevator) tileentity);
+				return new GuiDynamicElevator(player, player.inventory, world, (TileEntityElevator) tileentity);
 			}
 		}
 		return null;
 	}
 
-	
 	@Override
 	public void preInit() {
 		super.preInit();
 		ClientPacketHandler.init();
 		PacketLib.registerClientPacketHandlers();
+
 	}
-	
+
+	@Override
+	public void registerRenderInformation() {
+		RenderingRegistry.registerEntityRenderingHandler(	slimevoid.dynamictransport.entities.EntityElevator.class,
+															new slimevoid.dynamictransport.client.render.RenderElevator());
+	}
+
 }

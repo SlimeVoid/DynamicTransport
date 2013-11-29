@@ -422,7 +422,6 @@ public class EntityElevator extends Entity {
 									2);
 			}
 		}
-
 		if (!center) {
 			say((new StringBuilder()).append("Speed: ").append(motionY).append(", posY: ").append(posY).append(", destY: ").append(destY).append(", center: "
 																																					+ center).toString());
