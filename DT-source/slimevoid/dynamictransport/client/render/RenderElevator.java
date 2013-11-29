@@ -3,6 +3,7 @@ package slimevoid.dynamictransport.client.render;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Icon;
 import net.minecraft.util.MathHelper;
@@ -20,7 +21,7 @@ public class RenderElevator extends Render {
 		shadowSize = 0.5F;
 	}
 
-	public void renderElevatorEntity(Block elevator, World world, int x, int y, int z, Icon textureData[]) {
+	public void renderElevatorEntity(Block elevator, World world, int x, int y, int z, Icon[] textureData) {
 		this.renderBlocks.setRenderBoundsFromBlock(elevator);
 
 		float f1 = 0.5F;
@@ -71,7 +72,7 @@ public class RenderElevator extends Render {
 		tessellator.setColorOpaque_F(	f3 * f6,
 										f3 * f6,
 										f3 * f6);
-		this.renderBlocks.renderFaceXNeg(	elevator,
+		this.renderBlocks.renderFaceXPos(	elevator,
 											-0.5D,
 											-0.5D,
 											-0.5D,
@@ -85,21 +86,7 @@ public class RenderElevator extends Render {
 		tessellator.setColorOpaque_F(	f3 * f6,
 										f3 * f6,
 										f3 * f6);
-		this.renderBlocks.renderFaceXPos(	elevator,
-											-0.5D,
-											-0.5D,
-											-0.5D,
-											textureData[2]);
-		f6 = 1.0F;
-
-		if (f6 < f5) {
-			f6 = f5;
-		}
-
-		tessellator.setColorOpaque_F(	f4 * f6,
-										f4 * f6,
-										f4 * f6);
-		this.renderBlocks.renderFaceZPos(	elevator,
+		this.renderBlocks.renderFaceXNeg(	elevator,
 											-0.5D,
 											-0.5D,
 											-0.5D,
@@ -118,20 +105,42 @@ public class RenderElevator extends Render {
 											-0.5D,
 											-0.5D,
 											textureData[2]);
+		f6 = 1.0F;
+
+		if (f6 < f5) {
+			f6 = f5;
+		}
+
+		tessellator.setColorOpaque_F(	f4 * f6,
+										f4 * f6,
+										f4 * f6);
+		this.renderBlocks.renderFaceZPos(	elevator,
+											-0.5D,
+											-0.5D,
+											-0.5D,
+											textureData[2]);
 		tessellator.draw();
 	}
 
 	public void doRenderElevator(EntityElevator elevator, double d, double d1, double d2, float f, float f1) {
 		GL11.glPushMatrix();
-		Block block = ConfigurationLib.blockTransportBase;
+		Block block = Block.blocksList[ConfigurationLib.blockTransportBaseID];
 		World world = elevator.getWorld();
 		GL11.glDisable(GL11.GL_LIGHTING);
 		GL11.glTranslatef(	(float) d,
 							(float) d1,
 							(float) d2);
 		// GL11.glScalef(-1F, -1F, 1.0F); - ceilings?
+		bindTexture(TextureMap.locationBlocksTexture);
 
-		Icon textureData[] = elevator.getTextureData();
+		// int textureData[] = elevator.getTextureData();
+		Icon textureData[] = {
+				Block.blockDiamond.getIcon(	0,
+											0),
+				Block.blockDiamond.getIcon(	0,
+											0),
+				Block.blockDiamond.getIcon(	0,
+											0) };
 
 		renderElevatorEntity(	block,
 								world,
@@ -156,6 +165,6 @@ public class RenderElevator extends Render {
 	@Override
 	protected ResourceLocation getEntityTexture(Entity entity) {
 		// TODO Auto-generated method stub
-		return null;
+		return TextureMap.locationBlocksTexture;
 	}
 }
