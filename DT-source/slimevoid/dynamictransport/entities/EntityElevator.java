@@ -9,6 +9,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.DamageSource;
@@ -18,6 +19,7 @@ import slimevoid.dynamictransport.blocks.BlockTransportBase;
 import slimevoid.dynamictransport.core.lib.BlockLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import slimevoid.dynamictransport.tileentity.TileEntityElevator;
+import slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
 
 public class EntityElevator extends Entity {
 
@@ -27,7 +29,6 @@ public class EntityElevator extends Entity {
 	private byte				waitToAccelerate		= 0;
 	public int					dest;
 	private float				destY;
-	private boolean				atDestination;
 	boolean						unUpdated;
 
 	private float				elevatorSpeed			= 0.0F;
@@ -47,12 +48,9 @@ public class EntityElevator extends Entity {
 
 	public int					tickcount				= 0;
 
-	public EntityElevator		floor					= null;
-
-	public EntityElevator		centerElevator			= null;
+	public EntityElevator		controlingElevator		= null;
 	public Set<EntityElevator>	conjoinedelevators		= new HashSet<EntityElevator>();
-	public boolean				center					= false;
-	private boolean				conjoinedHasBeenSet		= false;
+	public boolean				iscontrolerElevator		= false;
 
 	private boolean				isClient;
 
@@ -73,13 +71,12 @@ public class EntityElevator extends Entity {
 		motionY = 0.0D;
 		motionZ = 0.0D;
 
-		atDestination = false;
 		unUpdated = true;
 		mountedEntities = new HashSet<Entity>();
 		riddenByEntity = null;
 
 		waitToAccelerate = 100;
-		centerElevator = this;
+		controlingElevator = this;
 		ridingEntity = null;
 		conjoinedelevators.add(this);
 
@@ -95,13 +92,12 @@ public class EntityElevator extends Entity {
 		setPosition(prevPosX,
 					prevPosY,
 					prevPosZ);
-		say((new StringBuilder()).append("Elevator created at ").append(i).append(", ").append(j).append(", ").append(k).toString());
 
 		dest = (int) j;
 		destY = (float) j + 0.5F;
 
 		isClient = true;
-		center = false;
+		iscontrolerElevator = false;
 
 		waitToAccelerate = 0;
 
@@ -109,7 +105,7 @@ public class EntityElevator extends Entity {
 										0);
 	}
 
-	public void setProperties(int destination, String destinationName, boolean isCenter, boolean local, int meta, ChunkCoordinates computer, boolean haltable) {
+	public void setProperties(int destination, String destinationName, boolean isCenter, boolean local, int meta, ChunkCoordinates computer, boolean haltable, EntityElevator elevatorCenter) {
 		if (propertiesSet) {
 			return;
 		}
@@ -122,17 +118,19 @@ public class EntityElevator extends Entity {
 		this.canBeHalted = haltable;
 
 		isClient = local;
-		center = isCenter;
+		iscontrolerElevator = isCenter;
 
 		waitToAccelerate = 0;
 
 		propertiesSet = true;
 
-		say("Properties set! destination: " + destination + ", isClient: "
-			+ isClient + ", center: " + center + ", metadata: " + meta);
-
 		this.dataWatcher.updateObject(	17,
 										meta);
+
+		if (!iscontrolerElevator) {
+			this.controlingElevator = elevatorCenter;
+			controlingElevator.conjoinedelevators.add(this);
+		}
 	}
 
 	@Override
@@ -145,14 +143,6 @@ public class EntityElevator extends Entity {
 		return true;
 	}
 
-	private void say(String s) {
-		// DECore.say((new
-		// StringBuilder()).append(" [ ").append(entityId).append(" ] ").append(s).toString());
-	}
-
-	// -------------------------------------------------------------------- //
-	// ------------------ SERVER/CLIENT SENSITIVE CODE! ------------------- //
-
 	public void setEmerHalt(boolean newhalt) {
 		if (!this.canBeHalted && newhalt) {
 			return;
@@ -162,15 +152,13 @@ public class EntityElevator extends Entity {
 		}
 		emerHalt = newhalt;
 
-		if (emerHalt && !mountedEntities.isEmpty()) {
-			ejectRiders();
-		}
 		if (emerHalt) {
 			motionY = 0;
 			elevatorSpeed = 0;
 		}
 
-		if (center) {
+		if (iscontrolerElevator) {
+
 			Iterator<EntityElevator> iter = conjoinedelevators.iterator();
 			while (iter.hasNext()) {
 				EntityElevator curElevator = iter.next();
@@ -178,16 +166,13 @@ public class EntityElevator extends Entity {
 					curElevator.setEmerHalt(emerHalt);
 				}
 			}
-		} else if (centerElevator.emerHalt != emerHalt) {
-			centerElevator.setEmerHalt(emerHalt);
+		} else if (controlingElevator.emerHalt != emerHalt) {
+			controlingElevator.setEmerHalt(emerHalt);
 		}
 	}
 
-	// ---------------- END SERVER/CLIENT SENSITIVE CODE ------------------ //
-	// -------------------------------------------------------------------- //
-
 	public void refreshRiders() {
-		if (!center) {
+		if (!iscontrolerElevator) {
 			return;
 		}
 		mountedEntities.clear();
@@ -216,31 +201,12 @@ public class EntityElevator extends Entity {
 		}
 	}
 
-	/*
-	 * public boolean collideEntity(Entity entity) {
-	 * say("Collision detected..."); say("Entity Position: " + entity.posY +
-	 * ", Entity height: " + entity.height + ", Entity Offset: " +
-	 * entity.yOffset + ", Entity speed: " + entity.motionY); if
-	 * (mod_Elevator.killBelow && entity.posY < this.posY && entity instanceof
-	 * EntityLiving) { EntityLiving living = (EntityLiving)entity;
-	 * living.attackEntityFrom(DamageSource.inWall, 50);
-	 * mod_Elevator.say("Damaging!"); return true; } return false; }
-	 */
-
 	@Override
 	public void mountEntity(Entity entity) {
 	}
 
-	public void setConjoined(Set<EntityElevator> entitylist) {
-		conjoinedelevators.addAll(entitylist);
-		conjoinedHasBeenSet = true;
-	}
-
 	@Override
 	public void updateRiderPosition() {
-		// TODO :: Add ability to crush riders who don't have enough room above
-		// their heads
-		// TODO :: Should depend on amount of room and rider height
 		if (this.isDead) {
 			return;
 		}
@@ -249,34 +215,7 @@ public class EntityElevator extends Entity {
 			while (iter.hasNext()) {
 				updateRider(iter.next());
 			}
-			/*
-			 * ElevatorPacketHandler.sendRiderUpdates( mountedEntities, (int)
-			 * this.posX, (int) this.posY, (int) this.posZ);
-			 */
 		}
-	}
-
-	private void ejectRiders() {
-		if (mountedEntities.isEmpty()) {
-			return;
-		}
-		Iterator<Entity> iter = mountedEntities.iterator();
-		while (iter.hasNext()) {
-			Entity rider = iter.next();
-			double pos = Math.abs(rider.posY - this.posY);
-			if (pos < 1.0) {
-				if (this.motionY > 0) rider.posY += 1F;
-			}
-			rider.motionY = 0.1F;
-			updateRider(rider);
-			rider.mountEntity(null);
-			say("Ejected rider #" + rider.entityId);
-		}
-		/*
-		 * ElevatorPacketHandler.sendRiderUpdates( mountedEntities, (int)
-		 * this.posX, (int) this.posY, (int) this.posZ, true);
-		 */
-		mountedEntities.clear();
 	}
 
 	@Override
@@ -291,26 +230,21 @@ public class EntityElevator extends Entity {
 		if (worldObj.isRemote) {
 			return;
 		}
-		say("Difference: " + (rider.posY - this.posY));
-		if (rider instanceof EntityLiving) {
-			// if (rider instanceof EntityPlayer) {
-			rider.posY = centerElevator.posY + getMountedYOffset()
-							+ rider.yOffset;
-			// }
-			// elses {
-			// / rider.setPosition(rider.posX, centerElevator.posY +
-			// getMountedYOffset() + rider.getYOffset(), rider.posZ);
-			// }
-			rider.onGround = true;
-			rider.fallDistance = 0.0F;
-			rider.isCollidedVertically = true;
-		} else if (!(rider instanceof EntityElevator)) {
-			rider.posY = centerElevator.posY + getMountedYOffset()
-							+ rider.yOffset;
-			rider.onGround = false;
-		}
+		if (this.motionY > this.maxElevatorSpeed) {
+			if (rider instanceof EntityLiving) {
+				rider.posY = controlingElevator.posY + getMountedYOffset()
+								+ rider.yOffset;
+				rider.motionY = this.motionY;
+				rider.onGround = true;
+				rider.fallDistance = 0.0F;
+			} else if (!(rider instanceof EntityElevator)) {
+				rider.posY = controlingElevator.posY + getMountedYOffset()
+								+ rider.yOffset;
+				rider.motionY = this.motionY;
+				rider.onGround = true;
+			}
 
-		say((new StringBuilder()).append("Updating rider with id #").append(rider.entityId).append(" to ").append(rider.posY).toString());
+		}
 	}
 
 	@Override
@@ -346,7 +280,7 @@ public class EntityElevator extends Entity {
 			tickcount = 0;
 		}
 
-		if (unUpdated) {
+		if (this.tickcount == 1) {
 			if (worldObj.getBlockId(i,
 									j,
 									k) == blockID) {
@@ -391,7 +325,6 @@ public class EntityElevator extends Entity {
 														blockID);
 
 			}
-			conjoinAllNeighbors();
 			unUpdated = false;
 		}
 
@@ -422,13 +355,12 @@ public class EntityElevator extends Entity {
 									2);
 			}
 		}
-		if (!center) {
-			say((new StringBuilder()).append("Speed: ").append(motionY).append(", posY: ").append(posY).append(", destY: ").append(destY).append(", center: "
-																																					+ center).toString());
-			if (centerElevator != null && !centerElevator.isDead) {
+		if (!iscontrolerElevator) {
+
+			if (controlingElevator != null && !controlingElevator.isDead) {
 
 				this.setPosition(	this.posX,
-									centerElevator.posY,
+									controlingElevator.posY,
 									this.posZ);
 			} else if (!this.isDead) {
 				this.killElevator();
@@ -437,10 +369,6 @@ public class EntityElevator extends Entity {
 		}
 
 		float range = 0.0F;
-
-		if (!conjoinedHasBeenSet) {
-			conjoinAllNeighbors();
-		}
 
 		if (emerHalt) {
 			elevatorSpeed = 0;
@@ -454,7 +382,6 @@ public class EntityElevator extends Entity {
 			if (!conjoinedelevators.contains(this)) {
 				conjoinedelevators.add(this);
 			}
-			say((new StringBuilder()).append("Waiting to accelerate").toString());
 		} else {
 			float tempSpeed = elevatorSpeed + elevatorAccel;
 			if (tempSpeed > maxElevatorSpeed) {
@@ -483,16 +410,11 @@ public class EntityElevator extends Entity {
 			}
 		}
 		// check whether at the destination or not
-		atDestination = onGround
-						|| (MathHelper.abs((float) (destY - posY)) < elevatorSpeed);
+		boolean atDestination = onGround
+								|| (MathHelper.abs((float) (destY - posY)) < elevatorSpeed);
 		if (destY < 1 || destY > this.worldObj.getHeight()) {
 			atDestination = true;
-			say("Requested destination is too high or too low!");
-			say((new StringBuilder()).append("Requested: ").append(destY).append(", max: ").append(this.worldObj.getHeight()).toString());
 		}
-
-		say((new StringBuilder()).append("Speed: ").append(motionY).append(", posY: ").append(posY).append(", destY: ").append(destY).append(", range: ").append(range).append(", center: "
-																																												+ center).toString());
 
 		refreshRiders();
 
@@ -519,7 +441,6 @@ public class EntityElevator extends Entity {
 				stillcount = 0;
 			}
 		}
-		say((new StringBuilder()).append("End Entity Update").toString());
 	}
 
 	private void killAllConjoined() {
@@ -527,10 +448,13 @@ public class EntityElevator extends Entity {
 		while (iter.hasNext()) {
 			EntityElevator curElevator = iter.next();
 			curElevator.killElevator();
-			/*
-			 * if (curElevator.ceiling != null) {
-			 * curElevator.ceiling.killElevator(); }
-			 */
+		}
+		if (this.iscontrolerElevator) {
+			TileEntityElevatorComputer comTile = this.getParentElevatorComputer();
+			if (comTile != null) {
+				comTile.elevatorArrived(MathHelper.floor_double(this.posY),
+										iscontrolerElevator);
+			}
 		}
 	}
 
@@ -564,7 +488,8 @@ public class EntityElevator extends Entity {
 		}
 
 		if (!worldObj.isRemote) {
-			if (this.destFloorName.trim() != "" && center) {
+			if (this.destFloorName != null && this.destFloorName.trim() != ""
+				&& iscontrolerElevator) {
 
 				Iterator<Entity> iter = mountedEntities.iterator();
 				while (iter.hasNext()) {
@@ -579,9 +504,8 @@ public class EntityElevator extends Entity {
 			}
 
 			setDead();
-			ejectRiders();
-			say((new StringBuilder()).append("Entity Dead").toString());
 		}
+
 	}
 
 	@Override
@@ -599,60 +523,6 @@ public class EntityElevator extends Entity {
 		return true;
 	}
 
-	public Set<EntityElevator> getNeighbors() {
-		Set<EntityElevator> conjoineds = new HashSet<EntityElevator>();
-
-		Set<Entity> neighbors = new HashSet<Entity>();
-		neighbors.addAll(worldObj.getEntitiesWithinAABBExcludingEntity(	null,
-																		getBoundingBox().expand(0.5,
-																								0,
-																								0.5)));
-		Iterator<Entity> iter = neighbors.iterator();
-		while (iter.hasNext()) {
-			Entity curEntity = iter.next();
-			if (curEntity instanceof EntityElevator) {
-				conjoineds.add((EntityElevator) curEntity);
-			}
-		}
-		return conjoineds;
-	}
-
-	public void conjoinAllNeighbors() {
-		if (!center) {
-			return;
-		}
-		conjoinedelevators.clear();
-		Set<EntityElevator> notChecked = new HashSet<EntityElevator>();
-		conjoinedelevators.addAll(getNeighbors());
-		notChecked.addAll(conjoinedelevators);
-		notChecked.remove(this);
-		while (!notChecked.isEmpty()) {
-			Iterator<EntityElevator> iter = notChecked.iterator();
-			Set<EntityElevator> newElevators = new HashSet<EntityElevator>();
-			while (iter.hasNext()) {
-				EntityElevator curElevator = iter.next();
-				newElevators.addAll(curElevator.getNeighbors());
-			}
-			notChecked.clear();
-			newElevators.removeAll(conjoinedelevators);
-			conjoinedelevators.addAll(newElevators);
-			notChecked.addAll(newElevators);
-		}
-		Iterator<EntityElevator> iter = conjoinedelevators.iterator();
-		while (iter.hasNext()) {
-			EntityElevator curElevator = iter.next();
-			if (curElevator.center) { // || isClient) {
-				curElevator.setConjoined(conjoinedelevators);
-				curElevator.centerElevator = curElevator;
-
-			} else {
-				curElevator.centerElevator = this;
-
-			}
-		}
-		conjoinedHasBeenSet = true;
-	}
-
 	@Override
 	protected void writeEntityToNBT(NBTTagCompound nbttagcompound) {
 		nbttagcompound.setInteger(	"destY",
@@ -662,7 +532,7 @@ public class EntityElevator extends Entity {
 		nbttagcompound.setBoolean(	"isClient",
 									isClient);
 		nbttagcompound.setBoolean(	"isCenter",
-									center);
+									iscontrolerElevator);
 		nbttagcompound.setInteger(	"metadata",
 									dataWatcher.getWatchableObjectInt(17));
 
@@ -681,7 +551,7 @@ public class EntityElevator extends Entity {
 		}
 		emerHalt = nbttagcompound.getBoolean("emerHalt");
 		isClient = nbttagcompound.getBoolean("isClient");
-		center = nbttagcompound.getBoolean("isCenter");
+		iscontrolerElevator = nbttagcompound.getBoolean("isCenter");
 		if (!conjoinedelevators.contains(this)) {
 			conjoinedelevators.add(this);
 		}
@@ -718,4 +588,31 @@ public class EntityElevator extends Entity {
 		return worldObj;
 	}
 
+	public TileEntityElevatorComputer getParentElevatorComputer() {
+		TileEntity tile = this.computerPos == null ? null : this.worldObj.getBlockTileEntity(	this.computerPos.posX,
+																								this.computerPos.posY,
+																								this.computerPos.posZ);
+		if (tile == null) {
+			// parentTransportComputer = null;
+		} else if (!(tile instanceof TileEntityElevatorComputer)) {
+			tile = null;
+			// parentTransportComputer = null;
+		}
+
+		return (TileEntityElevatorComputer) tile;
+	}
+
+	public void applyEntityCollision(Entity newEntity) {
+		if (newEntity.riddenByEntity != this && newEntity.ridingEntity != this) {
+
+			newEntity.posY = controlingElevator.posY + getMountedYOffset()
+								+ (newEntity.height / 2);
+
+			newEntity.motionY = this.motionY + 1;
+			newEntity.fallDistance = 0;
+
+			newEntity.isCollidedVertically = true;
+			newEntity.isCollidedHorizontally = true;
+		}
+	}
 }

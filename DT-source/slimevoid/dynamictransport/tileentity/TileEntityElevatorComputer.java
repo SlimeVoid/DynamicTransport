@@ -1,6 +1,7 @@
 package slimevoid.dynamictransport.tileentity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -8,6 +9,8 @@ import java.util.Set;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.packet.Packet3Chat;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.ChunkCoordinates;
@@ -34,6 +37,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 	private ElevatorMode			mode				= ElevatorMode.Available;
 	private String					curTechnicianName;
 	private int						elevatorPos;
+	public boolean					pendingMantinance	= false;
 
 	public boolean addElevator(ChunkCoordinates elevator, EntityPlayer entityplayer) {
 		if (this.mode == ElevatorMode.Maintenance
@@ -225,6 +229,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 																																		this.elevatorName) : "Elevator Entering Mantinaince Mode"));
 					// Move Elevator for Maintenance
 					if (this.boundElevatorBlocks.size() == 0) {
+						this.floorSpool.clear();
 						this.elevatorPos = this.yCoord + 1;
 						this.mode = ElevatorMode.Maintenance;
 					} else {
@@ -264,46 +269,116 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 											blockBase);
 	}
 
-	public void CallElevator(int i, String Floorname) {
-		this.CallElevator(	i,
-							false,
-							Floorname);
+	public boolean CallElevator(int i, String Floorname) {
+		return this.CallElevator(	i,
+									false,
+									Floorname);
 	}
 
-	private void CallElevator(int i, boolean forMaintenance, String floorname) {
-		if (forMaintenance) {// will be replaced once we get some moving parts
-			this.floorSpool.clear();
-			this.mode = ElevatorMode.Maintenance;
+	private boolean CallElevator(int i, boolean forMaintenance, String floorname) {
+
+		if (this.mode == ElevatorMode.Available) {
+			if (forMaintenance) {
+				this.floorSpool.clear();
+				this.pendingMantinance = true;
+				sendMeassageFromAllFloors("Elevator Going into Mantinance Mode");
+
+			} else {
+				if (i != this.elevatorPos) {
+					this.floorSpool.add(i);
+				} else {
+					return false;
+				}
+			}
+			this.doCallElevator(i,
+								floorname);
+			return true;
+
+		} else if (this.mode == ElevatorMode.Maintenance) {
+			if (forMaintenance) {
+				sendMeassageFromAllFloors("Elevator Already in Mantinance Mode");
+			}
+			return false;
+		} else if (this.mode == ElevatorMode.Transit) {
+			if (forMaintenance) {
+				this.pendingMantinance = true;
+				sendMeassageFromAllFloors("Mantinance Mode Request Queued");
+			} else {
+
+			}
+			return true;
 		} else {
-			this.floorSpool.add(i);
+			return false;
 		}
+	}
 
-		if (this.mode != ElevatorMode.Available) {
-			// call elevator now
-			Set<EntityElevator> allEntities = new HashSet<EntityElevator>();
-			EntityElevator centerElevator = null;
-			boolean first = true;
-			for (int iter = 0; iter < this.boundElevatorBlocks.size(); iter++) {
-				XZCoords pos = boundElevatorBlocks.get(iter);
+	private void sendMeassageFromAllFloors(String string) {
+		for (ChunkCoordinates marker : this.boundMarkerBlocks) {
+			if (!this.worldObj.isRemote) MinecraftServer.getServer().getConfigurationManager().sendToAllNear(	marker.posX,
+																												marker.posY,
+																												marker.posZ,
+																												4,
+																												this.worldObj.provider.dimensionId,
+																												new Packet3Chat(new ChatMessageComponent().addText(string)));
+		}
+		if (!this.worldObj.isRemote) MinecraftServer.getServer().getConfigurationManager().sendToAllNear(	this.xCoord,
+																											this.yCoord,
+																											this.zCoord,
+																											4,
+																											this.worldObj.provider.dimensionId,
+																											new Packet3Chat(new ChatMessageComponent().addText(string)));
 
+	}
+
+	private void doCallElevator(int i, String floorname) {
+		// call elevator now
+		Set<EntityElevator> allEntities = new HashSet<EntityElevator>();
+		EntityElevator centerElevator = null;
+		List<XZCoords> invalidElevators = new ArrayList<XZCoords>();
+		boolean first = true;
+		this.mode = ElevatorMode.Transit;
+		for (XZCoords pos : this.boundElevatorBlocks) {
+			if (validElevatorBlock(	pos.x,
+									this.elevatorPos,
+									pos.z)) {
 				int metadata = worldObj.getBlockMetadata(	pos.x,
 															this.elevatorPos,
 															pos.z);
-				boolean isCenter = first; // ||
-				first = false; // isClient;
-				EntityElevator curElevator = new EntityElevator(worldObj, pos.x, this.elevatorPos, pos.z);
 
+				EntityElevator curElevator = new EntityElevator(worldObj, pos.x, this.elevatorPos, pos.z);
+				if (first) centerElevator = curElevator;
 				curElevator.setProperties(	i,
 											floorname,
-											isCenter,
+											first,
 											FMLCommonHandler.instance().getSide() == Side.CLIENT,
 											metadata,
 											new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord),
-											false);
+											false,
+											centerElevator);
+				if (first) first = false; // isClient;
 				worldObj.spawnEntityInWorld(curElevator);
+			} else {
+				invalidElevators.add(pos);
 			}
-
 		}
+		for (XZCoords pos : invalidElevators) {
+			this.boundElevatorBlocks.removeAll(Collections.singleton(pos));
+		}
+
+	}
+
+	private boolean validElevatorBlock(int x, int y, int z) {
+		TileEntity tile = this.worldObj.getBlockTileEntity(	x,
+															y,
+															z);
+		if (tile != null && tile instanceof TileEntityElevator) {
+			if (((TileEntityElevator) tile).getParentElevatorComputer() != null) {
+				ChunkCoordinates thisCoords = new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord);
+				return ((TileEntityElevator) tile).getParentElevatorComputer().equals(thisCoords);
+
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -344,6 +419,8 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 									tempSpool);
 		nbttagcompound.setInteger(	"Mode",
 									mode.ordinal());
+		nbttagcompound.setInteger(	"ElevPos",
+									this.elevatorPos);
 		if (curTechnicianName != null && !curTechnicianName.isEmpty()) nbttagcompound.setString("CurTechnicianName",
 																								curTechnicianName);
 
@@ -371,9 +448,13 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 		}
 
 		this.mode = ElevatorMode.values()[nbttagcompound.getInteger("Mode")];
+
+		this.elevatorPos = nbttagcompound.getInteger("ElevPos");
+
 		this.curTechnicianName = nbttagcompound.getString("CurTechnicianName");
 
 		elevatorName = nbttagcompound.getString("ElevatorName");
+
 	}
 
 	public String getElevatorName() {
@@ -413,5 +494,44 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 			}
 		}
 
+	}
+
+	public void elevatorArrived(int dest, boolean center) {
+		this.elevatorPos = dest;
+		this.floorSpool.removeAll(Collections.singleton(dest));
+		for (XZCoords pos : this.boundElevatorBlocks) {
+			TileEntity tile = this.worldObj.getBlockTileEntity(	pos.x,
+																this.elevatorPos,
+																pos.z);
+			if (tile != null && tile instanceof TileEntityElevator) {
+				TileEntityElevator elevator = (TileEntityElevator) tile;
+				elevator.setParentElevatorComputer(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord));
+			}
+		}
+
+		if (this.pendingMantinance) {
+			if (this.elevatorPos == (this.yCoord + 1)) {
+				this.pendingMantinance = false;
+				this.mode = ElevatorMode.Maintenance;
+
+			} else {
+				this.floorSpool.clear();
+				doCallElevator(	this.yCoord + 1,
+								"");
+			}
+		} else {
+			this.mode = ElevatorMode.Available;
+		}
+
+	}
+
+	public int getElevatorPos() {
+		// TODO Auto-generated method stub
+		return this.elevatorPos;
+	}
+
+	public ElevatorMode getElevatorMode() {
+		// TODO Auto-generated method stub
+		return this.mode;
 	}
 }

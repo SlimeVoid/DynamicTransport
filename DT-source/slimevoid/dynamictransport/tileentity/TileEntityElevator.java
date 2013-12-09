@@ -64,6 +64,22 @@ public class TileEntityElevator extends TileEntityTransportBase {
 		return false;
 	}
 
+	public void setParentElevatorComputer(ChunkCoordinates ComputerLocation) {
+		TileEntityElevatorComputer comTile = ParentElevatorComputer == null ? null : (TileEntityElevatorComputer) this.worldObj.getBlockTileEntity(	this.ParentElevatorComputer.posX,
+																																					this.ParentElevatorComputer.posY,
+																																					this.ParentElevatorComputer.posZ);
+		if (comTile == null) this.ParentElevatorComputer = null;
+		if (this.worldObj.getBlockId(	ComputerLocation.posX,
+										ComputerLocation.posY,
+										ComputerLocation.posZ) == ConfigurationLib.blockTransportBase.blockID
+			&& this.worldObj.getBlockMetadata(	ComputerLocation.posX,
+												ComputerLocation.posY,
+												ComputerLocation.posZ) == BlockLib.BLOCK_ELEVATOR_COMPUTER_ID) {
+			this.ParentElevatorComputer = ComputerLocation;
+		}
+
+	}
+
 	public void setParentElevatorComputer(ChunkCoordinates ComputerLocation, EntityPlayer entityplayer) {
 		TileEntityElevatorComputer comTile = ParentElevatorComputer == null ? null : (TileEntityElevatorComputer) this.worldObj.getBlockTileEntity(	this.ParentElevatorComputer.posX,
 																																					this.ParentElevatorComputer.posY,

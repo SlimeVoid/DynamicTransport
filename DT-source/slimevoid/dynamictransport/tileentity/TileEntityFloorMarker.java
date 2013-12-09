@@ -57,15 +57,37 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 					if (this.floorYLvl == -1) {
 						this.floorYLvl = this.yCoord - 2;
 					}
-					if (!this.worldObj.isRemote) MinecraftServer.getServer().getConfigurationManager().sendToAllNear(	this.xCoord,
-																														this.yCoord,
-																														this.zCoord,
-																														4,
-																														this.worldObj.provider.dimensionId,
-																														new Packet3Chat(new ChatMessageComponent().addText("Elevator Called to Floor "
-																																											+ this.floorYLvl)));
-					comTile.CallElevator(	floorYLvl,
-											this.floorName);
+
+					if (comTile.CallElevator(	floorYLvl,
+												this.floorName)) {
+						if (!this.worldObj.isRemote) {
+							MinecraftServer.getServer().getConfigurationManager().sendToAllNear(this.xCoord,
+																								this.yCoord,
+																								this.zCoord,
+																								4,
+																								this.worldObj.provider.dimensionId,
+																								new Packet3Chat(new ChatMessageComponent().addText("Elevator Called to Floor "
+																																					+ this.floorYLvl)));
+						}
+					} else {
+						if (!this.worldObj.isRemote) {
+							if (comTile.getElevatorPos() == this.floorYLvl) {
+								MinecraftServer.getServer().getConfigurationManager().sendToAllNear(this.xCoord,
+																									this.yCoord,
+																									this.zCoord,
+																									4,
+																									this.worldObj.provider.dimensionId,
+																									new Packet3Chat(new ChatMessageComponent().addText("Elevator Already Here")));
+							} else if (comTile.getElevatorMode() == TileEntityElevatorComputer.ElevatorMode.Maintenance) {
+								MinecraftServer.getServer().getConfigurationManager().sendToAllNear(this.xCoord,
+																									this.yCoord,
+																									this.zCoord,
+																									4,
+																									this.worldObj.provider.dimensionId,
+																									new Packet3Chat(new ChatMessageComponent().addText("Elevator in Mantinance Mode please Try Again Later")));
+							}
+						}
+					}
 				}
 			}
 		} else if (!flag) {
