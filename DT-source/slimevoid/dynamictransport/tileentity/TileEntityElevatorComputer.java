@@ -3,7 +3,9 @@ package slimevoid.dynamictransport.tileentity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -30,14 +32,14 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 	}
 
 	// Persistent Data
-	private String					elevatorName;
-	private List<ChunkCoordinates>	boundMarkerBlocks	= new ArrayList<ChunkCoordinates>();
-	private List<XZCoords>			boundElevatorBlocks	= new ArrayList<XZCoords>();
-	private List<Integer>			floorSpool			= new ArrayList<Integer>();
-	private ElevatorMode			mode				= ElevatorMode.Available;
-	private String					curTechnicianName;
-	private int						elevatorPos;
-	public boolean					pendingMantinance	= false;
+	private String							elevatorName;
+	private List<ChunkCoordinates>			boundMarkerBlocks	= new ArrayList<ChunkCoordinates>();
+	private List<XZCoords>					boundElevatorBlocks	= new ArrayList<XZCoords>();
+	private LinkedHashMap<Integer, String>	floorSpool			= new LinkedHashMap<Integer, String>();
+	private ElevatorMode					mode				= ElevatorMode.Available;
+	private String							curTechnicianName;
+	private int								elevatorPos;
+	public boolean							pendingMantinance	= false;
 
 	public boolean addElevator(ChunkCoordinates elevator, EntityPlayer entityplayer) {
 		if (this.mode == ElevatorMode.Maintenance
@@ -269,13 +271,13 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 											blockBase);
 	}
 
-	public boolean CallElevator(int i, String Floorname) {
+	public String CallElevator(int i, String Floorname) {
 		return this.CallElevator(	i,
 									false,
 									Floorname);
 	}
 
-	private boolean CallElevator(int i, boolean forMaintenance, String floorname) {
+	private String CallElevator(int i, boolean forMaintenance, String floorname) {
 
 		if (this.mode == ElevatorMode.Available) {
 			if (forMaintenance) {
@@ -285,31 +287,38 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
 			} else {
 				if (i != this.elevatorPos) {
-					this.floorSpool.add(i);
+					this.floorSpool.put(i,
+										floorname);
 				} else {
-					return false;
+					return "Elevator Already At Floor "
+							+ (floorname == null || floorname.trim().isEmpty() ? i : floorname);
 				}
 			}
 			this.doCallElevator(i,
 								floorname);
-			return true;
+			return "Elevator Called to Floor "
+					+ (floorname == null || floorname.trim().isEmpty() ? i : floorname);
 
 		} else if (this.mode == ElevatorMode.Maintenance) {
 			if (forMaintenance) {
 				sendMeassageFromAllFloors("Elevator Already in Mantinance Mode");
 			}
-			return false;
+			return "Elevator in Mantinance Mode please Try Again Later";
 		} else if (this.mode == ElevatorMode.Transit) {
 			if (forMaintenance) {
 				this.pendingMantinance = true;
 				sendMeassageFromAllFloors("Mantinance Mode Request Queued");
+				return "Mantinance Mode Request Queued";
 			} else {
-
+				this.floorSpool.put(i,
+									floorname);
+				return "Elevator Called to Floor "
+						+ (floorname == null || floorname.trim().isEmpty() ? i : floorname);
 			}
-			return true;
-		} else {
-			return false;
+
 		}
+		return "WTF you should never see me";
+
 	}
 
 	private void sendMeassageFromAllFloors(String string) {
@@ -399,10 +408,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 			BoundElevatorBlocksX[i] = boundElevatorBlocks.get(i).x;
 			BoundElevatorBlocksZ[i] = boundElevatorBlocks.get(i).z;
 		}
-		int tempSpool[] = new int[floorSpool.size()];
-		for (int i = 0; i < floorSpool.size(); i++) {
-			tempSpool[i] = floorSpool.get(i);
-		}
+
 		if (elevatorName != null && !elevatorName.isEmpty()) nbttagcompound.setString(	"ElevatorName",
 																						elevatorName);
 		nbttagcompound.setIntArray(	"BoundMarkerBlocksX",
@@ -415,8 +421,18 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 									BoundElevatorBlocksX);
 		nbttagcompound.setIntArray(	"BoundElevatorBlocksZ",
 									BoundElevatorBlocksZ);
+
+		int index = 0;
+		int tempSpool[] = new int[floorSpool.size()];
+		for (Entry<Integer, String> floorName : this.floorSpool.entrySet()) {
+			if (floorName.getValue() != null && !floorName.getValue().isEmpty()) nbttagcompound.setString(	"FloorSpoolNames_"
+																													+ index,
+																											floorName.getValue());
+			tempSpool[index] = floorName.getKey();
+		}
 		nbttagcompound.setIntArray(	"FloorSpool",
 									tempSpool);
+
 		nbttagcompound.setInteger(	"Mode",
 									mode.ordinal());
 		nbttagcompound.setInteger(	"ElevPos",
@@ -444,7 +460,8 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 			boundElevatorBlocks.add(new XZCoords(BoundElevatorBlocksX[i], BoundElevatorBlocksZ[i]));
 		}
 		for (int i = 0; i < tempSpool.length; i++) {
-			this.floorSpool.add(tempSpool[i]);
+			this.floorSpool.put(tempSpool[i],
+								nbttagcompound.getString("FloorSpoolNames_" + i));
 		}
 
 		this.mode = ElevatorMode.values()[nbttagcompound.getInteger("Mode")];
@@ -498,7 +515,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
 	public void elevatorArrived(int dest, boolean center) {
 		this.elevatorPos = dest;
-		this.floorSpool.removeAll(Collections.singleton(dest));
+		this.floorSpool.remove(dest);
 		for (XZCoords pos : this.boundElevatorBlocks) {
 			TileEntity tile = this.worldObj.getBlockTileEntity(	pos.x,
 																this.elevatorPos,
@@ -521,6 +538,11 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 			}
 		} else {
 			this.mode = ElevatorMode.Available;
+			if (!this.floorSpool.isEmpty()) {
+				Integer nextFloor = this.floorSpool.keySet().iterator().next();
+				doCallElevator(	nextFloor,
+								this.floorSpool.get(nextFloor));
+			}
 		}
 
 	}

@@ -6,11 +6,12 @@ import java.util.Set;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.packet.Packet3Chat;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
@@ -18,8 +19,10 @@ import net.minecraft.world.World;
 import slimevoid.dynamictransport.blocks.BlockTransportBase;
 import slimevoid.dynamictransport.core.lib.BlockLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
+import slimevoid.dynamictransport.network.packet.PacketEntityMotionUpdate;
 import slimevoid.dynamictransport.tileentity.TileEntityElevator;
 import slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
+import cpw.mods.fml.common.network.PacketDispatcher;
 
 public class EntityElevator extends Entity {
 
@@ -28,14 +31,11 @@ public class EntityElevator extends Entity {
 	private byte				stillcount				= 0;
 	private byte				waitToAccelerate		= 0;
 	public int					dest;
-	private float				destY;
-	boolean						unUpdated;
 
 	private float				elevatorSpeed			= 0.0F;
 	private static final float	elevatorAccel			= 0.01F;
 	private static final float	maxElevatorSpeed		= 0.4F;
 	private static final float	minElevatorMovingSpeed	= 0.016F;
-	public Set<Entity>			mountedEntities;
 
 	private String				elevatorName			= "";
 	private String				destFloorName			= "";
@@ -54,9 +54,9 @@ public class EntityElevator extends Entity {
 
 	private boolean				isClient;
 
-	private boolean				propertiesSet			= false;
-
 	private boolean				slowingDown				= false;
+	private double				tmpControlerZ;
+	private double				tmpControlerX;
 
 	public EntityElevator(World world) {
 		super(world);
@@ -71,13 +71,10 @@ public class EntityElevator extends Entity {
 		motionY = 0.0D;
 		motionZ = 0.0D;
 
-		unUpdated = true;
-		mountedEntities = new HashSet<Entity>();
 		riddenByEntity = null;
 
 		waitToAccelerate = 100;
 		controlingElevator = this;
-		ridingEntity = null;
 		conjoinedelevators.add(this);
 
 		this.dataWatcher.addObject(	17,
@@ -94,7 +91,6 @@ public class EntityElevator extends Entity {
 					prevPosZ);
 
 		dest = (int) j;
-		destY = (float) j + 0.5F;
 
 		isClient = true;
 		iscontrolerElevator = false;
@@ -106,12 +102,8 @@ public class EntityElevator extends Entity {
 	}
 
 	public void setProperties(int destination, String destinationName, boolean isCenter, boolean local, int meta, ChunkCoordinates computer, boolean haltable, EntityElevator elevatorCenter) {
-		if (propertiesSet) {
-			return;
-		}
 
 		dest = destination;
-		destY = dest + 0.5F;
 		destFloorName = destinationName;
 
 		this.computerPos = computer;
@@ -121,8 +113,6 @@ public class EntityElevator extends Entity {
 		iscontrolerElevator = isCenter;
 
 		waitToAccelerate = 0;
-
-		propertiesSet = true;
 
 		this.dataWatcher.updateObject(	17,
 										meta);
@@ -171,19 +161,23 @@ public class EntityElevator extends Entity {
 		}
 	}
 
-	public void refreshRiders() {
-		if (!iscontrolerElevator) {
+	@Override
+	public void mountEntity(Entity entity) {
+
+	}
+
+	@Override
+	public void updateRiderPosition() {
+		if (this.isDead || !iscontrolerElevator) {
 			return;
 		}
-		mountedEntities.clear();
-
 		Iterator<EntityElevator> elevators = conjoinedelevators.iterator();
 		while (elevators.hasNext()) {
 			EntityElevator curElevator = elevators.next();
 			AxisAlignedBB boundBox = curElevator.getBoundingBox().expand(	0,
 																			2.0,
 																			0);
-			boundBox.minY += 1.5;
+			boundBox.minY += .5;
 
 			Set<Entity> potentialEntities = new HashSet<Entity>();
 			potentialEntities.addAll(worldObj.getEntitiesWithinAABBExcludingEntity(	this,
@@ -191,29 +185,15 @@ public class EntityElevator extends Entity {
 			Iterator<Entity> iter = potentialEntities.iterator();
 			while (iter.hasNext()) {
 				Entity entity = iter.next();
+				Set<Entity> checkedEntities = new HashSet<Entity>();
 				if (entity != null && !(entity instanceof EntityElevator)
-					&& !mountedEntities.contains(entity)) {
-					if (entity.ridingEntity == null) {
-						mountedEntities.add(entity);
+					&& !checkedEntities.contains(entity)) {
+					if (entity.ridingEntity == null
+						|| entity.ridingEntity == this) {
+						updateRider(entity);
+						checkedEntities.add(entity);
 					}
 				}
-			}
-		}
-	}
-
-	@Override
-	public void mountEntity(Entity entity) {
-	}
-
-	@Override
-	public void updateRiderPosition() {
-		if (this.isDead) {
-			return;
-		}
-		if (!worldObj.isRemote && !mountedEntities.isEmpty()) {
-			Iterator<Entity> iter = mountedEntities.iterator();
-			while (iter.hasNext()) {
-				updateRider(iter.next());
 			}
 		}
 	}
@@ -230,21 +210,18 @@ public class EntityElevator extends Entity {
 		if (worldObj.isRemote) {
 			return;
 		}
-		if (this.motionY > this.maxElevatorSpeed) {
-			if (rider instanceof EntityLiving) {
-				rider.posY = controlingElevator.posY + getMountedYOffset()
-								+ rider.yOffset;
+
+		if (rider.canBePushed() && !(rider instanceof EntityElevator)) {
+
+			if (this.motionY > 0) {
 				rider.motionY = this.motionY;
-				rider.onGround = true;
-				rider.fallDistance = 0.0F;
-			} else if (!(rider instanceof EntityElevator)) {
-				rider.posY = controlingElevator.posY + getMountedYOffset()
-								+ rider.yOffset;
-				rider.motionY = this.motionY;
-				rider.onGround = true;
+				rider.posY = this.posY + 1.25 + rider.getYOffset();
 			}
 
+			rider.onGround = true;
+			rider.fallDistance = 0;
 		}
+
 	}
 
 	@Override
@@ -271,16 +248,16 @@ public class EntityElevator extends Entity {
 		int i = MathHelper.floor_double(posX);
 		int j = MathHelper.floor_double(posY);
 		int k = MathHelper.floor_double(posZ);
-		tickcount++;
-		if (tickcount > 45) {
+
+		if (this.ticksExisted > 45) {
 			startStops--;
 			if (startStops < 0) {
 				startStops = 0;
 			}
-			tickcount = 0;
+			this.ticksExisted = 0;
 		}
 
-		if (this.tickcount == 1) {
+		if (this.ticksExisted == 1) {
 			if (worldObj.getBlockId(i,
 									j,
 									k) == blockID) {
@@ -325,7 +302,6 @@ public class EntityElevator extends Entity {
 														blockID);
 
 			}
-			unUpdated = false;
 		}
 
 		// Place transient block
@@ -369,7 +345,7 @@ public class EntityElevator extends Entity {
 		}
 
 		float range = 0.0F;
-
+		float destY = dest + 0.5F;
 		if (emerHalt) {
 			elevatorSpeed = 0;
 		} else if (waitToAccelerate < 15) {
@@ -416,12 +392,9 @@ public class EntityElevator extends Entity {
 			atDestination = true;
 		}
 
-		refreshRiders();
-
 		// if not there yet, update speed and location
 		if (!atDestination) {
 			motionY = (destY > posY) ? elevatorSpeed : -elevatorSpeed;
-			// updateAllConjoined();
 		} else if (atDestination) {
 			killAllConjoined();
 			return;
@@ -429,10 +402,8 @@ public class EntityElevator extends Entity {
 		this.setPosition(	this.posX,
 							this.posY + this.motionY,
 							this.posZ);
-		if (!worldObj.isRemote) {
-			updateRiderPosition();
-		}
 
+		updateRiderPosition();
 		if (!emerHalt) {
 			if (MathHelper.abs((float) motionY) < minElevatorMovingSpeed
 				&& stillcount++ > 10) {
@@ -455,6 +426,7 @@ public class EntityElevator extends Entity {
 				comTile.elevatorArrived(MathHelper.floor_double(this.posY),
 										iscontrolerElevator);
 			}
+
 		}
 	}
 
@@ -486,21 +458,44 @@ public class EntityElevator extends Entity {
 			dropItem(	blockID,
 						1);
 		}
+		AxisAlignedBB boundBox = this.getBoundingBox().expand(	0,
+																2.0,
+																0);
+		// boundBox.minY += 1;
+
+		Set<Entity> potentialEntities = new HashSet<Entity>();
+		potentialEntities.addAll(worldObj.getEntitiesWithinAABBExcludingEntity(	this,
+																				boundBox));
+		Iterator<Entity> iter = potentialEntities.iterator();
+		while (iter.hasNext()) {
+			Entity entity = iter.next();
+			Set<Entity> checkedEntities = new HashSet<Entity>();
+			if (entity != null && !(entity instanceof EntityElevator)
+				&& !checkedEntities.contains(entity)) {
+				if (entity.ridingEntity == null) {
+					entity.moveEntity(	0,
+										(Math.floor(controlingElevator.posY)
+											+ entity.yOffset + 1)
+												- entity.posY,
+										0);
+					checkedEntities.add(entity);
+				}
+			}
+		}
 
 		if (!worldObj.isRemote) {
-			if (this.destFloorName != null && this.destFloorName.trim() != ""
-				&& iscontrolerElevator) {
+			if (iscontrolerElevator) {
 
-				Iterator<Entity> iter = mountedEntities.iterator();
-				while (iter.hasNext()) {
-					Entity curentity = iter.next();
-					curentity.posY += 0.5;
-					if (curentity instanceof EntityPlayer) {
-						EntityPlayer player = (EntityPlayer) curentity;
-						player.addChatMessage("Elevator Arrived at" + " "
-												+ destFloorName);
-					}
-				}
+				MinecraftServer.getServer().getConfigurationManager().sendToAllNear(this.posX,
+																					this.posY,
+																					this.posZ,
+																					4,
+																					this.worldObj.provider.dimensionId,
+																					new Packet3Chat(new ChatMessageComponent().addText("Elevator Arrived at"
+																																		+ " "
+																																		+ (destFloorName == null
+																																			|| destFloorName.trim().isEmpty() ? this.dest : this.destFloorName))));
+
 			}
 
 			setDead();
@@ -527,6 +522,8 @@ public class EntityElevator extends Entity {
 	protected void writeEntityToNBT(NBTTagCompound nbttagcompound) {
 		nbttagcompound.setInteger(	"destY",
 									dest);
+		nbttagcompound.setString(	"destName",
+									this.destFloorName);
 		nbttagcompound.setBoolean(	"emerHalt",
 									emerHalt);
 		nbttagcompound.setBoolean(	"isClient",
@@ -535,8 +532,16 @@ public class EntityElevator extends Entity {
 									iscontrolerElevator);
 		nbttagcompound.setInteger(	"metadata",
 									dataWatcher.getWatchableObjectInt(17));
-
-		// props.writeToNBT(nbttagcompound);
+		nbttagcompound.setDouble(	"controlerX",
+									this.controlingElevator.posX);
+		nbttagcompound.setDouble(	"controlerZ",
+									this.controlingElevator.posZ);
+		nbttagcompound.setInteger(	"ComputerX",
+									this.computerPos.posX);
+		nbttagcompound.setInteger(	"ComputerY",
+									this.computerPos.posY);
+		nbttagcompound.setInteger(	"ComputerZ",
+									this.computerPos.posZ);
 
 	}
 
@@ -555,12 +560,14 @@ public class EntityElevator extends Entity {
 		if (!conjoinedelevators.contains(this)) {
 			conjoinedelevators.add(this);
 		}
-		destY = dest + 0.5F;
 		setPosition(posX,
 					posY,
 					posZ);
 
-		// props.readFromNBT(nbttagcompound);
+		this.tmpControlerX = nbttagcompound.getDouble("controlerX");
+		this.tmpControlerZ = nbttagcompound.getDouble("controlerZ");
+
+		this.computerPos = new ChunkCoordinates(nbttagcompound.getInteger("ComputerX"), nbttagcompound.getInteger("ComputerY"), nbttagcompound.getInteger("ComputerZ"));
 
 	}
 
@@ -602,17 +609,26 @@ public class EntityElevator extends Entity {
 		return (TileEntityElevatorComputer) tile;
 	}
 
-	public void applyEntityCollision(Entity newEntity) {
-		if (newEntity.riddenByEntity != this && newEntity.ridingEntity != this) {
+	public void applyEntityCollision(Entity par1Entity) {
+		if (par1Entity.canBePushed() && !(par1Entity instanceof EntityElevator)) {
 
-			newEntity.posY = controlingElevator.posY + getMountedYOffset()
-								+ (newEntity.height / 2);
+			if (this.motionY > 0) {
+				par1Entity.motionY = Math.max(	par1Entity.motionY,
+												0);
+				par1Entity.addVelocity(	0,
+										this.motionY,
+										0);
+				PacketEntityMotionUpdate packet = new PacketEntityMotionUpdate(par1Entity.motionY, par1Entity.entityId);
+				PacketDispatcher.sendPacketToAllAround(	par1Entity.posX,
+														par1Entity.posY,
+														par1Entity.posZ,
+														400,
+														par1Entity.worldObj.getWorldInfo().getVanillaDimension(),
+														packet.getPacket());
+			}
+			par1Entity.onGround = true;
+			par1Entity.fallDistance = 0;
 
-			newEntity.motionY = this.motionY + 1;
-			newEntity.fallDistance = 0;
-
-			newEntity.isCollidedVertically = true;
-			newEntity.isCollidedHorizontally = true;
 		}
 	}
 }

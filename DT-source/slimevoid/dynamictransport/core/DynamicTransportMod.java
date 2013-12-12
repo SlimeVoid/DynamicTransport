@@ -1,5 +1,6 @@
 package slimevoid.dynamictransport.core;
 
+import slimevoid.dynamictransport.client.network.ClientPacketHandler;
 import slimevoid.dynamictransport.core.lib.CoreLib;
 import slimevoid.dynamictransport.proxy.CommonProxy;
 import slimevoidlib.ICommonProxy;
@@ -11,46 +12,45 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
+import cpw.mods.fml.common.network.NetworkMod.SidedPacketHandler;
 
 @Mod(
-        modid = CoreLib.MOD_ID,
-        name = CoreLib.MOD_NAME,
-        version = CoreLib.MOD_VERSION,
-        dependencies = CoreLib.MOD_DEPENDENCIES)
-@NetworkMod(
-        clientSideRequired = true,
-        serverSideRequired = false,
-        //TODO: Handle Packets
-        /*clientPacketHandlerSpec = @SidedPacketHandler(
-                channels = { CoreLib.MOD_CHANNEL },
-                packetHandler = ClientPacketHandler.class),
-        serverPacketHandlerSpec = @SidedPacketHandler(
-                channels = { CoreLib.MOD_CHANNEL },
-                packetHandler = CommonPacketHandler.class),*/
-        connectionHandler = CommonProxy.class
-)
+		modid = CoreLib.MOD_ID,
+		name = CoreLib.MOD_NAME,
+		version = CoreLib.MOD_VERSION,
+		dependencies = CoreLib.MOD_DEPENDENCIES)
+@NetworkMod(clientSideRequired = true, serverSideRequired = false,
+
+clientPacketHandlerSpec = @SidedPacketHandler(
+		channels = { CoreLib.MOD_CHANNEL },
+		packetHandler = ClientPacketHandler.class),
+/*
+ * serverPacketHandlerSpec = @SidedPacketHandler( channels = {
+ * CoreLib.MOD_CHANNEL }, packetHandler = CommonPacketHandler.class),
+ */
+connectionHandler = CommonProxy.class)
 public class DynamicTransportMod {
-    @SidedProxy(
-            clientSide = CoreLib.CLIENT_PROXY,
-            serverSide = CoreLib.COMMON_PROXY)
-    public static ICommonProxy proxy;
-    
-    @Instance(CoreLib.MOD_ID)
-    public static DynamicTransportMod instance;
+	@SidedProxy(
+			clientSide = CoreLib.CLIENT_PROXY,
+			serverSide = CoreLib.COMMON_PROXY)
+	public static ICommonProxy			proxy;
 
-    @EventHandler
-    public void CollaborativePreInit(FMLPreInitializationEvent event) {
-        DynamicTransportMod.proxy.registerConfigurationProperties(event.getSuggestedConfigurationFile());
+	@Instance(CoreLib.MOD_ID)
+	public static DynamicTransportMod	instance;
 
-        DynamicTransportMod.proxy.preInit();
-    }
+	@EventHandler
+	public void CollaborativePreInit(FMLPreInitializationEvent event) {
+		DynamicTransportMod.proxy.registerConfigurationProperties(event.getSuggestedConfigurationFile());
 
-    @EventHandler
-    public void CollaborativeInit(FMLInitializationEvent event) {
-    }
+		DynamicTransportMod.proxy.preInit();
+	}
 
-    @EventHandler
-    public void CollaborativePostInit(FMLPostInitializationEvent event) {
-        DTInit.initialize();
-    }
+	@EventHandler
+	public void CollaborativeInit(FMLInitializationEvent event) {
+	}
+
+	@EventHandler
+	public void CollaborativePostInit(FMLPostInitializationEvent event) {
+		DTInit.initialize();
+	}
 }

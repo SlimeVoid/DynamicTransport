@@ -9,8 +9,10 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraftforge.common.ForgeDirection;
+import slimevoid.dynamictransport.core.DynamicTransportMod;
 import slimevoid.dynamictransport.core.lib.BlockLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
+import slimevoid.dynamictransport.core.lib.GuiLib;
 import slimevoidlib.blocks.BlockBase;
 
 public class TileEntityFloorMarker extends TileEntityTransportBase {
@@ -58,36 +60,17 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 						this.floorYLvl = this.yCoord - 2;
 					}
 
-					if (comTile.CallElevator(	floorYLvl,
-												this.floorName)) {
-						if (!this.worldObj.isRemote) {
-							MinecraftServer.getServer().getConfigurationManager().sendToAllNear(this.xCoord,
-																								this.yCoord,
-																								this.zCoord,
-																								4,
-																								this.worldObj.provider.dimensionId,
-																								new Packet3Chat(new ChatMessageComponent().addText("Elevator Called to Floor "
-																																					+ this.floorYLvl)));
-						}
-					} else {
-						if (!this.worldObj.isRemote) {
-							if (comTile.getElevatorPos() == this.floorYLvl) {
-								MinecraftServer.getServer().getConfigurationManager().sendToAllNear(this.xCoord,
-																									this.yCoord,
-																									this.zCoord,
-																									4,
-																									this.worldObj.provider.dimensionId,
-																									new Packet3Chat(new ChatMessageComponent().addText("Elevator Already Here")));
-							} else if (comTile.getElevatorMode() == TileEntityElevatorComputer.ElevatorMode.Maintenance) {
-								MinecraftServer.getServer().getConfigurationManager().sendToAllNear(this.xCoord,
-																									this.yCoord,
-																									this.zCoord,
-																									4,
-																									this.worldObj.provider.dimensionId,
-																									new Packet3Chat(new ChatMessageComponent().addText("Elevator in Mantinance Mode please Try Again Later")));
-							}
-						}
+					String msg = comTile.CallElevator(	floorYLvl,
+														this.floorName);
+					if (!this.worldObj.isRemote) {
+						MinecraftServer.getServer().getConfigurationManager().sendToAllNear(this.xCoord,
+																							this.yCoord,
+																							this.zCoord,
+																							4,
+																							this.worldObj.provider.dimensionId,
+																							new Packet3Chat(new ChatMessageComponent().addText(msg)));
 					}
+
 				}
 			}
 		} else if (!flag) {
@@ -104,8 +87,22 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 			}
 			NBTTagCompound tags = entityplayer.getHeldItem().getTagCompound();
 			if (tags.hasKey("ComputerX")) {
-				setParentComputer(	new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ")),
-									entityplayer);
+				if (entityplayer.isSneaking()) {
+					if (this.worldObj.isRemote) {
+						return true;
+					} else {
+						entityplayer.openGui(	DynamicTransportMod.instance,
+												GuiLib.GUIID_FLOOR_MARKER,
+												this.worldObj,
+												this.xCoord,
+												this.yCoord,
+												this.zCoord);
+						return true;
+					}
+				} else {
+					setParentComputer(	new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ")),
+										entityplayer);
+				}
 			}
 		}
 		return false;
