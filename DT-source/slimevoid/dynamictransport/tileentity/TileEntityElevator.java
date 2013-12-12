@@ -1,5 +1,6 @@
 package slimevoid.dynamictransport.tileentity;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -50,15 +51,20 @@ public class TileEntityElevator extends TileEntityTransportBase {
 
 	@Override
 	public boolean onBlockActivated(EntityPlayer entityplayer) {
-		if (entityplayer.getHeldItem() != null
-			&& entityplayer.getHeldItem().itemID == ConfigurationLib.itemElevatorTool.itemID) {
+		ItemStack heldItem = entityplayer.getHeldItem();
+		if (heldItem != null
+			&& heldItem.itemID == ConfigurationLib.itemElevatorTool.itemID) {
 			if (this.worldObj.isRemote) {
 				return true;
 			}
-			NBTTagCompound tags = entityplayer.getHeldItem().getTagCompound();
-			if (tags.hasKey("ComputerX")) {
-				setParentElevatorComputer(	new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ")),
-											entityplayer);
+			if (heldItem.hasTagCompound() && entityplayer.getHeldItem().getTagCompound() != null) {
+				NBTTagCompound tags = entityplayer.getHeldItem().getTagCompound();
+				if (tags.hasKey("ComputerX")) {
+					setParentElevatorComputer(	new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ")),
+												entityplayer);
+				}
+			} else {
+				FMLCommonHandler.instance().getFMLLogger().warning("There was an error processing this Transport Component at [" + this.xCoord + ", " + this.yCoord + ", " + this.zCoord + "]");
 			}
 		}
 		return false;
