@@ -15,7 +15,7 @@ public class PacketEntityMotionUpdateExecutor implements IPacketExecutor {
 			PacketEntityMotionUpdate packetEntityMotionUpdate = (PacketEntityMotionUpdate) packet;
 			if (packet.targetExists(world)) {
 				Entity target = packetEntityMotionUpdate.getEntity(world);
-				target.posY = packetEntityMotionUpdate.motionY;
+				target.motionY = packetEntityMotionUpdate.motionY;
 			}
 		}
 	}

@@ -174,11 +174,9 @@ public class EntityElevator extends Entity {
 		Iterator<EntityElevator> elevators = conjoinedelevators.iterator();
 		while (elevators.hasNext()) {
 			EntityElevator curElevator = elevators.next();
-			AxisAlignedBB boundBox = curElevator.getBoundingBox().expand(	0,
-																			2.0,
-																			0);
+			AxisAlignedBB boundBox = curElevator.getBoundingBox();
 			boundBox.minY += .5;
-
+			boundBox.maxY += .2;
 			Set<Entity> potentialEntities = new HashSet<Entity>();
 			potentialEntities.addAll(worldObj.getEntitiesWithinAABBExcludingEntity(	this,
 																					boundBox));
@@ -214,8 +212,17 @@ public class EntityElevator extends Entity {
 		if (rider.canBePushed() && !(rider instanceof EntityElevator)) {
 
 			if (this.motionY > 0) {
-				rider.motionY = this.motionY;
-				rider.posY = this.posY + 1.25 + rider.getYOffset();
+				rider.motionY = Math.max(	Math.max(	rider.motionY,
+														this.motionY),
+											0);
+				PacketEntityMotionUpdate packet = new PacketEntityMotionUpdate(rider.motionY, rider.entityId);
+				PacketDispatcher.sendPacketToAllAround(	rider.posX,
+														rider.posY,
+														rider.posZ,
+														400,
+														rider.worldObj.getWorldInfo().getVanillaDimension(),
+														packet.getPacket());
+				rider.posY = this.posY + 1.2 + rider.getYOffset();
 			}
 
 			rider.onGround = true;
@@ -522,8 +529,8 @@ public class EntityElevator extends Entity {
 	protected void writeEntityToNBT(NBTTagCompound nbttagcompound) {
 		nbttagcompound.setInteger(	"destY",
 									dest);
-		nbttagcompound.setString(	"destName",
-									this.destFloorName);
+		if (this.destFloorName != null && !this.destFloorName.trim().isEmpty()) nbttagcompound.setString(	"destName",
+																											this.destFloorName);
 		nbttagcompound.setBoolean(	"emerHalt",
 									emerHalt);
 		nbttagcompound.setBoolean(	"isClient",
@@ -613,11 +620,9 @@ public class EntityElevator extends Entity {
 		if (par1Entity.canBePushed() && !(par1Entity instanceof EntityElevator)) {
 
 			if (this.motionY > 0) {
-				par1Entity.motionY = Math.max(	par1Entity.motionY,
+				par1Entity.motionY = Math.max(	Math.max(	par1Entity.motionY,
+															this.motionY + .1),
 												0);
-				par1Entity.addVelocity(	0,
-										this.motionY,
-										0);
 				PacketEntityMotionUpdate packet = new PacketEntityMotionUpdate(par1Entity.motionY, par1Entity.entityId);
 				PacketDispatcher.sendPacketToAllAround(	par1Entity.posX,
 														par1Entity.posY,

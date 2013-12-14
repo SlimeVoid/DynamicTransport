@@ -36,8 +36,7 @@ public class DTInit {
 											400,
 											1,
 											true);
-
+		DynamicTransportMod.proxy.registerEventHandlers();
 		DynamicTransportMod.proxy.registerRenderInformation();
 	}
-
 }
