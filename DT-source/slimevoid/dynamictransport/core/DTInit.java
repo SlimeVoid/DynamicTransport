@@ -36,6 +36,8 @@ public class DTInit {
 											400,
 											1,
 											true);
+
+		DynamicTransportMod.proxy.registerTickHandlers();
 		DynamicTransportMod.proxy.registerEventHandlers();
 		DynamicTransportMod.proxy.registerRenderInformation();
 	}

@@ -5,12 +5,15 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import slimevoid.dynamictransport.client.network.ClientPacketHandler;
 import slimevoid.dynamictransport.client.presentation.gui.GuiDynamicElevator;
+import slimevoid.dynamictransport.client.tickhandler.PlayerMotionTickHandler;
 import slimevoid.dynamictransport.core.PacketLib;
 import slimevoid.dynamictransport.core.lib.GuiLib;
 import slimevoid.dynamictransport.proxy.CommonProxy;
 import slimevoid.dynamictransport.tileentity.TileEntityElevator;
 import slimevoidlib.util.helpers.SlimevoidHelper;
 import cpw.mods.fml.client.registry.RenderingRegistry;
+import cpw.mods.fml.common.registry.TickRegistry;
+import cpw.mods.fml.relauncher.Side;
 
 public class ClientProxy extends CommonProxy {
 
@@ -40,6 +43,13 @@ public class ClientProxy extends CommonProxy {
 	public void registerRenderInformation() {
 		RenderingRegistry.registerEntityRenderingHandler(	slimevoid.dynamictransport.entities.EntityElevator.class,
 															new slimevoid.dynamictransport.client.render.RenderElevator());
+	}
+
+	@Override
+	public void registerTickHandlers() {
+		super.registerTickHandlers();
+		TickRegistry.registerTickHandler(	new PlayerMotionTickHandler(),
+											Side.CLIENT);
 	}
 
 }

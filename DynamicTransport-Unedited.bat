@@ -1,13 +1,14 @@
 @echo off
 
-set programdir="C:\Programming"
+set programdir="D:\Programing"
 set packagedir="%programdir%\Packages"
-set repodir="%programdir%\Repositories"
-set forgedir="%repodir%\MinecraftForge-1.6.2"
+set repodir="%programdir%\Minecraft"
+set forgedir="%repodir%\1.6.4"
+set github="%forgedir%\GitHub"
 set fmldir="%forgedir%\fml"
 set mcpdir="%forgedir%\mcp"
-set littleblocks="%repodir%\LittleBlocks-FML"
-set euryscore="%repodir%\EurysCore-FML"
+set littleblocks="%github%\DynamicTransport"
+set euryscore="%github%\SlimevoidLibrary"
 cd %mcpdir%
 
 if not exist %euryscore% GOTO :LBFAIL
@@ -15,6 +16,8 @@ if exist %littleblocks% GOTO :LITTLEBLOCKS
 GOTO :LBFAIL
 
 :LITTLEBLOCKS
+echo Little blocks
+pause
 if exist %mcpdir%\src GOTO :COPYSRC
 GOTO :LBFAIL
 
@@ -23,14 +26,18 @@ if not exist "%mcpdir%\src-work" GOTO :CREATESRC
 GOTO :LBFAIL
 
 :CREATESRC
+echo create
+pause
 mkdir "%mcpdir%\src-work"
 xcopy "%mcpdir%\src\*.*" "%mcpdir%\src-work\" /S
 if exist "%mcpdir%\src-work" GOTO :COPYLB
 GOTO :LBFAIL
 
 :COPYLB
+echo ready to copy
+pause
 xcopy "%euryscore%\SV-common\*.*" "%mcpdir%\src\minecraft\" /S
-xcopy "%littleblocks%\LB-source\*.*" "%mcpdir%\src\minecraft\" /S
+xcopy "%littleblocks%\DT-source\*.*" "%mcpdir%\src\minecraft\" /S
 pause
 call %mcpdir%\recompile.bat
 call %mcpdir%\reobfuscate.bat

@@ -135,7 +135,6 @@ public class CommonProxy implements ICommonProxy {
 
 	@Override
 	public void registerTickHandlers() {
-		// TODO Auto-generated method stub
 
 	}
 

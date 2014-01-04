@@ -6,6 +6,7 @@ import java.util.Set;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.server.MinecraftServer;
@@ -19,10 +20,8 @@ import net.minecraft.world.World;
 import slimevoid.dynamictransport.blocks.BlockTransportBase;
 import slimevoid.dynamictransport.core.lib.BlockLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
-import slimevoid.dynamictransport.network.packet.PacketEntityMotionUpdate;
 import slimevoid.dynamictransport.tileentity.TileEntityElevator;
 import slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
-import cpw.mods.fml.common.network.PacketDispatcher;
 
 public class EntityElevator extends Entity {
 
@@ -147,7 +146,7 @@ public class EntityElevator extends Entity {
 			elevatorSpeed = 0;
 		}
 
-		if (iscontrolerElevator) {
+		if (this.getIsControlerElevator()) {
 
 			Iterator<EntityElevator> iter = conjoinedelevators.iterator();
 			while (iter.hasNext()) {
@@ -168,7 +167,7 @@ public class EntityElevator extends Entity {
 
 	@Override
 	public void updateRiderPosition() {
-		if (this.isDead || !iscontrolerElevator) {
+		if (this.isDead || !getIsControlerElevator()) {
 			return;
 		}
 		Iterator<EntityElevator> elevators = conjoinedelevators.iterator();
@@ -185,6 +184,7 @@ public class EntityElevator extends Entity {
 				Entity entity = iter.next();
 				Set<Entity> checkedEntities = new HashSet<Entity>();
 				if (entity != null && !(entity instanceof EntityElevator)
+					&& !(entity instanceof EntityPlayer)
 					&& !checkedEntities.contains(entity)) {
 					if (entity.ridingEntity == null
 						|| entity.ridingEntity == this) {
@@ -209,20 +209,15 @@ public class EntityElevator extends Entity {
 			return;
 		}
 
-		if (rider.canBePushed() && !(rider instanceof EntityElevator)) {
+		if (rider.canBePushed() && !(rider instanceof EntityElevator)
+			&& !(rider instanceof EntityPlayer)) {
 
 			if (this.motionY > 0) {
 				rider.motionY = Math.max(	Math.max(	rider.motionY,
 														this.motionY),
 											0);
-				PacketEntityMotionUpdate packet = new PacketEntityMotionUpdate(rider.motionY, rider.entityId);
-				PacketDispatcher.sendPacketToAllAround(	rider.posX,
-														rider.posY,
-														rider.posZ,
-														400,
-														rider.worldObj.getWorldInfo().getVanillaDimension(),
-														packet.getPacket());
-				rider.posY = this.posY + 1.2 + rider.getYOffset();
+				rider.posY = this.posY + getMountedYOffset()
+								+ rider.getYOffset();
 			}
 
 			rider.onGround = true;
@@ -247,10 +242,7 @@ public class EntityElevator extends Entity {
 
 	@Override
 	public void onUpdate() {
-
-		if (worldObj.isRemote) {
-			return;
-		}
+		super.onUpdate();
 
 		int i = MathHelper.floor_double(posX);
 		int j = MathHelper.floor_double(posY);
@@ -264,7 +256,7 @@ public class EntityElevator extends Entity {
 			this.ticksExisted = 0;
 		}
 
-		if (this.ticksExisted == 1) {
+		if (this.ticksExisted == 1 && !worldObj.isRemote) {
 			if (worldObj.getBlockId(i,
 									j,
 									k) == blockID) {
@@ -312,7 +304,7 @@ public class EntityElevator extends Entity {
 		}
 
 		// Place transient block
-		if (!this.isDead && this.enableMobilePower) {
+		if (!worldObj.isRemote && !this.isDead && this.enableMobilePower) {
 			int curX = i;
 			int curY = j;
 			int curZ = k;
@@ -338,7 +330,7 @@ public class EntityElevator extends Entity {
 									2);
 			}
 		}
-		if (!iscontrolerElevator) {
+		if (!getIsControlerElevator()) {
 
 			if (controlingElevator != null && !controlingElevator.isDead) {
 
@@ -351,7 +343,6 @@ public class EntityElevator extends Entity {
 			return;
 		}
 
-		float range = 0.0F;
 		float destY = dest + 0.5F;
 		if (emerHalt) {
 			elevatorSpeed = 0;
@@ -371,11 +362,12 @@ public class EntityElevator extends Entity {
 				tempSpeed = maxElevatorSpeed;
 			}
 			// Calculate elevator range to break
-			range = (tempSpeed * tempSpeed - minElevatorMovingSpeed
-												* minElevatorMovingSpeed)
-					/ (2 * elevatorAccel);
+
 			if (!slowingDown
-				&& MathHelper.abs((float) (destY - posY)) >= (range)) {
+				&& MathHelper.abs((float) (destY - posY)) >= (tempSpeed
+																* tempSpeed - minElevatorMovingSpeed
+																				* minElevatorMovingSpeed)
+																/ (2 * elevatorAccel)) {
 				// if current destination is further away than this range and <
 				// max speed, continue to accelerate
 				elevatorSpeed = tempSpeed;
@@ -421,13 +413,19 @@ public class EntityElevator extends Entity {
 		}
 	}
 
+	private boolean getIsControlerElevator() {
+		// TODO Auto-generated method stub
+		return this.iscontrolerElevator
+				|| (this.controlingElevator != null && this.entityId == this.controlingElevator.entityId);
+	}
+
 	private void killAllConjoined() {
 		Iterator<EntityElevator> iter = this.conjoinedelevators.iterator();
 		while (iter.hasNext()) {
 			EntityElevator curElevator = iter.next();
 			curElevator.killElevator();
 		}
-		if (this.iscontrolerElevator) {
+		if (iscontrolerElevator) {
 			TileEntityElevatorComputer comTile = this.getParentElevatorComputer();
 			if (comTile != null) {
 				comTile.elevatorArrived(MathHelper.floor_double(this.posY),
@@ -621,15 +619,8 @@ public class EntityElevator extends Entity {
 
 			if (this.motionY > 0) {
 				par1Entity.motionY = Math.max(	Math.max(	par1Entity.motionY,
-															this.motionY + .1),
+															this.motionY),
 												0);
-				PacketEntityMotionUpdate packet = new PacketEntityMotionUpdate(par1Entity.motionY, par1Entity.entityId);
-				PacketDispatcher.sendPacketToAllAround(	par1Entity.posX,
-														par1Entity.posY,
-														par1Entity.posZ,
-														400,
-														par1Entity.worldObj.getWorldInfo().getVanillaDimension(),
-														packet.getPacket());
 			}
 			par1Entity.onGround = true;
 			par1Entity.fallDistance = 0;
