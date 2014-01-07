@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,10 +16,8 @@ import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import slimevoid.dynamictransport.blocks.BlockTransportBase;
 import slimevoid.dynamictransport.core.lib.BlockLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
-import slimevoid.dynamictransport.tileentity.TileEntityElevator;
 import slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
 
 public class EntityElevator extends Entity {
@@ -247,168 +244,31 @@ public class EntityElevator extends Entity {
 		int i = MathHelper.floor_double(posX);
 		int j = MathHelper.floor_double(posY);
 		int k = MathHelper.floor_double(posZ);
-
-		if (this.ticksExisted > 45) {
-			startStops--;
-			if (startStops < 0) {
-				startStops = 0;
-			}
-			this.ticksExisted = 0;
+		if (this.motionY < this.maxElevatorSpeed) {
+			this.addVelocity(	0,
+								this.elevatorAccel,
+								0);
 		}
+		this.posY = this.posY + this.motionY;
 
-		if (this.ticksExisted == 1 && !worldObj.isRemote) {
-			if (worldObj.getBlockId(i,
-									j,
-									k) == blockID) {
-
-				BlockTransportBase elevator = (BlockTransportBase) Block.blocksList[blockID];
-				TileEntityElevator curTile = (TileEntityElevator) worldObj.getBlockTileEntity(	i,
-																								j,
-																								k);
-
-				if (this.enableMobilePower) {
-					worldObj.setBlock(	i,
-										j,
-										k,
-										blockID,
-										1,
-										2);
-				} else {
-					worldObj.setBlock(	i,
-										j,
-										k,
-										0);
+		Set<Entity> potentialEntities = new HashSet<Entity>();
+		AxisAlignedBB scanbox = this.getBoundingBox();
+		scanbox.offset(	0,
+						.5,
+						0);
+		potentialEntities.addAll(worldObj.getEntitiesWithinAABBExcludingEntity(	this,
+																				scanbox));
+		for (Entity entity : potentialEntities) {
+			if (!(entity instanceof EntityElevator)) {
+				if (this.getBoundingBox().maxY + .025 - entity.boundingBox.minY >= 0) {
+					entity.motionY = Math.max(	this.getBoundingBox().maxY
+														+ .025
+														- entity.boundingBox.minY,
+												entity.motionY);
+					entity.onGround = true;
+					entity.fallDistance = 0;
+					return;
 				}
-				worldObj.notifyBlocksOfNeighborChange(	i,
-														j,
-														k,
-														blockID);
-				worldObj.notifyBlocksOfNeighborChange(	i - 1,
-														j,
-														k,
-														blockID);
-				worldObj.notifyBlocksOfNeighborChange(	i + 1,
-														j,
-														k,
-														blockID);
-				worldObj.notifyBlocksOfNeighborChange(	i,
-														j,
-														k - 1,
-														blockID);
-				worldObj.notifyBlocksOfNeighborChange(	i,
-														j,
-														k + 1,
-														blockID);
-
-			}
-		}
-
-		// Place transient block
-		if (!worldObj.isRemote && !this.isDead && this.enableMobilePower) {
-			int curX = i;
-			int curY = j;
-			int curZ = k;
-			if (this.motionY > 0) {
-				curX = (int) Math.ceil(posX - 0.5);
-				curY = (int) Math.ceil(posY - 0.5);
-				curZ = (int) Math.ceil(posZ - 0.5);
-			} else {
-				curX = (int) Math.floor(posX - 0.5);
-				curY = (int) Math.floor(posY - 0.5);
-				curZ = (int) Math.floor(posZ - 0.5);
-			}
-			int underId = worldObj.getBlockId(	curX,
-												curY,
-												curZ);
-
-			if (underId == 0) {
-				worldObj.setBlock(	i,
-									j,
-									k,
-									blockID,
-									1,
-									2);
-			}
-		}
-		if (!getIsControlerElevator()) {
-
-			if (controlingElevator != null && !controlingElevator.isDead) {
-
-				this.setPosition(	this.posX,
-									controlingElevator.posY,
-									this.posZ);
-			} else if (!this.isDead) {
-				this.killElevator();
-			}
-			return;
-		}
-
-		float destY = dest + 0.5F;
-		if (emerHalt) {
-			elevatorSpeed = 0;
-		} else if (waitToAccelerate < 15) {
-			if (waitToAccelerate < 10) {
-				elevatorSpeed = 0;
-			} else {
-				elevatorSpeed = minElevatorMovingSpeed;
-			}
-			waitToAccelerate++;
-			if (!conjoinedelevators.contains(this)) {
-				conjoinedelevators.add(this);
-			}
-		} else {
-			float tempSpeed = elevatorSpeed + elevatorAccel;
-			if (tempSpeed > maxElevatorSpeed) {
-				tempSpeed = maxElevatorSpeed;
-			}
-			// Calculate elevator range to break
-
-			if (!slowingDown
-				&& MathHelper.abs((float) (destY - posY)) >= (tempSpeed
-																* tempSpeed - minElevatorMovingSpeed
-																				* minElevatorMovingSpeed)
-																/ (2 * elevatorAccel)) {
-				// if current destination is further away than this range and <
-				// max speed, continue to accelerate
-				elevatorSpeed = tempSpeed;
-			}
-			// else start to slow down
-			else {
-				elevatorSpeed -= elevatorAccel;
-				slowingDown = true;
-			}
-			if (elevatorSpeed > maxElevatorSpeed) {
-				elevatorSpeed = maxElevatorSpeed;
-			}
-			if (elevatorSpeed < minElevatorMovingSpeed) {
-				elevatorSpeed = minElevatorMovingSpeed;
-			}
-		}
-		// check whether at the destination or not
-		boolean atDestination = onGround
-								|| (MathHelper.abs((float) (destY - posY)) < elevatorSpeed);
-		if (destY < 1 || destY > this.worldObj.getHeight()) {
-			atDestination = true;
-		}
-
-		// if not there yet, update speed and location
-		if (!atDestination) {
-			motionY = (destY > posY) ? elevatorSpeed : -elevatorSpeed;
-		} else if (atDestination) {
-			killAllConjoined();
-			return;
-		}
-		this.setPosition(	this.posX,
-							this.posY + this.motionY,
-							this.posZ);
-
-		updateRiderPosition();
-		if (!emerHalt) {
-			if (MathHelper.abs((float) motionY) < minElevatorMovingSpeed
-				&& stillcount++ > 10) {
-				killAllConjoined();
-			} else {
-				stillcount = 0;
 			}
 		}
 	}
