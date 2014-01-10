@@ -319,10 +319,9 @@ public class EntityElevator extends Entity {
 		}
 	}
 
-	// this is the offset from the maxY not the PosY
 	@Override
 	public double getMountedYOffset() {
-		return 0.51D;
+		return 0.55D;
 	}
 
 	public void setProperties(int destination, String destinationName, ChunkCoordinates computer, boolean haltable, int controlerID) {
