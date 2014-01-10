@@ -125,7 +125,7 @@ public class RenderElevator extends Render {
 	public void doRenderElevator(EntityElevator elevator, double d, double d1, double d2, float f, float f1) {
 		GL11.glPushMatrix();
 		Block block = Block.blocksList[ConfigurationLib.blockTransportBaseID];
-		World world = elevator.getWorld();
+		World world = elevator.worldObj;
 		GL11.glDisable(GL11.GL_LIGHTING);
 		GL11.glTranslatef(	(float) d,
 							(float) d1,

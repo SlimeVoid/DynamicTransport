@@ -41,7 +41,7 @@ public class PlayerMotionTickHandler implements ITickHandler {
 						EntityElevator elevator = (EntityElevator) entity;
 						if (elevator.motionY > 0
 							&& entityplayer.boundingBox.minY < elevator.getBoundingBox().maxY) {
-							entityplayer.motionY = Math.max(elevator.getBoundingBox().maxY
+							entityplayer.motionY = Math.max(elevator.posY
 																	+ elevator.getMountedYOffset()
 																	- entityplayer.boundingBox.minY,
 															entityplayer.motionY);
