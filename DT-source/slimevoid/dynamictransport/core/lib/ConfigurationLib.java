@@ -29,6 +29,8 @@ public class ConfigurationLib {
 		itemElevatorToolID = configuration.getItem(	"itemElevatorToolID",
 													268).getInt();
 
+		configuration.save();
+
 	}
 
 	public static void ClientConfig() {
@@ -36,6 +38,8 @@ public class ConfigurationLib {
 		useClientMotionTick = configuration.get("Client",
 												"useClientMotionTickHandler",
 												false).getBoolean(false);
+
+		configuration.save();
 	}
 
 }
