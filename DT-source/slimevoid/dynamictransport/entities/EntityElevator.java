@@ -129,9 +129,8 @@ public class EntityElevator extends Entity {
 
 			}
 
-			super.setDead();
 		}
-
+		super.setDead();
 	}
 
 	@Override
