@@ -1,12 +1,9 @@
 package slimevoid.dynamictransport.tileentity;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -22,8 +19,6 @@ import slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import slimevoid.dynamictransport.entities.EntityElevator;
 import slimevoid.dynamictransport.util.XZCoords;
 import slimevoidlib.blocks.BlockBase;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
 
 public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
@@ -341,8 +336,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
 	private void doCallElevator(int i, String floorname) {
 		// call elevator now
-		Set<EntityElevator> allEntities = new HashSet<EntityElevator>();
-		EntityElevator centerElevator = null;
+		int centerElevator = -1;
 		List<XZCoords> invalidElevators = new ArrayList<XZCoords>();
 		boolean first = true;
 		this.mode = ElevatorMode.Transit;
@@ -350,17 +344,11 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 			if (validElevatorBlock(	pos.x,
 									this.elevatorPos,
 									pos.z)) {
-				int metadata = worldObj.getBlockMetadata(	pos.x,
-															this.elevatorPos,
-															pos.z);
 
 				EntityElevator curElevator = new EntityElevator(worldObj, pos.x, this.elevatorPos, pos.z);
-				if (first) centerElevator = curElevator;
+				if (first) centerElevator = curElevator.entityId;
 				curElevator.setProperties(	i,
 											floorname,
-											first,
-											FMLCommonHandler.instance().getSide() == Side.CLIENT,
-											metadata,
 											new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord),
 											false,
 											centerElevator);
@@ -370,9 +358,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 				invalidElevators.add(pos);
 			}
 		}
-		for (XZCoords pos : invalidElevators) {
-			this.boundElevatorBlocks.removeAll(Collections.singleton(pos));
-		}
+		this.boundElevatorBlocks.removeAll(invalidElevators);
 
 	}
 

@@ -39,18 +39,18 @@ public class DynamicTransportMod {
 	public static DynamicTransportMod	instance;
 
 	@EventHandler
-	public void CollaborativePreInit(FMLPreInitializationEvent event) {
+	public void DynamicTransportPreInit(FMLPreInitializationEvent event) {
 		DynamicTransportMod.proxy.registerConfigurationProperties(event.getSuggestedConfigurationFile());
 
 		DynamicTransportMod.proxy.preInit();
 	}
 
 	@EventHandler
-	public void CollaborativeInit(FMLInitializationEvent event) {
+	public void DynamicTransportInit(FMLInitializationEvent event) {
 	}
 
 	@EventHandler
-	public void CollaborativePostInit(FMLPostInitializationEvent event) {
+	public void DynamicTransportPostInit(FMLPostInitializationEvent event) {
 		DTInit.initialize();
 	}
 }

@@ -1,5 +1,7 @@
 package slimevoid.dynamictransport.client.proxy;
 
+import java.io.File;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -7,6 +9,7 @@ import slimevoid.dynamictransport.client.network.ClientPacketHandler;
 import slimevoid.dynamictransport.client.presentation.gui.GuiDynamicElevator;
 import slimevoid.dynamictransport.client.tickhandler.PlayerMotionTickHandler;
 import slimevoid.dynamictransport.core.PacketLib;
+import slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import slimevoid.dynamictransport.core.lib.GuiLib;
 import slimevoid.dynamictransport.proxy.CommonProxy;
 import slimevoid.dynamictransport.tileentity.TileEntityElevator;
@@ -46,10 +49,15 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	@Override
+	public void registerConfigurationProperties(File configFile) {
+		super.registerConfigurationProperties(configFile);
+		ConfigurationLib.ClientConfig();
+	}
+
+	@Override
 	public void registerTickHandlers() {
-		// super.registerTickHandlers();
-		TickRegistry.registerTickHandler(	new PlayerMotionTickHandler(),
-											Side.CLIENT);
+		if (ConfigurationLib.useClientMotionTick) TickRegistry.registerTickHandler(	new PlayerMotionTickHandler(),
+																					Side.CLIENT);
 	}
 
 }

@@ -9,6 +9,7 @@ public class XZCoords {
 		this.z = z;
 	}
 
+	@Override
 	public boolean equals(Object o) {
 
 		return o instanceof XZCoords && this.x == ((XZCoords) o).x

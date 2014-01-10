@@ -11,6 +11,7 @@ public class ConfigurationLib {
 	public static BlockTransportBase	blockTransportBase;
 	public static int					blockTransportBaseID;
 	public static ItemElevatorTool		itemElevatorTool;
+	public static boolean				useClientMotionTick;
 	public static int					itemElevatorToolID;
 	private static File					configurationFile;
 	private static Configuration		configuration;
@@ -28,6 +29,13 @@ public class ConfigurationLib {
 		itemElevatorToolID = configuration.getItem(	"itemElevatorToolID",
 													268).getInt();
 
+	}
+
+	public static void ClientConfig() {
+		// TODO Auto-generated method stub
+		useClientMotionTick = configuration.get("Client",
+												"useClientMotionTickHandler",
+												false).getBoolean(false);
 	}
 
 }

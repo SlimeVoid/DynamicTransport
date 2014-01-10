@@ -34,19 +34,21 @@ public class PlayerMotionTickHandler implements ITickHandler {
 
 				potentialEntities.addAll(world.getEntitiesWithinAABBExcludingEntity(entityplayer,
 																					entityplayer.boundingBox.copy().offset(	0,
-																															-.5,
+																															-.1,
 																															0)));
 				for (Entity entity : potentialEntities) {
 					if (entity instanceof EntityElevator) {
 						EntityElevator elevator = (EntityElevator) entity;
-						if (elevator.getBoundingBox().maxY + .025
-							- entityplayer.boundingBox.minY >= 0) {
+						if (elevator.motionY > 0
+							&& entityplayer.boundingBox.minY < elevator.getBoundingBox().maxY) {
 							entityplayer.motionY = Math.max(elevator.getBoundingBox().maxY
-																	+ .025
+																	+ elevator.getMountedYOffset()
 																	- entityplayer.boundingBox.minY,
 															entityplayer.motionY);
 							entityplayer.onGround = true;
 							entityplayer.fallDistance = 0;
+							// only check the first elevator that effects the
+							// player
 							return;
 						}
 					}
@@ -68,7 +70,7 @@ public class PlayerMotionTickHandler implements ITickHandler {
 
 	@Override
 	public String getLabel() {
-		return "MinersHelmetHandler";
+		return "PlayerMotionHandler";
 	}
 
 }

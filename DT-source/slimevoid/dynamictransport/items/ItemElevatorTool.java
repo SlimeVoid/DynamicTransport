@@ -14,6 +14,7 @@ public class ItemElevatorTool extends Item {
 		this.maxStackSize = 1;
 	}
 
+	@Override
 	public boolean isItemTool(ItemStack par1ItemStack) {
 		return true;
 	}
