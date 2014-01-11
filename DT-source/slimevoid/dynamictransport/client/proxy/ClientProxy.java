@@ -11,6 +11,7 @@ import slimevoid.dynamictransport.client.tickhandler.PlayerMotionTickHandler;
 import slimevoid.dynamictransport.core.PacketLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import slimevoid.dynamictransport.core.lib.GuiLib;
+import slimevoid.dynamictransport.entities.EntityElevator;
 import slimevoid.dynamictransport.proxy.CommonProxy;
 import slimevoid.dynamictransport.tileentity.TileEntityElevator;
 import slimevoidlib.util.helpers.SlimevoidHelper;
@@ -44,7 +45,7 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public void registerRenderInformation() {
-		RenderingRegistry.registerEntityRenderingHandler(	slimevoid.dynamictransport.entities.EntityElevator.class,
+		RenderingRegistry.registerEntityRenderingHandler(	EntityElevator.class,
 															new slimevoid.dynamictransport.client.render.RenderElevator());
 	}
 
