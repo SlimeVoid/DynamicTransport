@@ -92,7 +92,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 						return true;
 					} else {
 						entityplayer.openGui(	DynamicTransportMod.instance,
-												GuiLib.GUIID_FLOOR_MARKER,
+												GuiLib.GUIID_CAMO,
 												this.worldObj,
 												this.xCoord,
 												this.yCoord,
@@ -104,6 +104,15 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 										entityplayer);
 				}
 			}
+		} else if (!entityplayer.isSneaking()
+					&& this.getParentElevatorComputer() != null
+					&& !this.worldObj.isRemote) {
+			entityplayer.openGui(	DynamicTransportMod.instance,
+									GuiLib.GUIID_FLOOR_MARKER,
+									this.worldObj,
+									this.xCoord,
+									this.yCoord,
+									this.zCoord);
 		}
 		return false;
 	}

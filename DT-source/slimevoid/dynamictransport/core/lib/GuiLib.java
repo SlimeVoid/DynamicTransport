@@ -19,5 +19,13 @@ public class GuiLib {
 	public static final String				FLOOR_MARKER		= GUI_PREFIX
 																	+ BlockLib.BLOCK_DYNAMIC_MARK
 																	+ ".png";
+
+	public static final int					GUIID_CAMO			= 2;
+	public static final String				CAMO				= GUI_PREFIX
+																	+ "camo"
+																	+ ".png";
+
 	public static final ResourceLocation	GUI_FLOOR_MARKER	= new ResourceLocation(CoreLib.MOD_RESOURCES, FLOOR_MARKER);
+
+	public static final ResourceLocation	GUI_CAMO			= new ResourceLocation(CoreLib.MOD_RESOURCES, FLOOR_MARKER);
 }
