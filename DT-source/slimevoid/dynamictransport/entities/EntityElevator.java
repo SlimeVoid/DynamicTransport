@@ -23,7 +23,7 @@ public class EntityElevator extends Entity {
 	private static final int	blockID					= ConfigurationLib.blockTransportBaseID;
 	private static final int	blockMeta				= BlockLib.BLOCK_ELEVATOR_ID;
 	private static final float	elevatorAccel			= 0.01F;
-	private static final float	maxElevatorSpeed		= 0.4F;
+	private static final float	maxElevatorSpeed		= ConfigurationLib.elevatorMaxSpeed;
 	private static final float	minElevatorMovingSpeed	= 0.016F;
 
 	// server only

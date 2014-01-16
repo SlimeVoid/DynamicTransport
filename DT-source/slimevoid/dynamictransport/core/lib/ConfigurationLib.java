@@ -15,6 +15,7 @@ public class ConfigurationLib {
 	public static int					itemElevatorToolID;
 	private static File					configurationFile;
 	private static Configuration		configuration;
+	public static float					elevatorMaxSpeed;
 
 	public static void CommonConfig(File configFile) {
 		if (configurationFile == null) {
@@ -28,6 +29,9 @@ public class ConfigurationLib {
 														267).getInt();
 		itemElevatorToolID = configuration.getItem(	"itemElevatorToolID",
 													268).getInt();
+		elevatorMaxSpeed = (float) configuration.get(	"Common",
+														"MaxElevatorSpeed",
+														0.15).getDouble(0.15);
 
 		configuration.save();
 
