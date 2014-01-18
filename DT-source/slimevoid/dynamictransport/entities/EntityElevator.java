@@ -16,6 +16,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import slimevoid.dynamictransport.core.lib.BlockLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
+import slimevoid.dynamictransport.tileentity.TileEntityElevator;
 import slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
 
 public class EntityElevator extends Entity {
@@ -35,6 +36,7 @@ public class EntityElevator extends Entity {
 
 	// only needed for emerhalt but also used in kill all conjoined
 	public Set<Integer>			conjoinedelevators		= new HashSet<Integer>();
+	public Set<Integer>			confirmedRiders			= new HashSet<Integer>();
 
 	// possible watcher
 	private byte				waitToAccelerate		= 0;
@@ -107,11 +109,19 @@ public class EntityElevator extends Entity {
 																									this.blockMeta,
 																									3));
 
-		if (!worldObj.isRemote && !blockPlaced) {
-			dropItem(	blockID,
-						1);
+		if (!worldObj.isRemote) {
+			if (blockPlaced) {
+				TileEntityElevator tile = (TileEntityElevator) this.worldObj.getBlockTileEntity(i,
+																								curY,
+																								k);
+				if (tile != null) {
+					tile.setParentElevatorComputer(this.computerPos);
+				}
+			} else {
+				dropItem(	blockID,
+							1);
+			}
 		}
-
 		this.updateRiderPosition();
 
 		if (!worldObj.isRemote) {
@@ -307,6 +317,7 @@ public class EntityElevator extends Entity {
 																												0)));
 		for (Entity entity : potentialEntities) {
 			if (!(entity instanceof EntityElevator)
+				&& !this.confirmedRiders.contains(entity.entityId)
 				&& entity.boundingBox.minY <= this.getBoundingBox().maxY) {
 				entity.motionY = Math.max(	this.posY
 													+ this.getMountedYOffset()
@@ -314,9 +325,26 @@ public class EntityElevator extends Entity {
 											entity.motionY);
 				entity.onGround = true;
 				entity.fallDistance = 0;
-
+				this.confirmedRiders.add(entity.entityId);
 			}
 		}
+		for (Integer entityID : confirmedRiders) {
+			Entity rider = this.worldObj.getEntityByID(entityID);
+			if ((rider.boundingBox.maxX >= this.getBoundingBox().minX || rider.boundingBox.minX <= this.getBoundingBox().maxX)
+				&& (rider.boundingBox.maxZ >= this.getBoundingBox().minZ || rider.boundingBox.minZ <= this.getBoundingBox().maxZ)
+				&& rider.boundingBox.minY <= (this.posY
+												+ this.getMountedYOffset() + .05)) {
+				rider.motionY = Math.max(	this.posY
+													+ this.getMountedYOffset()
+													- rider.boundingBox.minY,
+											rider.motionY);
+				rider.onGround = true;
+				rider.fallDistance = 0;
+			} else {
+				this.confirmedRiders.remove(entityID);
+			}
+		}
+
 	}
 
 	@Override
@@ -427,6 +455,7 @@ public class EntityElevator extends Entity {
 		if (iscontrolerElevator) {
 			TileEntityElevatorComputer comTile = this.getParentElevatorComputer();
 			if (comTile != null) {
+
 				comTile.elevatorArrived(MathHelper.floor_double(this.posY),
 										iscontrolerElevator);
 			}

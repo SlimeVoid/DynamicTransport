@@ -502,16 +502,6 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 	public void elevatorArrived(int dest, boolean center) {
 		this.elevatorPos = dest;
 		this.floorSpool.remove(dest);
-		for (XZCoords pos : this.boundElevatorBlocks) {
-			TileEntity tile = this.worldObj.getBlockTileEntity(	pos.x,
-																this.elevatorPos,
-																pos.z);
-			if (tile != null && tile instanceof TileEntityElevator) {
-				TileEntityElevator elevator = (TileEntityElevator) tile;
-				elevator.setParentElevatorComputer(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord));
-			}
-		}
-
 		if (this.pendingMantinance) {
 			if (this.elevatorPos == (this.yCoord + 1)) {
 				this.pendingMantinance = false;
