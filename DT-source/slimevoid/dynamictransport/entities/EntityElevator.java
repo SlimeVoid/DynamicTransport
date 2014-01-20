@@ -329,6 +329,7 @@ public class EntityElevator extends Entity {
 			}
 		}
 		if (!confirmedRiders.isEmpty()) {
+			Set<Integer> removedRiders = new HashSet<Integer>();
 			for (Integer entityID : confirmedRiders) {
 				Entity rider = this.worldObj.getEntityByID(entityID);
 				if ((rider.boundingBox.maxX >= this.getBoundingBox().minX || rider.boundingBox.minX <= this.getBoundingBox().maxX)
@@ -342,9 +343,10 @@ public class EntityElevator extends Entity {
 					rider.onGround = true;
 					rider.fallDistance = 0;
 				} else {
-					this.confirmedRiders.remove(entityID);
+					removedRiders.add(entityID);
 				}
 			}
+			this.confirmedRiders.removeAll(removedRiders);
 		}
 	}
 
