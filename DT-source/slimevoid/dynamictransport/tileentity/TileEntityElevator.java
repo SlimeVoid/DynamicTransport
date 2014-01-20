@@ -1,6 +1,5 @@
 package slimevoid.dynamictransport.tileentity;
 
-import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -10,6 +9,7 @@ import slimevoid.dynamictransport.core.lib.BlockLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import slimevoid.dynamictransport.util.XZCoords;
 import slimevoidlib.blocks.BlockBase;
+import cpw.mods.fml.common.FMLCommonHandler;
 
 public class TileEntityElevator extends TileEntityTransportBase {
 
@@ -57,14 +57,21 @@ public class TileEntityElevator extends TileEntityTransportBase {
 			if (this.worldObj.isRemote) {
 				return true;
 			}
-			if (heldItem.hasTagCompound() && entityplayer.getHeldItem().getTagCompound() != null) {
+			if (heldItem.hasTagCompound()
+				&& entityplayer.getHeldItem().getTagCompound() != null) {
 				NBTTagCompound tags = entityplayer.getHeldItem().getTagCompound();
 				if (tags.hasKey("ComputerX")) {
 					setParentElevatorComputer(	new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ")),
 												entityplayer);
 				}
 			} else {
-				FMLCommonHandler.instance().getFMLLogger().warning("There was an error processing this Transport Component at [" + this.xCoord + ", " + this.yCoord + ", " + this.zCoord + "]");
+				FMLCommonHandler.instance().getFMLLogger().warning("There was an error processing this Transport Component at ["
+																	+ this.xCoord
+																	+ ", "
+																	+ this.yCoord
+																	+ ", "
+																	+ this.zCoord
+																	+ "]");
 			}
 		}
 		return false;
@@ -154,6 +161,11 @@ public class TileEntityElevator extends TileEntityTransportBase {
 	public void RemoveComputer(ChunkCoordinates chunkCoordinates) {
 		this.ParentElevatorComputer = null;
 
+	}
+
+	@Override
+	public int getExtendedBlockID() {
+		return BlockLib.BLOCK_ELEVATOR_ID;
 	}
 
 }

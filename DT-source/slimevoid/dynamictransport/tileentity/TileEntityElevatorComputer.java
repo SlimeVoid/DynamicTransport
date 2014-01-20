@@ -23,7 +23,9 @@ import slimevoidlib.blocks.BlockBase;
 public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
 	public enum ElevatorMode {
-		Maintenance, Transit, Available
+		Maintenance,
+		Transit,
+		Available
 	}
 
 	// Persistent Data
@@ -531,5 +533,10 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 	public ElevatorMode getElevatorMode() {
 		// TODO Auto-generated method stub
 		return this.mode;
+	}
+
+	@Override
+	public int getExtendedBlockID() {
+		return BlockLib.BLOCK_ELEVATOR_COMPUTER_ID;
 	}
 }

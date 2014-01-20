@@ -181,4 +181,9 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 		}
 
 	}
+
+	@Override
+	public int getExtendedBlockID() {
+		return BlockLib.BLOCK_DYNAMIC_MARK_ID;
+	}
 }

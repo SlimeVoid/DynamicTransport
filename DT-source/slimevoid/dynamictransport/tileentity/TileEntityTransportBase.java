@@ -5,10 +5,11 @@ import java.util.Random;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
+import slimevoidlib.blocks.BlockBase;
 import slimevoidlib.tileentity.TileEntityBase;
 import slimevoidlib.util.helpers.ItemHelper;
 
-public class TileEntityTransportBase extends TileEntityBase {
+public abstract class TileEntityTransportBase extends TileEntityBase {
 	private final Random	random		= new Random();
 	protected ItemStack		camoItem;
 	protected String		owner;
@@ -58,9 +59,8 @@ public class TileEntityTransportBase extends TileEntityBase {
 	}
 
 	@Override
-	public int getExtendedBlockID() {
-		// TODO Auto-generated method stub
-		return 0;
+	public float getBlockHardness(BlockBase blockBase) {
+		return 1.0f; // TODO :: Real Block Hardness
 	}
 
 	public ItemStack getCamoItem() {
