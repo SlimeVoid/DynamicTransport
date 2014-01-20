@@ -1,6 +1,7 @@
 package slimevoid.dynamictransport.tileentity;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet3Chat;
@@ -9,10 +10,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraftforge.common.ForgeDirection;
-import slimevoid.dynamictransport.core.DynamicTransportMod;
 import slimevoid.dynamictransport.core.lib.BlockLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
-import slimevoid.dynamictransport.core.lib.GuiLib;
 import slimevoidlib.blocks.BlockBase;
 
 public class TileEntityFloorMarker extends TileEntityTransportBase {
@@ -80,39 +79,53 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 
 	@Override
 	public boolean onBlockActivated(EntityPlayer entityplayer) {
+		if (this.worldObj.isRemote) {
+			return true;
+		}
+
 		if (entityplayer.getHeldItem() != null
 			&& entityplayer.getHeldItem().itemID == ConfigurationLib.itemElevatorTool.itemID) {
-			if (this.worldObj.isRemote) {
-				return true;
-			}
 			NBTTagCompound tags = entityplayer.getHeldItem().getTagCompound();
 			if (tags.hasKey("ComputerX")) {
+				ChunkCoordinates possibleComputer = new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ"));
 				if (entityplayer.isSneaking()) {
-					if (this.worldObj.isRemote) {
+					if (possibleComputer.equals(this.parentTransportComputer)) {
+						entityplayer.sendChatToPlayer(new ChatMessageComponent().addText("Block Unbound"));
+						RemoveComputer();
 						return true;
-					} else {
-						entityplayer.openGui(	DynamicTransportMod.instance,
-												GuiLib.GUIID_CAMO,
-												this.worldObj,
-												this.xCoord,
-												this.yCoord,
-												this.zCoord);
-						return true;
+					} else if (this.parentTransportComputer != null) {
+						entityplayer.sendChatToPlayer(new ChatMessageComponent().addText("Block Bound to Another Elevator"));
 					}
 				} else {
-					setParentComputer(	new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ")),
-										entityplayer);
+					if (this.parentTransportComputer == null) {
+						setParentComputer(	new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ")),
+											entityplayer);
+					} else if (possibleComputer.equals(this.parentTransportComputer)) {
+						// open option GUI
+
+					}
 				}
 			}
-		} else if (!entityplayer.isSneaking()
-					&& this.getParentElevatorComputer() != null
-					&& !this.worldObj.isRemote) {
-			entityplayer.openGui(	DynamicTransportMod.instance,
-									GuiLib.GUIID_FLOOR_MARKER,
-									this.worldObj,
-									this.xCoord,
-									this.yCoord,
-									this.zCoord);
+		} else {
+			if (this.getParentElevatorComputer() == null
+				|| this.getParentElevatorComputer().getElevatorMode() == TileEntityElevatorComputer.ElevatorMode.Maintenance) {
+				if (this.camoItem == null
+					&& entityplayer.getHeldItem() != null
+					&& entityplayer.getHeldItem().getItem() instanceof ItemBlock) {
+					this.setCamoItem(entityplayer.getHeldItem().copy());
+					--entityplayer.getHeldItem().stackSize;
+					return true;
+				}
+
+				if (this.camoItem != null && entityplayer.getHeldItem() == null) {
+					this.removeCamoItem();
+					return true;
+				}
+			} else if (this.getParentComputer() != null
+						&& this.getParentElevatorComputer().getElevatorMode() != TileEntityElevatorComputer.ElevatorMode.Maintenance) {
+				// show floor selection
+			}
+
 		}
 		return false;
 	}
@@ -143,7 +156,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 		this.floorYLvl = nbttagcompound.getInteger("FloorYLvl");
 	}
 
-	public void RemoveComputer(ChunkCoordinates chunkCoordinates) {
+	public void RemoveComputer() {
 		this.parentTransportComputer = null;
 
 	}

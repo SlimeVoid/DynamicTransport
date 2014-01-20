@@ -1,12 +1,20 @@
 package slimevoid.dynamictransport.blocks;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import slimevoid.dynamictransport.core.lib.BlockLib;
+import slimevoid.dynamictransport.tileentity.TileEntityFloorMarker;
+import slimevoid.dynamictransport.tileentity.TileEntityTransportBase;
 import slimevoidlib.blocks.BlockBase;
+import slimevoidlib.data.Logger;
+import slimevoidlib.data.LoggerSlimevoidLib;
 
 public class BlockTransportBase extends BlockBase {
 
@@ -44,6 +52,40 @@ public class BlockTransportBase extends BlockBase {
 																													y,
 																													z,
 																													side);
+	}
+
+	@Override
+	public Icon getBlockTexture(IBlockAccess iblockaccess, int i, int j, int k, int l) {
+		Icon output = this.iconList[iblockaccess.getBlockMetadata(	i,
+																	j,
+																	k)][l];
+		try {
+			TileEntity tile = iblockaccess.getBlockTileEntity(	i,
+																j,
+																k);
+			if (tile instanceof TileEntityTransportBase) {
+
+				ItemStack itemstack = ((TileEntityTransportBase) tile).getCamoItem();
+				if (itemstack == null && tile instanceof TileEntityFloorMarker) {
+					itemstack = ((TileEntityFloorMarker) tile).getCamoItem();
+				}
+
+				if (itemstack != null) {
+					int blockID = itemstack.itemID;
+					int damage = itemstack.getItemDamage();
+					output = Block.blocksList[blockID].getIcon(	l,
+																damage);
+				}
+			}
+		} catch (Exception e) {
+			LoggerSlimevoidLib.getInstance(LoggerSlimevoidLib.filterClassName(this.getClass().toString())).write(	false,
+																													"Failed to get Camo Item",
+																													Logger.LogLevel.WARNING);
+			LoggerSlimevoidLib.getInstance(LoggerSlimevoidLib.filterClassName(this.getClass().toString())).writeStackTrace(e);
+
+		}
+
+		return output;
 	}
 
 }

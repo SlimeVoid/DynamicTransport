@@ -259,7 +259,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 																		boundFloorMarker.posY,
 																		boundFloorMarker.posZ);
 			if (markerTile != null) {
-				((TileEntityFloorMarker) markerTile).RemoveComputer(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord));
+				((TileEntityFloorMarker) markerTile).RemoveComputer();
 			}
 		}
 		return super.removeBlockByPlayer(	player,
