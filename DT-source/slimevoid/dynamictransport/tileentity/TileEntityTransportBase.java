@@ -2,11 +2,11 @@ package slimevoid.dynamictransport.tileentity;
 
 import java.util.Random;
 
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import slimevoidlib.tileentity.TileEntityBase;
+import slimevoidlib.util.helpers.ItemHelper;
 
 public class TileEntityTransportBase extends TileEntityBase {
 	private final Random	random		= new Random();
@@ -15,7 +15,9 @@ public class TileEntityTransportBase extends TileEntityBase {
 	protected Privacy		privacyLvl	= Privacy.Public;
 
 	public enum Privacy {
-		Public, Restricted, Private
+		Public,
+		Restricted,
+		Private
 	}
 
 	@Override
@@ -44,7 +46,11 @@ public class TileEntityTransportBase extends TileEntityBase {
 	public void readFromNBT(NBTTagCompound nbttagcompound) {
 		super.readFromNBT(nbttagcompound);
 
-		this.camoItem = ItemStack.loadItemStackFromNBT(nbttagcompound.getCompoundTag("CamoItem"));
+		if (nbttagcompound.hasKey("CamoItem")) {
+			this.camoItem = ItemStack.loadItemStackFromNBT(nbttagcompound.getCompoundTag("CamoItem"));
+		} else {
+			this.camoItem = null;
+		}
 
 		owner = nbttagcompound.getString("Owner");
 
@@ -64,20 +70,17 @@ public class TileEntityTransportBase extends TileEntityBase {
 	protected void setCamoItem(ItemStack itemstack) {
 		this.camoItem = itemstack;
 		this.camoItem.stackSize = 1;
-
+		this.updateBlockChange();
 	}
 
 	protected void removeCamoItem() {
-		float f = this.random.nextFloat() * 0.8F + 0.1F;
-		float f1 = this.random.nextFloat() * 0.8F + 0.1F;
-		float f2 = this.random.nextFloat() * 0.8F + 0.1F;
-		EntityItem entityitem = new EntityItem(this.worldObj, (double) ((float) this.xCoord + f), (double) ((float) this.yCoord + f1), (double) ((float) this.zCoord + f2), new ItemStack(this.camoItem.itemID, 1, this.camoItem.getItemDamage()));
-		float f3 = 0.05F;
-		entityitem.motionX = (double) ((float) this.random.nextGaussian() * f3);
-		entityitem.motionY = (double) ((float) this.random.nextGaussian() * f3 + 0.2F);
-		entityitem.motionZ = (double) ((float) this.random.nextGaussian() * f3);
-		this.worldObj.spawnEntityInWorld(entityitem);
+		ItemHelper.dropItem(this.getWorldObj(),
+							this.xCoord,
+							this.yCoord,
+							this.zCoord,
+							this.camoItem);
 		this.camoItem = null;
+		this.updateBlockChange();
 	}
 
 }

@@ -79,53 +79,49 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 
 	@Override
 	public boolean onBlockActivated(EntityPlayer entityplayer) {
-		if (this.worldObj.isRemote) {
-			return true;
-		}
-
-		if (entityplayer.getHeldItem() != null
-			&& entityplayer.getHeldItem().itemID == ConfigurationLib.itemElevatorTool.itemID) {
-			NBTTagCompound tags = entityplayer.getHeldItem().getTagCompound();
-			if (tags.hasKey("ComputerX")) {
-				ChunkCoordinates possibleComputer = new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ"));
-				if (entityplayer.isSneaking()) {
-					if (possibleComputer.equals(this.parentTransportComputer)) {
-						entityplayer.sendChatToPlayer(new ChatMessageComponent().addText("Block Unbound"));
-						RemoveComputer();
-						return true;
-					} else if (this.parentTransportComputer != null) {
-						entityplayer.sendChatToPlayer(new ChatMessageComponent().addText("Block Bound to Another Elevator"));
-					}
-				} else {
-					if (this.parentTransportComputer == null) {
-						setParentComputer(	new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ")),
-											entityplayer);
-					} else if (possibleComputer.equals(this.parentTransportComputer)) {
-						// open option GUI
-
+		if (!this.getWorldObj().isRemote) {
+			if (entityplayer.getHeldItem() != null
+				&& entityplayer.getHeldItem().itemID == ConfigurationLib.itemElevatorTool.itemID) {
+				NBTTagCompound tags = entityplayer.getHeldItem().getTagCompound();
+				if (tags.hasKey("ComputerX")) {
+					ChunkCoordinates possibleComputer = new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ"));
+					if (entityplayer.isSneaking()) {
+						if (possibleComputer.equals(this.parentTransportComputer)) {
+							entityplayer.sendChatToPlayer(new ChatMessageComponent().addText("Block Unbound"));
+							RemoveComputer();
+							return true;
+						} else if (this.parentTransportComputer != null) {
+							entityplayer.sendChatToPlayer(new ChatMessageComponent().addText("Block Bound to Another Elevator"));
+						}
+					} else {
+						if (this.parentTransportComputer == null) {
+							setParentComputer(	new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ")),
+												entityplayer);
+						} else if (possibleComputer.equals(this.parentTransportComputer)) {
+							// open option GUI
+						}
 					}
 				}
 			}
-		} else {
-			if (this.getParentElevatorComputer() == null
-				|| this.getParentElevatorComputer().getElevatorMode() == TileEntityElevatorComputer.ElevatorMode.Maintenance) {
-				if (this.camoItem == null
-					&& entityplayer.getHeldItem() != null
-					&& entityplayer.getHeldItem().getItem() instanceof ItemBlock) {
-					this.setCamoItem(entityplayer.getHeldItem().copy());
-					--entityplayer.getHeldItem().stackSize;
-					return true;
-				}
+		}
+		if (this.getParentElevatorComputer() == null
+			|| this.getParentElevatorComputer().getElevatorMode() == TileEntityElevatorComputer.ElevatorMode.Maintenance) {
+			if (this.camoItem == null && entityplayer.getHeldItem() != null
+				&& entityplayer.getHeldItem().getItem() instanceof ItemBlock) {
+				this.setCamoItem(entityplayer.getHeldItem().copy());
+				--entityplayer.getHeldItem().stackSize;
+				return true;
+			}
 
-				if (this.camoItem != null && entityplayer.getHeldItem() == null) {
-					this.removeCamoItem();
-					return true;
-				}
-			} else if (this.getParentComputer() != null
-						&& this.getParentElevatorComputer().getElevatorMode() != TileEntityElevatorComputer.ElevatorMode.Maintenance) {
+			if (this.camoItem != null && entityplayer.getHeldItem() == null) {
+				this.removeCamoItem();
+				return true;
+			}
+		} else if (!this.getWorldObj().isRemote) {
+			if (this.getParentComputer() != null
+				&& this.getParentElevatorComputer().getElevatorMode() != TileEntityElevatorComputer.ElevatorMode.Maintenance) {
 				// show floor selection
 			}
-
 		}
 		return false;
 	}
