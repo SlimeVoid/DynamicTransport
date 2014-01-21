@@ -332,21 +332,25 @@ public class EntityElevator extends Entity {
 			Set<Integer> removedRiders = new HashSet<Integer>();
 			for (Integer entityID : confirmedRiders) {
 				Entity rider = this.worldObj.getEntityByID(entityID);
-				if ((rider.boundingBox.maxX >= this.getBoundingBox().minX || rider.boundingBox.minX <= this.getBoundingBox().maxX)
-					&& (rider.boundingBox.maxZ >= this.getBoundingBox().minZ || rider.boundingBox.minZ <= this.getBoundingBox().maxZ)
-					&& rider.boundingBox.minY <= (this.posY
-													+ this.getMountedYOffset() + .05)) {
-					rider.motionY = Math.max(	this.posY
-														+ this.getMountedYOffset()
-														- rider.boundingBox.minY,
-												rider.motionY);
-					rider.onGround = true;
-					rider.fallDistance = 0;
-				} else {
-					removedRiders.add(entityID);
+				if (rider != null) {
+					if ((rider.boundingBox.maxX >= this.getBoundingBox().minX || rider.boundingBox.minX <= this.getBoundingBox().maxX)
+						&& (rider.boundingBox.maxZ >= this.getBoundingBox().minZ || rider.boundingBox.minZ <= this.getBoundingBox().maxZ)
+						&& rider.boundingBox.minY <= (this.posY
+														+ this.getMountedYOffset() + .05)) {
+						rider.motionY = Math.max(	this.posY
+															+ this.getMountedYOffset()
+															- rider.boundingBox.minY,
+													rider.motionY);
+						rider.onGround = true;
+						rider.fallDistance = 0;
+					} else {
+						removedRiders.add(entityID);
+					}
 				}
 			}
-			this.confirmedRiders.removeAll(removedRiders);
+			if (!removedRiders.isEmpty()) {
+				this.confirmedRiders.removeAll(removedRiders);
+			}
 		}
 	}
 
