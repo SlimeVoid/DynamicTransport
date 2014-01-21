@@ -1,0 +1,21 @@
+﻿
+slimevoid.DT.elevatorcomputer.enterMant=Entering Maintenance Mode
+slimevoid.DT.elevatorcomputer.mantComplete=Elevator Mantinaince Complete
+slimevoid.DT.elevatorcomputer.enterMantWithName=Elevator: {0} Entering Mantinaince Mode
+slimevoid.DT.elevatorcomputer.mantCompleteWithName=Elevator: {0} Mantinaince Complete
+slimevoid.DT.elevatorcomputer.mantQueued=Maintenance Mode Request Queued
+slimevoid.DT.elevatorcomputer.alreadyMant=Elevator Already in Maintenance Mode
+slimevoid.DT.elevatorcomputer.bindElevatorSuccess =Elevator Block Successfully Bound to Elevator
+slimevoid.DT.elevatorcomputer.bindElevatorSuccessWithName=Elevator Block Successfully Bound to Elevator: %0$s.
+slimevoid.DT.elevatorcomputer.bindInvalidElevatorWithName=Block Can Not be Bound to Elevator: %0$s. Block Does Not Seem To Be an Elevator
+slimevoid.DT.elevatorcomputer.bindInvalidElevator=Block Can Not be Bound to Elevator. Block Does Not Seem To Be an Elevator
+slimevoid.DT.elevatorcomputer.bindElevatorOutOfRangeElevatorWithName=Elevator Block Can Not be Bound to Elevator: %0$s. Block Must be set Within %1$s Meters of Another Elevator Block or Elevator Computer
+slimevoid.DT.elevatorcomputer.bindElevatorOutOfRangeElevator=Elevator Block Can Not be Bound to Elevator. Block Must be set Within %0$s Meters of Another Elevator Block or Elevator Computer
+slimevoid.DT.elevatorcomputer.bindElevatorOutOfRangeWithName=Elevator Block Can Not be Bound to Elevator: %0$s. Block Must be set Within %1$s Meters of Elevator Computer
+slimevoid.DT.elevatorcomputer.bindElevatorOutOfRange=Elevator Block Can Not be Bound to Elevator. Block Must be set Within %0$s Meters of Elevator Computer
+slimevoid.DT.elevatorcomputer.bindElevatorAlreadyBoundWithName=Block Already Bound to Elevator: %0$s
+slimevoid.DT.elevatorcomputer.bindElevatorAlreadyBound=Block Already Bound to Elevator
+slimevoid.DT.elevatorcomputer.bindElevatorElevationInvalidWithName=Block Can Not be Bound to Elevator: %0$s. Block Must be set at Y %1$s
+slimevoid.DT.elevatorcomputer.bindElevatorElevationInvalid=Block Can Not be Bound to Elevator. Block Must be Set at Y %0$s
+slimevoid.DT.elevatorcomputer.bindNoLongerTechWithName=You are no longer the Technician for the Elevator %0$s
+slimevoid.DT.elevatorcomputer.bindNoLongerTech=You are no longer the Technician for the Elevator at %0$s, %1$s ,%2$s

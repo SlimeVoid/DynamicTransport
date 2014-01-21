@@ -23,9 +23,7 @@ import slimevoidlib.blocks.BlockBase;
 public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
 	public enum ElevatorMode {
-		Maintenance,
-		Transit,
-		Available
+		Maintenance, Transit, Available
 	}
 
 	// Persistent Data
@@ -37,6 +35,9 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 	private String							curTechnicianName;
 	private int								elevatorPos;
 	public boolean							pendingMantinance	= false;
+	private float							ElevatorSpeed		= ConfigurationLib.elevatorMaxSpeed;
+	private boolean							isHaltable;
+	private boolean							mobilePower;
 
 	public boolean addElevator(ChunkCoordinates elevator, EntityPlayer entityplayer) {
 		if (this.mode == ElevatorMode.Maintenance
@@ -50,7 +51,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 														2)
 												+ Math.pow(	(double) this.zCoord
 																	- (double) elevator.posZ,
-															2)) <= 3) {
+															2)) <= ConfigurationLib.MaxBindingRange) {
 						if (this.worldObj.getBlockId(	elevator.posX,
 														elevator.posY,
 														elevator.posZ) == ConfigurationLib.blockTransportBase.blockID
@@ -58,14 +59,14 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 																elevator.posY,
 																elevator.posZ) == BlockLib.BLOCK_ELEVATOR_ID) {
 							this.boundElevatorBlocks.add(new XZCoords(elevator.posX, elevator.posZ));
-							entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
-																								&& !this.elevatorName.isEmpty() ? String.format("Block Succesfully Bound to Elevator: %0$s.",
-																																				this.elevatorName) : "Block Succesfully Bound to Elevator"));
+							entityplayer.sendChatToPlayer(this.elevatorName != null
+															&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.bindElevatorSuccessWithName",
+																																							this.elevatorName) : ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorcomputer.bindElevatorSuccess"));
 							return true;
 						} else {
-							entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
-																								&& !this.elevatorName.isEmpty() ? String.format("Block Can Not be Bound to Elevator: %0$s. Block Does Not Seem To Be an Elevator",
-																																				this.elevatorName) : "Block Can Not be Bound to Elevator. Block Does Not Seem To Be an Elevator"));
+							entityplayer.sendChatToPlayer(this.elevatorName != null
+															&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.bindInvalidElevatorWithName",
+																																							this.elevatorName) : ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorcomputer.bindInvalidElevator"));
 						}
 
 					} else {
@@ -77,7 +78,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 																	2)
 															+ Math.pow(	(double) boundBlock.z
 																				- (double) elevator.posZ,
-																		2)) <= 3) {
+																		2)) <= ConfigurationLib.MaxBindingRange) {
 									if (this.worldObj.getBlockId(	elevator.posX,
 																	elevator.posY,
 																	elevator.posZ) == ConfigurationLib.blockTransportBase.blockID
@@ -85,50 +86,54 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 																			elevator.posY,
 																			elevator.posZ) == BlockLib.BLOCK_ELEVATOR_ID) {
 										this.boundElevatorBlocks.add(new XZCoords(elevator.posX, elevator.posZ));
-										entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
-																											&& !this.elevatorName.isEmpty() ? String.format("Block Succesfully Bound to Elevator: %0$s.",
-																																							this.elevatorName) : "Block Succesfully Bound to Elevator"));
+										entityplayer.sendChatToPlayer(this.elevatorName != null
+																		&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.bindElevatorSuccessWithName",
+																																										this.elevatorName) : ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorcomputer.bindElevatorSuccess"));
 										return true;
 									} else {
-										entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
-																											&& !this.elevatorName.isEmpty() ? String.format("Block Can Not be Bound to Elevator: %0$s. Block Does Not Seem To Be an Elevator",
-																																							this.elevatorName) : "Block Can Not be Bound to Elevator. Block Does Not Seem To Be an Elevator"));
+										entityplayer.sendChatToPlayer(this.elevatorName != null
+																		&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.bindInvalidElevatorWithName",
+																																										this.elevatorName) : ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorcomputer.bindInvalidElevator"));
 									}
 								}
 							}
-							entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
-																								&& !this.elevatorName.isEmpty() ? String.format("Block Can Not be Bound to Elevator: %0$s. Block Must be set Withing %1$s Meters of Another Elevator Block or Elevator Computer",
-																																				this.elevatorName,
-																																				3) : String.format(	"Block Can Not be Bound to Elevator. Block Must be set Withing %0$s Meters of Another Elevator Block or Elevator Computer",
-																																									3)));
+							entityplayer.sendChatToPlayer(this.elevatorName != null
+															&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.bindElevatorOutOfRangeElevatorWithName",
+																																							this.elevatorName,
+																																							ConfigurationLib.MaxBindingRange) : ChatMessageComponent.createFromTranslationWithSubstitutions("slimevoid.DT.elevatorcomputer.bindElevatorOutOfRangeElevator",
+																																																															ConfigurationLib.MaxBindingRange));// ""
+
 						} else {
-							entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
-																								&& !this.elevatorName.isEmpty() ? String.format("Block Can Not be Bound to Elevator: %0$s. Block Must be set Withing %1$s Meters of Elevator Computer",
-																																				this.elevatorName,
-																																				3) : String.format(	"Block Can Not be Bound to Elevator. Block Must be set Withing %0$s Meters of Elevator Computer",
-																																									3)));
+							entityplayer.sendChatToPlayer(this.elevatorName != null
+															&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.bindElevatorOutOfRangeWithName",
+																																							this.elevatorName,
+																																							ConfigurationLib.MaxBindingRange) : ChatMessageComponent.createFromTranslationWithSubstitutions("slimevoid.DT.elevatorcomputer.bindElevatorOutOfRange",
+																																																															ConfigurationLib.MaxBindingRange));
+
 						}
 					}
 				} else {
-					entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
-																						&& !this.elevatorName.isEmpty() ? String.format("Block Already Bound to Elevator: %0$s",
-																																		this.elevatorName) : "Block Already Bound to Elevator"));
+					entityplayer.sendChatToPlayer(this.elevatorName != null
+													&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.bindElevatorAlreadyBoundWithName",
+																																					this.elevatorName) : ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorcomputer.bindElevatorAlreadyBound"));
 					return true;
 				}
 			} else {
-				entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
-																					&& !this.elevatorName.isEmpty() ? String.format("Block Can Not be Bound to Elevator: %0$s. Block Must be set at Y %1$s",
-																																	this.elevatorName,
-																																	this.yCoord + 1) : String.format(	"Block Can Not be Bound to Elevator. Block Must be Set at Y %0$s",
-																																										this.yCoord + 1)));
+				entityplayer.sendChatToPlayer(this.elevatorName != null
+												&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.bindElevatorElevationInvalidWithName",
+																																				this.elevatorName,
+																																				this.yCoord + 1) : ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.bindElevatorElevationInvalid",
+																																																								this.yCoord + 1));
+
 			}
 		} else {
-			entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
-																				&& !this.elevatorName.isEmpty() ? String.format("You are no longer the Technition for the Elevator %0$s",
-																																this.elevatorName) : String.format(	"You are no longer the Technition for the Elevator at %0$s, %1$s ,%2$s",
-																																									this.xCoord,
-																																									this.yCoord,
-																																									this.zCoord)));
+			entityplayer.sendChatToPlayer(this.elevatorName != null
+											&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.bindNoLongerTechWithName",
+																																			this.elevatorName) : ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.bindNoLongerTech",
+																																																								this.xCoord,
+																																																								this.yCoord,
+																																																								this.zCoord));
+
 			ItemStack heldItem = entityplayer.getHeldItem();
 			NBTTagCompound tags = new NBTTagCompound();
 			heldItem.setTagCompound(tags);
@@ -149,7 +154,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 															2)
 													+ Math.pow(	(double) boundBlock.z
 																		- (double) markerBlock.posZ,
-																2)) <= 3) {
+																2)) <= ConfigurationLib.MaxBindingRange) {
 							if (this.worldObj.getBlockId(	markerBlock.posX,
 															markerBlock.posY,
 															markerBlock.posZ) == ConfigurationLib.blockTransportBase.blockID
@@ -171,8 +176,8 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 					entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
 																						&& !this.elevatorName.isEmpty() ? String.format("Block Can Not be Bound to Elevator: %0$s. Block Must be set Withing %1$s Meters of an Elevator Block",
 																																		this.elevatorName,
-																																		3) : String.format(	"Block Can Not be Bound to Elevator. Block Must be set Withing %0$s Meters of an Elevator Block",
-																																							3)));
+																																		ConfigurationLib.MaxBindingRange) : String.format(	"Block Can Not be Bound to Elevator. Block Must be set Withing %0$s Meters of an Elevator Block",
+																																															ConfigurationLib.MaxBindingRange)));
 				} else {
 					entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
 																						&& !this.elevatorName.isEmpty() ? "Block Can Not be Bound to Elevator: %0$s. Must Bind at Least One Elevator Block" : "Block Can Not be Bound to Elevator. Must Bind at Least One Elevator Block"));
@@ -208,9 +213,9 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 					&& this.curTechnicianName.equals(entityplayer.username)) {
 					this.curTechnicianName = "";
 					this.mode = ElevatorMode.Available;
-					entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
-																						&& !this.elevatorName.isEmpty() ? String.format("Elevator: {0} Mantinaince Complete",
-																																		this.elevatorName) : "Elevator Mantinaince Complete"));
+					entityplayer.sendChatToPlayer(this.elevatorName != null
+													&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.mantCompleteWithName",
+																																					this.elevatorName) : ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorcomputer.mantComplete"));
 				} else if (this.curTechnicianName == null
 							|| this.curTechnicianName.isEmpty()) {
 					// TODO:Ensure if the tools is bound to another elevator
@@ -223,9 +228,9 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 					tags.setInteger("ComputerZ",
 									this.zCoord);
 					this.curTechnicianName = entityplayer.username;
-					entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
-																						&& !this.elevatorName.isEmpty() ? String.format("Elevator: {0} Entering Mantinaince Mode",
-																																		this.elevatorName) : "Elevator Entering Mantinaince Mode"));
+					entityplayer.sendChatToPlayer(this.elevatorName != null
+													&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.enterMantWithName",
+																																					this.elevatorName) : ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorcomputer.enterMant"));
 					// Move Elevator for Maintenance
 					if (this.boundElevatorBlocks.size() == 0) {
 						this.floorSpool.clear();
@@ -280,7 +285,9 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 			if (forMaintenance) {
 				this.floorSpool.clear();
 				this.pendingMantinance = true;
-				sendMeassageFromAllFloors("Elevator Going into Mantinance Mode");
+				sendMeassageFromAllFloors(this.elevatorName != null
+											&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.enterMantWithName",
+																																			this.elevatorName) : ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorcomputer.enterMant"));// "Elevator Going into Mantinance Mode"
 
 			} else {
 				if (i != this.elevatorPos) {
@@ -298,13 +305,13 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
 		} else if (this.mode == ElevatorMode.Maintenance) {
 			if (forMaintenance) {
-				sendMeassageFromAllFloors("Elevator Already in Mantinance Mode");
+				sendMeassageFromAllFloors(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorcomputer.alreadyMant"));
 			}
 			return "Elevator in Mantinance Mode please Try Again Later";
 		} else if (this.mode == ElevatorMode.Transit) {
 			if (forMaintenance) {
 				this.pendingMantinance = true;
-				sendMeassageFromAllFloors("Mantinance Mode Request Queued");
+				sendMeassageFromAllFloors(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorcomputer.mantQueued"));
 				return "Mantinance Mode Request Queued";
 			} else {
 				this.floorSpool.put(i,
@@ -318,21 +325,21 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
 	}
 
-	private void sendMeassageFromAllFloors(String string) {
+	private void sendMeassageFromAllFloors(ChatMessageComponent chatMessageComponent) {
 		for (ChunkCoordinates marker : this.boundMarkerBlocks) {
 			if (!this.worldObj.isRemote) MinecraftServer.getServer().getConfigurationManager().sendToAllNear(	marker.posX,
 																												marker.posY,
 																												marker.posZ,
 																												4,
 																												this.worldObj.provider.dimensionId,
-																												new Packet3Chat(new ChatMessageComponent().addText(string)));
+																												new Packet3Chat(chatMessageComponent));
 		}
 		if (!this.worldObj.isRemote) MinecraftServer.getServer().getConfigurationManager().sendToAllNear(	this.xCoord,
 																											this.yCoord,
 																											this.zCoord,
 																											4,
 																											this.worldObj.provider.dimensionId,
-																											new Packet3Chat(new ChatMessageComponent().addText(string)));
+																											new Packet3Chat(chatMessageComponent));
 
 	}
 
@@ -351,9 +358,11 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 				if (first) centerElevator = curElevator.entityId;
 				curElevator.setProperties(	i,
 											floorname,
+											this.ElevatorSpeed,
 											new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord),
-											false,
-											centerElevator);
+											this.isHaltable,
+											centerElevator,
+											this.mobilePower);
 				if (first) first = false; // isClient;
 				worldObj.spawnEntityInWorld(curElevator);
 			} else {
@@ -479,7 +488,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 														2)
 												+ Math.pow(	(double) boundElevators.z
 																	- (double) boundMarker.posZ,
-															2)) <= 3) {
+															2)) <= ConfigurationLib.MaxBindingRange) {
 						if (this.worldObj.getBlockId(	boundMarker.posX,
 														boundMarker.posY,
 														boundMarker.posZ) == ConfigurationLib.blockTransportBase.blockID

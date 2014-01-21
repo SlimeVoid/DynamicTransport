@@ -16,6 +16,7 @@ public class ConfigurationLib {
 	private static File					configurationFile;
 	private static Configuration		configuration;
 	public static float					elevatorMaxSpeed;
+	public static int					MaxBindingRange	= 3;
 
 	public static void CommonConfig(File configFile) {
 		if (configurationFile == null) {

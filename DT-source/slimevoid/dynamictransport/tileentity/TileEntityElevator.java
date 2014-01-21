@@ -115,7 +115,7 @@ public class TileEntityElevator extends TileEntityTransportBase {
 		} else {
 			ItemStack heldItem = entityplayer.getHeldItem();
 			NBTTagCompound tags = new NBTTagCompound();
-			entityplayer.sendChatToPlayer(new ChatMessageComponent().addText("Block Can Not be Bound Elevator Computer missing"));
+			entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorBlock.bindMissingElevator"));
 			heldItem.setTagCompound(tags);
 		}
 

@@ -10,8 +10,10 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraftforge.common.ForgeDirection;
+import slimevoid.dynamictransport.core.DynamicTransportMod;
 import slimevoid.dynamictransport.core.lib.BlockLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
+import slimevoid.dynamictransport.core.lib.GuiLib;
 import slimevoidlib.blocks.BlockBase;
 
 public class TileEntityFloorMarker extends TileEntityTransportBase {
@@ -67,7 +69,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 																							this.zCoord,
 																							4,
 																							this.worldObj.provider.dimensionId,
-																							new Packet3Chat(new ChatMessageComponent().addText(msg)));
+																							new Packet3Chat(ChatMessageComponent.createFromTranslationKey(msg)));
 					}
 
 				}
@@ -87,11 +89,11 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 					ChunkCoordinates possibleComputer = new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ"));
 					if (entityplayer.isSneaking()) {
 						if (possibleComputer.equals(this.parentTransportComputer)) {
-							entityplayer.sendChatToPlayer(new ChatMessageComponent().addText("Block Unbound"));
+							entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.misc.unbound"));// "Block Unbound"
 							RemoveComputer();
 							return true;
 						} else if (this.parentTransportComputer != null) {
-							entityplayer.sendChatToPlayer(new ChatMessageComponent().addText("Block Bound to Another Elevator"));
+							entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.misc.boundToOther"));// "Block Bound to Another Elevator"
 						}
 					} else {
 						if (this.parentTransportComputer == null) {
@@ -99,6 +101,12 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 												entityplayer);
 						} else if (possibleComputer.equals(this.parentTransportComputer)) {
 							// open option GUI
+							entityplayer.openGui(	DynamicTransportMod.instance,
+													GuiLib.GUIID_FLOOR_MARKER,
+													this.worldObj,
+													this.xCoord,
+													this.yCoord,
+													this.zCoord);
 						}
 					}
 				}
@@ -121,6 +129,12 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 			if (this.getParentComputer() != null
 				&& this.getParentElevatorComputer().getElevatorMode() != TileEntityElevatorComputer.ElevatorMode.Maintenance) {
 				// show floor selection
+				entityplayer.openGui(	DynamicTransportMod.instance,
+										GuiLib.GUIID_FloorSelection,
+										this.worldObj,
+										this.xCoord,
+										this.yCoord,
+										this.zCoord);
 			}
 		}
 		return false;
@@ -176,7 +190,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 		} else {
 			ItemStack heldItem = entityplayer.getHeldItem();
 			NBTTagCompound tags = new NBTTagCompound();
-			entityplayer.sendChatToPlayer(new ChatMessageComponent().addText("Block Can Not be Bound Computer missing"));
+			entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.markerBlock.bindMissingElevator"));// "Block Can Not be Bound Computer missing"));
 			heldItem.setTagCompound(tags);
 		}
 

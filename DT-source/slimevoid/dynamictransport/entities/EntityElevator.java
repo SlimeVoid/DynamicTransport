@@ -24,7 +24,6 @@ public class EntityElevator extends Entity {
 	private static final int	blockID					= ConfigurationLib.blockTransportBaseID;
 	private static final int	blockMeta				= BlockLib.BLOCK_ELEVATOR_ID;
 	private static final float	elevatorAccel			= 0.01F;
-	private static final float	maxElevatorSpeed		= ConfigurationLib.elevatorMaxSpeed;
 	private static final float	minElevatorMovingSpeed	= 0.016F;
 
 	// server only
@@ -41,9 +40,9 @@ public class EntityElevator extends Entity {
 	// possible watcher
 	private byte				waitToAccelerate		= 0;
 	public int					startStops				= 0;
-	public int					controlingElevatorID	= 0;
+	public int					notifierElevatorID		= 0;
 	public boolean				emerHalt				= false;
-	public boolean				iscontrolerElevator		= false;
+	public boolean				isNotifierElevator		= false;
 
 	// most likely fine
 	private byte				stillCount				= 0;
@@ -73,7 +72,7 @@ public class EntityElevator extends Entity {
 					prevPosY,
 					prevPosZ);
 
-		iscontrolerElevator = false;
+		isNotifierElevator = false;
 
 		waitToAccelerate = 0;
 
@@ -83,6 +82,8 @@ public class EntityElevator extends Entity {
 	protected void entityInit() {
 		this.getDataWatcher().addObject(2,
 										new Integer(-1));
+		this.getDataWatcher().addObject(3,
+										0f);
 	}
 
 	@Override
@@ -125,17 +126,16 @@ public class EntityElevator extends Entity {
 		this.updateRiderPosition();
 
 		if (!worldObj.isRemote) {
-			if (iscontrolerElevator) {
+			if (isNotifierElevator) {
 
 				MinecraftServer.getServer().getConfigurationManager().sendToAllNear(this.posX,
 																					this.posY,
 																					this.posZ,
 																					4,
 																					this.worldObj.provider.dimensionId,
-																					new Packet3Chat(new ChatMessageComponent().addText("Elevator Arrived at"
-																																		+ " "
-																																		+ (destFloorName == null
-																																			|| destFloorName.trim().isEmpty() ? this.getDataWatcher().getWatchableObjectInt(2) : this.destFloorName))));
+																					new Packet3Chat(ChatMessageComponent.createFromTranslationWithSubstitutions("slimevoid.DT.entityElevator.arrive",
+																																								(destFloorName == null
+																																									|| destFloorName.trim().isEmpty() ? this.getDataWatcher().getWatchableObjectInt(2) : this.destFloorName))));// "Elevator Arrived at %0$s"
 
 			}
 
@@ -187,6 +187,7 @@ public class EntityElevator extends Entity {
 			waitToAccelerate++;
 
 		} else {
+			float maxElevatorSpeed = this.getDataWatcher().getWatchableObjectFloat(3);
 			float tempSpeed = elevatorSpeed + elevatorAccel;
 			if (tempSpeed > maxElevatorSpeed) {
 				tempSpeed = maxElevatorSpeed;
@@ -279,7 +280,7 @@ public class EntityElevator extends Entity {
 		nbttagcompound.setBoolean(	"emerHalt",
 									emerHalt);
 		nbttagcompound.setBoolean(	"isCenter",
-									iscontrolerElevator);
+									isNotifierElevator);
 		nbttagcompound.setInteger(	"ComputerX",
 									this.computerPos.posX);
 		nbttagcompound.setInteger(	"ComputerY",
@@ -294,7 +295,7 @@ public class EntityElevator extends Entity {
 		this.getDataWatcher().updateObject(	2,
 											nbttagcompound.getInteger("destY"));
 		this.emerHalt = nbttagcompound.getBoolean("emerHalt");
-		this.iscontrolerElevator = nbttagcompound.getBoolean("isCenter");
+		this.isNotifierElevator = nbttagcompound.getBoolean("isCenter");
 		this.computerPos = new ChunkCoordinates(nbttagcompound.getInteger("ComputerX"), nbttagcompound.getInteger("ComputerY"), nbttagcompound.getInteger("ComputerZ"));
 	}
 
@@ -359,20 +360,23 @@ public class EntityElevator extends Entity {
 		return 0.55D;
 	}
 
-	public void setProperties(int destination, String destinationName, ChunkCoordinates computer, boolean haltable, int controlerID) {
+	public void setProperties(int destination, String destinationName, float elevatorTopSpeed, ChunkCoordinates computer, boolean haltable, int notifierID, boolean mobilePower) {
 		this.getDataWatcher().updateObject(	2,
 											destination);
 		destFloorName = destinationName;
 
 		this.computerPos = computer;
 		this.canBeHalted = haltable;
+		this.enableMobilePower = mobilePower;
 
-		iscontrolerElevator = (controlerID == this.entityId);
+		isNotifierElevator = (notifierID == this.entityId);
 
+		this.getDataWatcher().updateObject(	3,
+											elevatorTopSpeed);
 		waitToAccelerate = 0;
 
-		if (!iscontrolerElevator) {
-			this.controlingElevatorID = controlerID;
+		if (!isNotifierElevator) {
+			this.notifierElevatorID = notifierID;
 			this.getControler().conjoinedelevators.add(this.entityId);
 		}
 	}
@@ -426,7 +430,7 @@ public class EntityElevator extends Entity {
 
 	}
 
-	// only function that abbsolutly needs to keep track of elevators
+	// only function that absolutely needs to keep track of elevators
 	public void setEmerHalt(boolean newhalt) {
 		if (!this.canBeHalted && newhalt) {
 			return;
@@ -459,12 +463,12 @@ public class EntityElevator extends Entity {
 			if (curElevator != null) curElevator.setDead();
 		}
 		this.setDead();
-		if (iscontrolerElevator) {
+		if (isNotifierElevator) {
 			TileEntityElevatorComputer comTile = this.getParentElevatorComputer();
 			if (comTile != null) {
 
 				comTile.elevatorArrived(MathHelper.floor_double(this.posY),
-										iscontrolerElevator);
+										isNotifierElevator);
 			}
 
 		}
@@ -472,12 +476,12 @@ public class EntityElevator extends Entity {
 
 	// Used to get isControler on both client and server
 	private boolean getIsControlerElevator() {
-		return this.iscontrolerElevator
-				|| (this.controlingElevatorID == this.entityId);
+		return this.isNotifierElevator
+				|| (this.notifierElevatorID == this.entityId);
 	}
 
 	private EntityElevator getControler() {
-		return ((EntityElevator) this.worldObj.getEntityByID(this.controlingElevatorID));
+		return ((EntityElevator) this.worldObj.getEntityByID(this.notifierElevatorID));
 	}
 
 	// used to get access to the elevators computer

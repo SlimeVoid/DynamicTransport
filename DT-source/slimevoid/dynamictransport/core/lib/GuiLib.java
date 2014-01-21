@@ -20,7 +20,7 @@ public class GuiLib {
 																	+ BlockLib.BLOCK_DYNAMIC_MARK
 																	+ ".png";
 
-	public static final int					GUIID_CAMO			= 2;
+	public static final int					GUIID_FloorSelection			= 2;
 	public static final String				CAMO				= GUI_PREFIX
 																	+ "camo"
 																	+ ".png";
