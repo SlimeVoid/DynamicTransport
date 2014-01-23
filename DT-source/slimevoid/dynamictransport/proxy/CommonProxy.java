@@ -11,13 +11,12 @@ import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import slimevoid.dynamictransport.container.ContainerDynamicElevator;
+import slimevoid.dynamictransport.container.ContainerFloorSelection;
 import slimevoid.dynamictransport.core.DynamicTransportMod;
-import slimevoid.dynamictransport.core.PacketLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import slimevoid.dynamictransport.core.lib.GuiLib;
-import slimevoid.dynamictransport.network.CommonPacketHandler;
-import slimevoid.dynamictransport.tileentity.TileEntityElevator;
+import slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
+import slimevoid.dynamictransport.tileentity.TileEntityFloorMarker;
 import slimevoidlib.ICommonProxy;
 import slimevoidlib.IPacketHandling;
 import slimevoidlib.util.helpers.SlimevoidHelper;
@@ -28,8 +27,7 @@ public class CommonProxy implements ICommonProxy {
 
 	@Override
 	public void preInit() {
-		CommonPacketHandler.init();
-		PacketLib.registerPacketHandlers();
+
 		NetworkRegistry.instance().registerGuiHandler(	DynamicTransportMod.instance,
 														DynamicTransportMod.proxy);
 
@@ -49,13 +47,18 @@ public class CommonProxy implements ICommonProxy {
 
 	@Override
 	public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-		if (ID == GuiLib.GUIID_ELEVATOR) {
+		if (ID == GuiLib.GUIID_FloorSelection) {
 			TileEntity tileentity = SlimevoidHelper.getBlockTileEntity(	world,
 																		x,
 																		y,
 																		z);
-			if (tileentity != null && tileentity instanceof TileEntityElevator) {
-				return new ContainerDynamicElevator(player.inventory, (TileEntityElevator) tileentity);
+			if (tileentity != null
+				&& tileentity instanceof TileEntityFloorMarker) {
+				tileentity = ((TileEntityFloorMarker) tileentity).getParentElevatorComputer();
+			}
+			if (tileentity != null
+				&& tileentity instanceof TileEntityElevatorComputer) {
+				return new ContainerFloorSelection(player.inventory, (TileEntityElevatorComputer) tileentity);
 			}
 		}
 		return null;

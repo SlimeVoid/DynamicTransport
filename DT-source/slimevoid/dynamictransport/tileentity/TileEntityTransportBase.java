@@ -16,9 +16,7 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
 	protected Privacy		privacyLvl	= Privacy.Public;
 
 	public enum Privacy {
-		Public,
-		Restricted,
-		Private
+		Public, Restricted, Private
 	}
 
 	@Override

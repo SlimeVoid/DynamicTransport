@@ -46,12 +46,8 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 			if (elevator.posY - 1 == this.yCoord) {
 				if (!boundElevatorBlocks.contains(new XZCoords(elevator.posX, elevator.posZ))) {
 
-					if (MathHelper.sqrt_double(Math.pow((double) this.xCoord
-																- (double) elevator.posX,
-														2)
-												+ Math.pow(	(double) this.zCoord
-																	- (double) elevator.posZ,
-															2)) <= ConfigurationLib.MaxBindingRange) {
+					if (isInRange(	elevator,
+									true)) {
 						if (this.worldObj.getBlockId(	elevator.posX,
 														elevator.posY,
 														elevator.posZ) == ConfigurationLib.blockTransportBase.blockID
@@ -70,47 +66,13 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 						}
 
 					} else {
-						if (boundElevatorBlocks.size() != 0) {
 
-							for (XZCoords boundBlock : boundElevatorBlocks) {
-								if (MathHelper.sqrt_double(Math.pow((double) boundBlock.x
-																			- (double) elevator.posX,
-																	2)
-															+ Math.pow(	(double) boundBlock.z
-																				- (double) elevator.posZ,
-																		2)) <= ConfigurationLib.MaxBindingRange) {
-									if (this.worldObj.getBlockId(	elevator.posX,
-																	elevator.posY,
-																	elevator.posZ) == ConfigurationLib.blockTransportBase.blockID
-										&& this.worldObj.getBlockMetadata(	elevator.posX,
-																			elevator.posY,
-																			elevator.posZ) == BlockLib.BLOCK_ELEVATOR_ID) {
-										this.boundElevatorBlocks.add(new XZCoords(elevator.posX, elevator.posZ));
-										entityplayer.sendChatToPlayer(this.elevatorName != null
-																		&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.bindElevatorSuccessWithName",
-																																										this.elevatorName) : ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorcomputer.bindElevatorSuccess"));
-										return true;
-									} else {
-										entityplayer.sendChatToPlayer(this.elevatorName != null
-																		&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.bindInvalidElevatorWithName",
-																																										this.elevatorName) : ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorcomputer.bindInvalidElevator"));
-									}
-								}
-							}
-							entityplayer.sendChatToPlayer(this.elevatorName != null
-															&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.bindElevatorOutOfRangeElevatorWithName",
-																																							this.elevatorName,
-																																							ConfigurationLib.MaxBindingRange) : ChatMessageComponent.createFromTranslationWithSubstitutions("slimevoid.DT.elevatorcomputer.bindElevatorOutOfRangeElevator",
-																																																															ConfigurationLib.MaxBindingRange));// ""
+						entityplayer.sendChatToPlayer(this.elevatorName != null
+														&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.bindElevatorOutOfRangeWithName",
+																																						this.elevatorName,
+																																						ConfigurationLib.MaxBindingRange) : ChatMessageComponent.createFromTranslationWithSubstitutions("slimevoid.DT.elevatorcomputer.bindElevatorOutOfRange",
+																																																														ConfigurationLib.MaxBindingRange));
 
-						} else {
-							entityplayer.sendChatToPlayer(this.elevatorName != null
-															&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.bindElevatorOutOfRangeWithName",
-																																							this.elevatorName,
-																																							ConfigurationLib.MaxBindingRange) : ChatMessageComponent.createFromTranslationWithSubstitutions("slimevoid.DT.elevatorcomputer.bindElevatorOutOfRange",
-																																																															ConfigurationLib.MaxBindingRange));
-
-						}
 					}
 				} else {
 					entityplayer.sendChatToPlayer(this.elevatorName != null
@@ -148,36 +110,31 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 			&& this.curTechnicianName.equals(entityplayer.username)) {
 			if (!this.boundMarkerBlocks.contains(markerBlock)) {
 				if (boundElevatorBlocks.size() != 0) {
-					for (XZCoords boundBlock : boundElevatorBlocks) {
-						if (MathHelper.sqrt_double(Math.pow((double) boundBlock.x
-																	- (double) markerBlock.posX,
-															2)
-													+ Math.pow(	(double) boundBlock.z
-																		- (double) markerBlock.posZ,
-																2)) <= ConfigurationLib.MaxBindingRange) {
-							if (this.worldObj.getBlockId(	markerBlock.posX,
-															markerBlock.posY,
-															markerBlock.posZ) == ConfigurationLib.blockTransportBase.blockID
-								&& this.worldObj.getBlockMetadata(	markerBlock.posX,
-																	markerBlock.posY,
-																	markerBlock.posZ) == BlockLib.BLOCK_DYNAMIC_MARK_ID) {
-								this.boundMarkerBlocks.add(markerBlock);
-								entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
-																									&& !this.elevatorName.isEmpty() ? String.format("Block Succesfully Bound to Elevator: %0$s.",
-																																					this.elevatorName) : "Block Succesfully Bound to Elevator"));
-								return true;
-							} else {
-								entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
-																									&& !this.elevatorName.isEmpty() ? String.format("Block Can Not be Bound to Elevator: %0$s. Block Does Not Seem To Be a Floor Marker",
-																																					this.elevatorName) : "Block Can Not be Bound to Elevator. Block Does Not Seem To Be a Floor Marker"));
-							}
+					if (isInRange(	markerBlock,
+									false)) {
+						if (this.worldObj.getBlockId(	markerBlock.posX,
+														markerBlock.posY,
+														markerBlock.posZ) == ConfigurationLib.blockTransportBase.blockID
+							&& this.worldObj.getBlockMetadata(	markerBlock.posX,
+																markerBlock.posY,
+																markerBlock.posZ) == BlockLib.BLOCK_DYNAMIC_MARK_ID) {
+							this.boundMarkerBlocks.add(markerBlock);
+							entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
+																								&& !this.elevatorName.isEmpty() ? String.format("Block Succesfully Bound to Elevator: %0$s.",
+																																				this.elevatorName) : "Block Succesfully Bound to Elevator"));
+							return true;
+						} else {
+							entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
+																								&& !this.elevatorName.isEmpty() ? String.format("Block Can Not be Bound to Elevator: %0$s. Block Does Not Seem To Be a Floor Marker",
+																																				this.elevatorName) : "Block Can Not be Bound to Elevator. Block Does Not Seem To Be a Floor Marker"));
 						}
+					} else {
+						entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
+																							&& !this.elevatorName.isEmpty() ? String.format("Block Can Not be Bound to Elevator: %0$s. Block Must be set Withing %1$s Meters of an Elevator Block",
+																																			this.elevatorName,
+																																			ConfigurationLib.MaxBindingRange) : String.format(	"Block Can Not be Bound to Elevator. Block Must be set Withing %0$s Meters of an Elevator Block",
+																																																ConfigurationLib.MaxBindingRange)));
 					}
-					entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
-																						&& !this.elevatorName.isEmpty() ? String.format("Block Can Not be Bound to Elevator: %0$s. Block Must be set Withing %1$s Meters of an Elevator Block",
-																																		this.elevatorName,
-																																		ConfigurationLib.MaxBindingRange) : String.format(	"Block Can Not be Bound to Elevator. Block Must be set Withing %0$s Meters of an Elevator Block",
-																																															ConfigurationLib.MaxBindingRange)));
 				} else {
 					entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
 																						&& !this.elevatorName.isEmpty() ? "Block Can Not be Bound to Elevator: %0$s. Must Bind at Least One Elevator Block" : "Block Can Not be Bound to Elevator. Must Bind at Least One Elevator Block"));
@@ -186,7 +143,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 				entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
 																					&& !this.elevatorName.isEmpty() ? String.format("Block Already Bound to Elevator: %0$s",
 																																	this.elevatorName) : "Block Already Bound to Elevator"));
-
+				return true;
 			}
 		} else {
 			entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
@@ -266,7 +223,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 																		boundFloorMarker.posY,
 																		boundFloorMarker.posZ);
 			if (markerTile != null) {
-				((TileEntityFloorMarker) markerTile).RemoveComputer();
+				((TileEntityFloorMarker) markerTile).removeParent();
 			}
 		}
 		return super.removeBlockByPlayer(	player,
@@ -547,5 +504,29 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 	@Override
 	public int getExtendedBlockID() {
 		return BlockLib.BLOCK_ELEVATOR_COMPUTER_ID;
+	}
+
+	public boolean isInRange(ChunkCoordinates bindingBlock, boolean shouldCheckComputer) {
+		if (boundElevatorBlocks != null && boundElevatorBlocks.size() > 0) {
+			for (XZCoords boundBlock : boundElevatorBlocks) {
+				if (MathHelper.sqrt_double(Math.pow((double) boundBlock.x
+															- (double) bindingBlock.posX,
+													2)
+											+ Math.pow(	(double) boundBlock.z
+																- (double) bindingBlock.posZ,
+														2)) <= ConfigurationLib.MaxBindingRange) {
+					return true;
+				}
+			}
+		}
+		if (shouldCheckComputer) {
+			return MathHelper.sqrt_double(Math.pow(	(double) this.xCoord
+															- (double) bindingBlock.posX,
+													2)
+											+ Math.pow(	(double) this.zCoord
+																- (double) bindingBlock.posZ,
+														2)) <= ConfigurationLib.MaxBindingRange;
+		}
+		return false;
 	}
 }

@@ -7,14 +7,15 @@ import net.minecraft.world.World;
 
 import org.lwjgl.opengl.GL11;
 
-import slimevoid.dynamictransport.container.ContainerDynamicMarker;
+import slimevoid.dynamictransport.container.ContainerFloorSelection;
 import slimevoid.dynamictransport.core.lib.GuiLib;
+import slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
 import slimevoid.dynamictransport.tileentity.TileEntityFloorMarker;
 
-public class GuiDynamicMarker extends GuiContainer {
+public class GuiFloorSelection extends GuiContainer {
 
-	public GuiDynamicMarker(EntityPlayer entityplayer, InventoryPlayer playerInventory, World world, TileEntityFloorMarker elevator) {
-		super(new ContainerDynamicMarker(playerInventory, elevator));
+	public GuiFloorSelection(EntityPlayer entityplayer, InventoryPlayer playerInventory, World world, TileEntityElevatorComputer elevator) {
+		super(new ContainerFloorSelection(playerInventory, elevator));
 		// TODO Auto-generated constructor stub
 	}
 

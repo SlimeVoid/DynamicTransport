@@ -1,8 +1,10 @@
 package slimevoid.dynamictransport.tileentity;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.ChunkCoordinates;
 import slimevoid.dynamictransport.core.lib.BlockLib;
@@ -51,12 +53,13 @@ public class TileEntityElevator extends TileEntityTransportBase {
 
 	@Override
 	public boolean onBlockActivated(EntityPlayer entityplayer) {
+		if (this.worldObj.isRemote) {
+			return true;
+		}
 		ItemStack heldItem = entityplayer.getHeldItem();
 		if (heldItem != null
 			&& heldItem.itemID == ConfigurationLib.itemElevatorTool.itemID) {
-			if (this.worldObj.isRemote) {
-				return true;
-			}
+
 			if (heldItem.hasTagCompound()
 				&& entityplayer.getHeldItem().getTagCompound() != null) {
 				NBTTagCompound tags = entityplayer.getHeldItem().getTagCompound();
@@ -73,6 +76,20 @@ public class TileEntityElevator extends TileEntityTransportBase {
 																	+ this.zCoord
 																	+ "]");
 			}
+		} else if (this.getParentElevatorComputer() == null
+					|| this.getParentElevatorComputer().getElevatorMode() == TileEntityElevatorComputer.ElevatorMode.Maintenance) {
+			if (this.camoItem == null && entityplayer.getHeldItem() != null
+				&& entityplayer.getHeldItem().getItem() instanceof ItemBlock) {
+				this.setCamoItem(entityplayer.getHeldItem().copy());
+				--entityplayer.getHeldItem().stackSize;
+				return true;
+			}
+
+			if (this.camoItem != null && entityplayer.getHeldItem() == null) {
+				this.removeCamoItem();
+				return true;
+			}
+
 		}
 		return false;
 	}
@@ -133,8 +150,22 @@ public class TileEntityElevator extends TileEntityTransportBase {
 											blockBase);
 	}
 
-	public ChunkCoordinates getParentElevatorComputer() {
+	public ChunkCoordinates getParent() {
 		return this.ParentElevatorComputer;
+	}
+
+	public TileEntityElevatorComputer getParentElevatorComputer() {
+		TileEntity tile = ParentElevatorComputer == null ? null : this.worldObj.getBlockTileEntity(	this.ParentElevatorComputer.posX,
+																									this.ParentElevatorComputer.posY,
+																									this.ParentElevatorComputer.posZ);
+		if (tile == null) {
+			ParentElevatorComputer = null;
+		} else if (!(tile instanceof TileEntityElevatorComputer)) {
+			tile = null;
+			ParentElevatorComputer = null;
+		}
+
+		return (TileEntityElevatorComputer) tile;
 	}
 
 	@Override

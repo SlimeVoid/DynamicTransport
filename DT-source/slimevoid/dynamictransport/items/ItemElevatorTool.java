@@ -4,7 +4,6 @@ import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import slimevoid.dynamictransport.core.lib.BlockLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
 
 public class ItemElevatorTool extends Item {
@@ -33,10 +32,6 @@ public class ItemElevatorTool extends Item {
 	public boolean shouldPassSneakingClickToBlock(World world, int x, int y, int z) {
 		return world.getBlockId(x,
 								y,
-								z) == ConfigurationLib.blockTransportBaseID
-				&& (world.getBlockMetadata(	x,
-											y,
-											z) == BlockLib.BLOCK_ELEVATOR_COMPUTER_ID);
+								z) == ConfigurationLib.blockTransportBaseID;
 	}
-
 }

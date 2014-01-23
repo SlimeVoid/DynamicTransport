@@ -18,24 +18,38 @@ import slimevoidlib.blocks.BlockBase;
 
 public class TileEntityFloorMarker extends TileEntityTransportBase {
 
-	private ChunkCoordinates	parentTransportComputer;
-	private int					floorYLvl	= -1;
+	private ChunkCoordinates	parentTransportBase;
 	private String				floorName;
-	private boolean				Powered		= false;
+	private boolean				Powered	= false;
+	private int					yOffset	= -2;
 
-	public ChunkCoordinates getParentComputer() {
-		return this.parentTransportComputer;
+	public ChunkCoordinates getParent() {
+		return this.parentTransportBase;
 	}
 
+	// used for deciding parent/child behavior
+	private boolean isChildMarker() {
+		TileEntity tile = parentTransportBase == null ? null : this.worldObj.getBlockTileEntity(this.parentTransportBase.posX,
+																								this.parentTransportBase.posY,
+																								this.parentTransportBase.posZ);
+		return tile == null || tile instanceof TileEntityFloorMarker;
+	}
+
+	// will try to find the elevator this is bound to even if the block is bound
+	// to another marker
 	public TileEntityElevatorComputer getParentElevatorComputer() {
-		TileEntity tile = parentTransportComputer == null ? null : this.worldObj.getBlockTileEntity(this.parentTransportComputer.posX,
-																									this.parentTransportComputer.posY,
-																									this.parentTransportComputer.posZ);
+		TileEntity tile = parentTransportBase == null ? null : this.worldObj.getBlockTileEntity(this.parentTransportBase.posX,
+																								this.parentTransportBase.posY,
+																								this.parentTransportBase.posZ);
 		if (tile == null) {
-			parentTransportComputer = null;
+			parentTransportBase = null;
 		} else if (!(tile instanceof TileEntityElevatorComputer)) {
-			tile = null;
-			parentTransportComputer = null;
+			if ((tile instanceof TileEntityFloorMarker && ((TileEntityFloorMarker) tile).getParentElevatorComputer() != null)) {
+				tile = ((TileEntityFloorMarker) tile).getParentElevatorComputer();
+			} else {
+				tile = null;
+				parentTransportBase = null;
+			}
 		}
 
 		return (TileEntityElevatorComputer) tile;
@@ -55,51 +69,62 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 		if (!this.Powered) {
 			if (flag) {
 				this.Powered = true;
-				TileEntityElevatorComputer comTile = this.getParentElevatorComputer();
-				if (comTile != null) {
-					if (this.floorYLvl == -1) {
-						this.floorYLvl = this.yCoord - 2;
-					}
-
-					String msg = comTile.CallElevator(	floorYLvl,
-														this.floorName);
-					if (!this.worldObj.isRemote) {
-						MinecraftServer.getServer().getConfigurationManager().sendToAllNear(this.xCoord,
-																							this.yCoord,
-																							this.zCoord,
-																							4,
-																							this.worldObj.provider.dimensionId,
-																							new Packet3Chat(ChatMessageComponent.createFromTranslationKey(msg)));
-					}
-
-				}
+				this.callElevator();
 			}
 		} else if (!flag) {
 			this.Powered = false;
 		}
 	}
 
+	private void callElevator() {
+		if (this.isChildMarker()) {
+			this.getParentFloorMarker().callElevator();
+		} else {
+			TileEntityElevatorComputer comTile = this.getParentElevatorComputer();
+			if (comTile != null) {
+				String msg = comTile.CallElevator(	this.yCoord - this.yOffset,
+													this.floorName);
+				if (!this.worldObj.isRemote) {
+					MinecraftServer.getServer().getConfigurationManager().sendToAllNear(this.xCoord,
+																						this.yCoord,
+																						this.zCoord,
+																						4,
+																						this.worldObj.provider.dimensionId,
+																						new Packet3Chat(ChatMessageComponent.createFromTranslationKey(msg)));
+				}
+			}
+		}
+	}
+
+	private TileEntityFloorMarker getParentFloorMarker() {
+		// noop
+		return null;
+	}
+
 	@Override
 	public boolean onBlockActivated(EntityPlayer entityplayer) {
+		if (this.getWorldObj().isRemote) {
+			return true;
+		}
 		if (!this.getWorldObj().isRemote) {
 			if (entityplayer.getHeldItem() != null
 				&& entityplayer.getHeldItem().itemID == ConfigurationLib.itemElevatorTool.itemID) {
 				NBTTagCompound tags = entityplayer.getHeldItem().getTagCompound();
-				if (tags.hasKey("ComputerX")) {
+				if (tags.hasKey("ComputerX") && tags.getByte("Mode") == 0) {
 					ChunkCoordinates possibleComputer = new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ"));
 					if (entityplayer.isSneaking()) {
-						if (possibleComputer.equals(this.parentTransportComputer)) {
-							entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.misc.unbound"));// "Block Unbound"
-							RemoveComputer();
+						if (possibleComputer.equals(this.parentTransportBase)) {
+							entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.dynamicMarker.unbound"));// "Block Unbound"
+							removeParent();
 							return true;
-						} else if (this.parentTransportComputer != null) {
-							entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.misc.boundToOther"));// "Block Bound to Another Elevator"
+						} else if (this.parentTransportBase != null) {
+							entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.dynamicMarker.boundToOtherComputer"));// "Block Bound to Another Elevator"
 						}
 					} else {
-						if (this.parentTransportComputer == null) {
+						if (this.parentTransportBase == null) {
 							setParentComputer(	new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ")),
 												entityplayer);
-						} else if (possibleComputer.equals(this.parentTransportComputer)) {
+						} else if (possibleComputer.equals(this.parentTransportBase)) {
 							// open option GUI
 							entityplayer.openGui(	DynamicTransportMod.instance,
 													GuiLib.GUIID_FLOOR_MARKER,
@@ -107,67 +132,80 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 													this.xCoord,
 													this.yCoord,
 													this.zCoord);
+							return true;
 						}
 					}
 				}
-			}
-		}
-		if (this.getParentElevatorComputer() == null
-			|| this.getParentElevatorComputer().getElevatorMode() == TileEntityElevatorComputer.ElevatorMode.Maintenance) {
-			if (this.camoItem == null && entityplayer.getHeldItem() != null
-				&& entityplayer.getHeldItem().getItem() instanceof ItemBlock) {
-				this.setCamoItem(entityplayer.getHeldItem().copy());
-				--entityplayer.getHeldItem().stackSize;
-				return true;
+			} else if (this.getParentElevatorComputer() == null
+						|| this.getParentElevatorComputer().getElevatorMode() == TileEntityElevatorComputer.ElevatorMode.Maintenance) {
+				if (this.camoItem == null
+					&& entityplayer.getHeldItem() != null
+					&& entityplayer.getHeldItem().getItem() instanceof ItemBlock) {
+					this.setCamoItem(entityplayer.getHeldItem().copy());
+					--entityplayer.getHeldItem().stackSize;
+					return true;
+				}
+
+				if (this.camoItem != null && entityplayer.getHeldItem() == null) {
+					this.removeCamoItem();
+					return true;
+				}
+			} else if (!this.getWorldObj().isRemote) {
+				if (this.getParent() != null
+					&& (this.getParentElevatorComputer().getElevatorMode() != TileEntityElevatorComputer.ElevatorMode.Maintenance)) {
+					// show floor selection
+					entityplayer.openGui(	DynamicTransportMod.instance,
+											GuiLib.GUIID_FloorSelection,
+											this.worldObj,
+											this.xCoord,
+											this.yCoord,
+											this.zCoord);
+					return true;
+				}
 			}
 
-			if (this.camoItem != null && entityplayer.getHeldItem() == null) {
-				this.removeCamoItem();
-				return true;
-			}
-		} else if (!this.getWorldObj().isRemote) {
-			if (this.getParentComputer() != null
-				&& this.getParentElevatorComputer().getElevatorMode() != TileEntityElevatorComputer.ElevatorMode.Maintenance) {
-				// show floor selection
-				entityplayer.openGui(	DynamicTransportMod.instance,
-										GuiLib.GUIID_FloorSelection,
-										this.worldObj,
-										this.xCoord,
-										this.yCoord,
-										this.zCoord);
-			}
 		}
 		return false;
+	}
+
+	private void setParentMarker(ChunkCoordinates possibleMarker, EntityPlayer entityplayer) {
+		// noop
 	}
 
 	@Override
 	public void writeToNBT(NBTTagCompound nbttagcompound) {
 		super.writeToNBT(nbttagcompound);
-		if (parentTransportComputer != null) {
+		if (parentTransportBase != null) {
 			nbttagcompound.setInteger(	"ParentTransportComputerX",
-										parentTransportComputer.posX);
+										parentTransportBase.posX);
 			nbttagcompound.setInteger(	"ParentTransportComputerY",
-										parentTransportComputer.posY);
+										parentTransportBase.posY);
 			nbttagcompound.setInteger(	"ParentTransportComputerZ",
-										parentTransportComputer.posZ);
+										parentTransportBase.posZ);
 		}
-		if (this.floorName != null && !this.floorName.isEmpty()) nbttagcompound.setString(	"FloorName",
-																							floorName);
-		nbttagcompound.setInteger(	"FloorYLvl",
-									floorYLvl);
+		if (this.getParentFloorMarker() == null && this.floorName != null
+			&& !this.floorName.isEmpty()) nbttagcompound.setString(	"FloorName",
+																	floorName);
+		nbttagcompound.setInteger(	"yOffset",
+									yOffset);
+		nbttagcompound.setBoolean(	"Powered",
+									this.Powered);
 
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound nbttagcompound) {
 		super.readFromNBT(nbttagcompound);
-		this.parentTransportComputer = new ChunkCoordinates(nbttagcompound.getInteger("ParentTransportComputerX"), nbttagcompound.getInteger("ParentTransportComputerY"), nbttagcompound.getInteger("ParentTransportComputerZ"));
+		this.parentTransportBase = new ChunkCoordinates(nbttagcompound.getInteger("ParentTransportComputerX"), nbttagcompound.getInteger("ParentTransportComputerY"), nbttagcompound.getInteger("ParentTransportComputerZ"));
+
 		this.floorName = nbttagcompound.getString("FloorName");
-		this.floorYLvl = nbttagcompound.getInteger("FloorYLvl");
+
+		this.yOffset = nbttagcompound.getInteger("yOffset");
+		this.Powered = nbttagcompound.getBoolean("Powered");
 	}
 
-	public void RemoveComputer() {
-		this.parentTransportComputer = null;
+	public void removeParent() {
+		this.parentTransportBase = null;
 
 	}
 
@@ -185,12 +223,18 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 																					ComputerLocation.posY,
 																					ComputerLocation.posZ);
 			if (comTile.addFloorMarker(	new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord),
-										entityplayer)) this.parentTransportComputer = ComputerLocation;
+										entityplayer)) {
+				this.parentTransportBase = ComputerLocation;
+				this.onInventoryChanged();
+				this.getWorldObj().markBlockForUpdate(	this.xCoord,
+														this.yCoord,
+														this.zCoord);
+			}
 
 		} else {
 			ItemStack heldItem = entityplayer.getHeldItem();
 			NBTTagCompound tags = new NBTTagCompound();
-			entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.markerBlock.bindMissingElevator"));// "Block Can Not be Bound Computer missing"));
+			entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.dynamicMarker.bindMissingElevator"));
 			heldItem.setTagCompound(tags);
 		}
 
@@ -200,4 +244,5 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 	public int getExtendedBlockID() {
 		return BlockLib.BLOCK_DYNAMIC_MARK_ID;
 	}
+
 }

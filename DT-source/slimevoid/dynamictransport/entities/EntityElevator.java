@@ -133,9 +133,11 @@ public class EntityElevator extends Entity {
 																					this.posZ,
 																					4,
 																					this.worldObj.provider.dimensionId,
-																					new Packet3Chat(ChatMessageComponent.createFromTranslationWithSubstitutions("slimevoid.DT.entityElevator.arrive",
-																																								(destFloorName == null
-																																									|| destFloorName.trim().isEmpty() ? this.getDataWatcher().getWatchableObjectInt(2) : this.destFloorName))));// "Elevator Arrived at %0$s"
+																					new Packet3Chat(this.elevatorName != null
+																									&& this.elevatorName.trim() != "" ? ChatMessageComponent.createFromTranslationWithSubstitutions("slimevoid.DT.entityElevator.arriveWithName",
+																																																	this.elevatorName,
+																																																	destFloorName) : ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.entityElevator.arrive",
+																																																																					this.destFloorName)));
 
 			}
 
@@ -236,9 +238,13 @@ public class EntityElevator extends Entity {
 		updateRiderPosition();
 
 		if (!emerHalt) {
-			if (MathHelper.abs((float) motionY) < minElevatorMovingSpeed
-				&& stillCount++ > 10) {
-				killAllConjoined();
+			if (MathHelper.abs((float) motionY) < minElevatorMovingSpeed) {
+				if (stillCount++ > 10) {
+					// should notify computer that this block is invalid
+					// that way the computer doesn't think it still has this
+					// block when it goes into maintenance
+					killAllConjoined();
+				}
 			} else {
 				stillCount = 0;
 			}
@@ -333,22 +339,31 @@ public class EntityElevator extends Entity {
 			Set<Integer> removedRiders = new HashSet<Integer>();
 			for (Integer entityID : confirmedRiders) {
 				Entity rider = this.worldObj.getEntityByID(entityID);
-				if (rider != null) {
-					if ((rider.boundingBox.maxX >= this.getBoundingBox().minX || rider.boundingBox.minX <= this.getBoundingBox().maxX)
-						&& (rider.boundingBox.maxZ >= this.getBoundingBox().minZ || rider.boundingBox.minZ <= this.getBoundingBox().maxZ)
-						&& rider.boundingBox.minY <= (this.posY
-														+ this.getMountedYOffset() + .05)) {
+
+				if (rider != null
+					&& (rider.boundingBox.maxX >= this.getBoundingBox().minX || rider.boundingBox.minX <= this.getBoundingBox().maxX)
+					&& (rider.boundingBox.maxZ >= this.getBoundingBox().minZ || rider.boundingBox.minZ <= this.getBoundingBox().maxZ)
+					&& rider.boundingBox.minY <= (this.posY
+													+ this.getMountedYOffset() + .05)) {
+					double yDif = Math.abs(this.posY + this.getMountedYOffset()
+											- rider.boundingBox.minY);
+					if (yDif < 1.5) {
 						rider.motionY = Math.max(	this.posY
 															+ this.getMountedYOffset()
 															- rider.boundingBox.minY,
 													rider.motionY);
-						rider.onGround = true;
-						rider.fallDistance = 0;
 					} else {
-						removedRiders.add(entityID);
+						rider.posY += this.posY + this.getMountedYOffset()
+										- rider.boundingBox.minY;
+						rider.motionY = this.motionY;
 					}
+					rider.onGround = true;
+					rider.fallDistance = 0;
+				} else {
+					removedRiders.add(entityID);
 				}
 			}
+
 			if (!removedRiders.isEmpty()) {
 				this.confirmedRiders.removeAll(removedRiders);
 			}
@@ -363,7 +378,7 @@ public class EntityElevator extends Entity {
 	public void setProperties(int destination, String destinationName, float elevatorTopSpeed, ChunkCoordinates computer, boolean haltable, int notifierID, boolean mobilePower) {
 		this.getDataWatcher().updateObject(	2,
 											destination);
-		destFloorName = destinationName;
+		destFloorName = destinationName != null && destinationName.trim() != "" ? destinationName : String.valueOf(destination);
 
 		this.computerPos = computer;
 		this.canBeHalted = haltable;
@@ -463,7 +478,8 @@ public class EntityElevator extends Entity {
 			if (curElevator != null) curElevator.setDead();
 		}
 		this.setDead();
-		if (isNotifierElevator) {
+		if (isNotifierElevator
+			&& MathHelper.floor_double(posY) == this.getDataWatcher().getWatchableObjectInt(2)) {
 			TileEntityElevatorComputer comTile = this.getParentElevatorComputer();
 			if (comTile != null) {
 

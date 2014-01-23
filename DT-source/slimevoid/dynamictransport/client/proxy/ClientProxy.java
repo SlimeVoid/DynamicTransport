@@ -6,30 +6,32 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import slimevoid.dynamictransport.client.network.ClientPacketHandler;
-import slimevoid.dynamictransport.client.presentation.gui.GuiDynamicElevator;
-import slimevoid.dynamictransport.client.tickhandler.PlayerMotionTickHandler;
-import slimevoid.dynamictransport.core.PacketLib;
+import slimevoid.dynamictransport.client.presentation.gui.GuiFloorSelection;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import slimevoid.dynamictransport.core.lib.GuiLib;
 import slimevoid.dynamictransport.entities.EntityElevator;
 import slimevoid.dynamictransport.proxy.CommonProxy;
-import slimevoid.dynamictransport.tileentity.TileEntityElevator;
+import slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
+import slimevoid.dynamictransport.tileentity.TileEntityFloorMarker;
 import slimevoidlib.util.helpers.SlimevoidHelper;
 import cpw.mods.fml.client.registry.RenderingRegistry;
-import cpw.mods.fml.common.registry.TickRegistry;
-import cpw.mods.fml.relauncher.Side;
 
 public class ClientProxy extends CommonProxy {
 
 	@Override
 	public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-		if (ID == GuiLib.GUIID_ELEVATOR) {
+		if (ID == GuiLib.GUIID_FloorSelection) {
 			TileEntity tileentity = SlimevoidHelper.getBlockTileEntity(	world,
 																		x,
 																		y,
 																		z);
-			if (tileentity != null && tileentity instanceof TileEntityElevator) {
-				return new GuiDynamicElevator(player, player.inventory, world, (TileEntityElevator) tileentity);
+			if (tileentity != null
+				&& tileentity instanceof TileEntityFloorMarker) {
+				tileentity = ((TileEntityFloorMarker) tileentity).getParentElevatorComputer();
+			}
+			if (tileentity != null
+				&& tileentity instanceof TileEntityElevatorComputer) {
+				return new GuiFloorSelection(player, player.inventory, world, (TileEntityElevatorComputer) tileentity);
 			}
 		}
 		return null;
@@ -39,7 +41,6 @@ public class ClientProxy extends CommonProxy {
 	public void preInit() {
 		super.preInit();
 		ClientPacketHandler.init();
-		PacketLib.registerClientPacketHandlers();
 
 	}
 
@@ -53,12 +54,6 @@ public class ClientProxy extends CommonProxy {
 	public void registerConfigurationProperties(File configFile) {
 		super.registerConfigurationProperties(configFile);
 		ConfigurationLib.ClientConfig();
-	}
-
-	@Override
-	public void registerTickHandlers() {
-		if (ConfigurationLib.useClientMotionTick) TickRegistry.registerTickHandler(	new PlayerMotionTickHandler(),
-																					Side.CLIENT);
 	}
 
 }
