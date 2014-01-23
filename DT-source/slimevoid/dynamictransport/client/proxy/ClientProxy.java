@@ -5,7 +5,6 @@ import java.io.File;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import slimevoid.dynamictransport.client.network.ClientPacketHandler;
 import slimevoid.dynamictransport.client.presentation.gui.GuiFloorSelection;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import slimevoid.dynamictransport.core.lib.GuiLib;
@@ -40,7 +39,6 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void preInit() {
 		super.preInit();
-		ClientPacketHandler.init();
 
 	}
 
