@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -528,5 +530,29 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 														2)) <= ConfigurationLib.MaxBindingRange;
 		}
 		return false;
+	}
+
+	public SortedMap<Integer, ArrayList<String>> getFloorList() {
+		SortedMap<Integer, ArrayList<String>> floors = new TreeMap<Integer, ArrayList<String>>();
+		if (this.boundMarkerBlocks != null && this.boundMarkerBlocks.size() > 0) {
+			for (ChunkCoordinates boundBlock : boundMarkerBlocks) {
+				TileEntity tile = this.worldObj.getBlockTileEntity(	boundBlock.posX,
+																	boundBlock.posY,
+																	boundBlock.posZ);
+				if (tile != null && tile instanceof TileEntityFloorMarker) {
+					int floorY = ((TileEntityFloorMarker) tile).getFloorY();
+					String floorName = ((TileEntityFloorMarker) tile).getFloorName();
+					if (!floors.containsKey(floorY)) {
+						floors.put(	floorY,
+									new ArrayList<String>());
+					}
+					if (floorName != null && floorName.trim() != "") {
+						floors.get(floorY).add(floorName);
+					}
+				}
+			}
+		}
+
+		return floors;
 	}
 }

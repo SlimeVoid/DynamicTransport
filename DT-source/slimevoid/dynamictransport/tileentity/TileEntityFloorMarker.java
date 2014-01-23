@@ -245,4 +245,12 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 		return BlockLib.BLOCK_DYNAMIC_MARK_ID;
 	}
 
+	public int getFloorY() {
+		return this.yCoord + this.yOffset;
+	}
+
+	public String getFloorName() {
+		return this.floorName;
+	}
+
 }
