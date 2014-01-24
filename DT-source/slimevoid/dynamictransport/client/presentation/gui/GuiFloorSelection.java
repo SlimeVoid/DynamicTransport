@@ -14,7 +14,10 @@ import org.lwjgl.opengl.GL11;
 
 import slimevoid.dynamictransport.container.ContainerFloorSelection;
 import slimevoid.dynamictransport.core.lib.GuiLib;
+import slimevoid.dynamictransport.network.packet.PacketFloorSelected;
 import slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
+import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.common.network.PacketDispatcher;
 
 public class GuiFloorSelection extends GuiContainer {
 
@@ -30,16 +33,16 @@ public class GuiFloorSelection extends GuiContainer {
 	public void initGui() {
 		// get list of floors
 		SortedMap<Integer, ArrayList<String>> floorList = marker.getFloorList();
-		int x = 150;
-		int y = 50;
+		int x = 140;
+		int y = 165;
 		int id = 0;
 		for (Entry<Integer, ArrayList<String>> set : floorList.entrySet()) {
 			this.buttonList.add(new GuiButton(id++, x, y, 20, 20, set.getKey().toString()));
-			if (x > 290) {
-				y += 30;
-				x = 150;
-			} else {
+			if (y < 60) {
 				x += 30;
+				y = 165;
+			} else {
+				y -= 30;
 			}
 
 		}
@@ -67,6 +70,16 @@ public class GuiFloorSelection extends GuiContainer {
 									this.xSize + 39,
 									96);
 
+	}
+
+	@Override
+	protected void actionPerformed(GuiButton guibutton) {
+		// create packet
+		PacketFloorSelected packet = new PacketFloorSelected(GuiLib.GUIID_FloorSelection, Integer.valueOf(guibutton.displayString), "", this.marker.xCoord, this.marker.yCoord, this.marker.zCoord);
+
+		PacketDispatcher.sendPacketToServer(packet.getPacket());
+		this.onGuiClosed();
+		FMLClientHandler.instance().getClient().thePlayer.closeScreen();
 	}
 
 }

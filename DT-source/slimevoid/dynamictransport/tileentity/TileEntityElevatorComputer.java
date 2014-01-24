@@ -326,7 +326,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 				curElevator.setProperties(	i,
 											floorname,
 											this.ElevatorSpeed,
-											new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord),
+											new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord + 0),
 											this.isHaltable,
 											centerElevator,
 											this.mobilePower);
@@ -343,11 +343,11 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 	private boolean validElevatorBlock(int x, int y, int z) {
 		TileEntity tile = this.worldObj.getBlockTileEntity(	x,
 															y,
-															z);
+															z + 0);
 		if (tile != null && tile instanceof TileEntityElevator) {
 			if (((TileEntityElevator) tile).getParentElevatorComputer() != null) {
 				ChunkCoordinates thisCoords = new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord);
-				return ((TileEntityElevator) tile).getParentElevatorComputer().equals(thisCoords);
+				return ((TileEntityElevator) tile).getParent().equals(thisCoords);
 
 			}
 		}
