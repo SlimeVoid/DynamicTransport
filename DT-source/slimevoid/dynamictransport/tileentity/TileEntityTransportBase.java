@@ -1,6 +1,6 @@
 package slimevoid.dynamictransport.tileentity;
 
-import java.util.Random;
+import java.util.ArrayList;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -10,10 +10,9 @@ import slimevoidlib.tileentity.TileEntityBase;
 import slimevoidlib.util.helpers.ItemHelper;
 
 public abstract class TileEntityTransportBase extends TileEntityBase {
-	private final Random	random		= new Random();
-	protected ItemStack		camoItem;
-	protected String		owner;
-	protected Privacy		privacyLvl	= Privacy.Public;
+	protected ItemStack	camoItem;
+	protected String	owner;
+	protected Privacy	privacyLvl	= Privacy.Public;
 
 	public enum Privacy {
 		Public,
@@ -81,6 +80,13 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
 							this.camoItem);
 		this.camoItem = null;
 		this.updateBlock();
+	}
+
+	@Override
+	protected void addHarvestContents(ArrayList<ItemStack> harvestList) {
+		if (this.camoItem != null) {
+			harvestList.add(this.camoItem);
+		}
 	}
 
 }
