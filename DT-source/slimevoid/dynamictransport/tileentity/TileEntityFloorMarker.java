@@ -1,5 +1,6 @@
 package slimevoid.dynamictransport.tileentity;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -10,6 +11,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraftforge.common.ForgeDirection;
+import slimevoid.dynamictransport.blocks.BlockTransportBase;
 import slimevoid.dynamictransport.core.DynamicTransportMod;
 import slimevoid.dynamictransport.core.lib.BlockLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
@@ -115,6 +117,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 					if (entityplayer.isSneaking()) {
 						if (possibleComputer.equals(this.parentTransportBase)) {
 							entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.dynamicMarker.unbound"));// "Block Unbound"
+							this.getParentElevatorComputer().RemoveMarkerBlock(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord));
 							removeParent();
 							return true;
 						} else if (this.parentTransportBase != null) {
@@ -140,7 +143,13 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 						|| this.getParentElevatorComputer().getElevatorMode() == TileEntityElevatorComputer.ElevatorMode.Maintenance) {
 				if (this.camoItem == null
 					&& entityplayer.getHeldItem() != null
-					&& entityplayer.getHeldItem().getItem() instanceof ItemBlock) {
+					&& entityplayer.getHeldItem().getItem() instanceof ItemBlock
+					&& Block.blocksList[entityplayer.getHeldItem().getItem().itemID] != null
+					&& !(Block.blocksList[entityplayer.getHeldItem().getItem().itemID] instanceof BlockTransportBase)
+					&& Block.blocksList[entityplayer.getHeldItem().getItem().itemID].isBlockNormalCube(	getWorldObj(),
+																										xCoord,
+																										yCoord,
+																										zCoord)) {
 					this.setCamoItem(entityplayer.getHeldItem().copy());
 					--entityplayer.getHeldItem().stackSize;
 					return true;
@@ -205,6 +214,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 	}
 
 	public void removeParent() {
+
 		this.parentTransportBase = null;
 
 	}

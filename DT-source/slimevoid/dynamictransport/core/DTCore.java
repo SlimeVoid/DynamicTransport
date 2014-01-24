@@ -6,6 +6,7 @@ import net.minecraft.item.ItemStack;
 import slimevoid.dynamictransport.blocks.BlockTransportBase;
 import slimevoid.dynamictransport.core.lib.BlockLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
+import slimevoid.dynamictransport.core.lib.CoreLib;
 import slimevoid.dynamictransport.core.lib.LocaleLib;
 import slimevoid.dynamictransport.items.ItemElevatorTool;
 import slimevoid.dynamictransport.tileentity.TileEntityElevator;
@@ -53,7 +54,9 @@ public class DTCore {
 	public static void registerItems() {
 		ConfigurationLib.itemElevatorTool = new ItemElevatorTool(ConfigurationLib.itemElevatorToolID);
 
-		ConfigurationLib.itemElevatorTool.setUnlocalizedName(BlockLib.ITEM_ELEVATOR_TOOL);
+		ConfigurationLib.itemElevatorTool.setUnlocalizedName(BlockLib.ITEM_ELEVATOR_TOOL).setTextureName(CoreLib.MOD_ID
+																											+ ":"
+																											+ BlockLib.ITEM_ELEVATOR_TOOL);
 
 		ConfigurationLib.itemElevatorTool.setCreativeTab(CreativeTabs.tabTransport);
 	}

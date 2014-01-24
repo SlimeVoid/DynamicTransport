@@ -60,6 +60,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 							entityplayer.sendChatToPlayer(this.elevatorName != null
 															&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.bindElevatorSuccessWithName",
 																																							this.elevatorName) : ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorcomputer.bindElevatorSuccess"));
+							this.updateBlock();
 							return true;
 						} else {
 							entityplayer.sendChatToPlayer(this.elevatorName != null
@@ -80,6 +81,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 					entityplayer.sendChatToPlayer(this.elevatorName != null
 													&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.bindElevatorAlreadyBoundWithName",
 																																					this.elevatorName) : ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorcomputer.bindElevatorAlreadyBound"));
+					this.updateBlock();
 					return true;
 				}
 			} else {
@@ -124,6 +126,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 							entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
 																								&& !this.elevatorName.isEmpty() ? String.format("Block Succesfully Bound to Elevator: %0$s.",
 																																				this.elevatorName) : "Block Succesfully Bound to Elevator"));
+							this.updateBlock();
 							return true;
 						} else {
 							entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
@@ -145,6 +148,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 				entityplayer.sendChatToPlayer(new ChatMessageComponent().addText(this.elevatorName != null
 																					&& !this.elevatorName.isEmpty() ? String.format("Block Already Bound to Elevator: %0$s",
 																																	this.elevatorName) : "Block Already Bound to Elevator"));
+				this.updateBlock();
 				return true;
 			}
 		} else {
@@ -195,14 +199,18 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 						this.floorSpool.clear();
 						this.elevatorPos = this.yCoord + 1;
 						this.mode = ElevatorMode.Maintenance;
-					} else {
+					} else if (this.elevatorPos > this.yCoord + 1) {
 						this.CallElevator(	this.yCoord + 1,
 											true,
 											"");
+					} else {
+						this.floorSpool.clear();
+						this.mode = ElevatorMode.Maintenance;
 					}
 
 				}
 				heldItem.setTagCompound(tags);
+				this.updateBlock();
 			} else {
 				// open GUI
 			}
@@ -408,7 +416,9 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 		int BoundElevatorBlocksX[] = nbttagcompound.getIntArray("BoundElevatorBlocksX");
 		int BoundElevatorBlocksZ[] = nbttagcompound.getIntArray("BoundElevatorBlocksZ");
 		int tempSpool[] = nbttagcompound.getIntArray("FloorSpool");
-
+		boundMarkerBlocks.clear();
+		boundElevatorBlocks.clear();
+		this.floorSpool.clear();
 		for (int i = 0; i < BoundMarkerBlocksX.length; i++) {
 			boundMarkerBlocks.add(new ChunkCoordinates(BoundMarkerBlocksX[i], BoundMarkerBlocksY[i], BoundMarkerBlocksZ[i]));
 		}
@@ -465,6 +475,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 					this.boundMarkerBlocks.remove(this.boundMarkerBlocks.indexOf(invalidMarker));
 				}
 			}
+			this.updateBlock();
 		}
 
 	}
@@ -554,5 +565,14 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 		}
 
 		return floors;
+	}
+
+	public void RemoveMarkerBlock(ChunkCoordinates elevatorPosition) {
+		if (this.boundMarkerBlocks.contains(elevatorPosition)) {
+			this.boundMarkerBlocks.remove(this.boundMarkerBlocks.indexOf(elevatorPosition));
+			this.updateBlock();
+
+		}
+
 	}
 }

@@ -1,5 +1,6 @@
 package slimevoid.dynamictransport.tileentity;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -7,6 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.ChunkCoordinates;
+import slimevoid.dynamictransport.blocks.BlockTransportBase;
 import slimevoid.dynamictransport.core.lib.BlockLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import slimevoid.dynamictransport.util.XZCoords;
@@ -78,8 +80,15 @@ public class TileEntityElevator extends TileEntityTransportBase {
 			}
 		} else if (this.getParentElevatorComputer() == null
 					|| this.getParentElevatorComputer().getElevatorMode() == TileEntityElevatorComputer.ElevatorMode.Maintenance) {
-			if (this.camoItem == null && entityplayer.getHeldItem() != null
-				&& entityplayer.getHeldItem().getItem() instanceof ItemBlock) {
+			if (this.camoItem == null
+				&& entityplayer.getHeldItem() != null
+				&& entityplayer.getHeldItem().getItem() instanceof ItemBlock
+				&& Block.blocksList[entityplayer.getHeldItem().getItem().itemID] != null
+				&& !(Block.blocksList[entityplayer.getHeldItem().getItem().itemID] instanceof BlockTransportBase)
+				&& Block.blocksList[entityplayer.getHeldItem().getItem().itemID].isBlockNormalCube(	getWorldObj(),
+																									xCoord,
+																									yCoord,
+																									zCoord)) {
 				this.setCamoItem(entityplayer.getHeldItem().copy());
 				--entityplayer.getHeldItem().stackSize;
 				return true;
