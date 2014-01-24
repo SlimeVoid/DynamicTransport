@@ -8,7 +8,7 @@ public class CoreLib {
 	public static final String	MOD_ID				= "DynamicTransport";
 	public static final String	MOD_RESOURCES		= "dynamictransport";
 	public static final String	MOD_NAME			= "Dynamic Transport Mod";
-	public static final String	MOD_VERSION			= "0.1.0";
+	public static final String	MOD_VERSION			= "0.0.1.0";
 	public static final String	MOD_DEPENDENCIES	= "required-after:SlimevoidLib";
 	public static final String	MOD_CHANNEL			= "DYNAMICTRANSPORT";
 	public static final String	CLIENT_PROXY		= "slimevoid.dynamictransport.client.proxy.ClientProxy";
