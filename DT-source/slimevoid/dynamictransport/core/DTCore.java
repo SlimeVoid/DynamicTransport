@@ -1,5 +1,6 @@
 package slimevoid.dynamictransport.core;
 
+import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -38,15 +39,41 @@ public class DTCore {
 														TileEntityFloorMarker.class,
 														BlockLib.BLOCK_DYNAMIC_MARK);
 
-		GameRegistry.addRecipe(	new ItemStack(ConfigurationLib.blockTransportBase, 1, BlockLib.BLOCK_ELEVATOR_ID),
+		GameRegistry.addRecipe(	new ItemStack(ConfigurationLib.blockTransportBase, 5, BlockLib.BLOCK_ELEVATOR_ID),
 								new Object[] {
 										"IDI",
+										"IEI",
 										"IRI",
-										"III",
 										Character.valueOf('I'),
 										Item.ingotIron,
 										Character.valueOf('D'),
 										Item.diamond,
+										Character.valueOf('R'),
+										Item.redstone,
+										Character.valueOf('E'),
+										Item.enderPearl });
+		GameRegistry.addRecipe(	new ItemStack(ConfigurationLib.blockTransportBase, 1, BlockLib.BLOCK_ELEVATOR_COMPUTER_ID),
+								new Object[] {
+										"GEG",
+										"GAG",
+										"GRG",
+										Character.valueOf('G'),
+										Item.ingotGold,
+										Character.valueOf('E'),
+										Item.enderPearl,
+										Character.valueOf('R'),
+										Item.redstone,
+										Character.valueOf('A'),
+										Block.glass });
+		GameRegistry.addRecipe(	new ItemStack(ConfigurationLib.blockTransportBase, 4, BlockLib.BLOCK_DYNAMIC_MARK_ID),
+								new Object[] {
+										"III",
+										"IEI",
+										"IRI",
+										Character.valueOf('I'),
+										Item.ingotIron,
+										Character.valueOf('E'),
+										Item.enderPearl,
 										Character.valueOf('R'),
 										Item.redstone });
 	}
@@ -59,6 +86,19 @@ public class DTCore {
 																											+ BlockLib.ITEM_ELEVATOR_TOOL);
 
 		ConfigurationLib.itemElevatorTool.setCreativeTab(CreativeTabs.tabTransport);
+		GameRegistry.addRecipe(	new ItemStack(ConfigurationLib.itemElevatorTool, 1),
+								new Object[] {
+										"LGL",
+										"LRL",
+										"LSL",
+										Character.valueOf('L'),
+										new ItemStack(Item.dyePowder, 1, 4),
+										Character.valueOf('G'),
+										Block.glass,
+										Character.valueOf('R'),
+										Item.redstone,
+										Character.valueOf('S'),
+										Item.silk });
 	}
 
 }
