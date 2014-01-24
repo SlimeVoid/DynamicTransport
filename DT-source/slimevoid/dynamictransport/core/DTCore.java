@@ -94,7 +94,7 @@ public class DTCore {
 										Character.valueOf('L'),
 										new ItemStack(Item.dyePowder, 1, 4),
 										Character.valueOf('G'),
-										Block.glass,
+										Block.thinGlass,
 										Character.valueOf('R'),
 										Item.redstone,
 										Character.valueOf('S'),
