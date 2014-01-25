@@ -33,14 +33,14 @@ public class GuiFloorSelection extends GuiContainer {
 	public void initGui() {
 		// get list of floors
 		SortedMap<Integer, ArrayList<String>> floorList = marker.getFloorList();
-		int x = 140;
-		int y = 165;
+		int x = (this.width - this.xSize) / 2 + 10;
+		int y = ((this.height - this.ySize) / 2) + 130;
 		int id = 0;
 		for (Entry<Integer, ArrayList<String>> set : floorList.entrySet()) {
 			this.buttonList.add(new GuiButton(id++, x, y, 20, 20, set.getKey().toString()));
-			if (y < 60) {
+			if (y < ((this.height - this.ySize) / 2) + 30) {
 				x += 30;
-				y = 165;
+				y = ((this.height - this.ySize) / 2) + 130;
 			} else {
 				y -= 30;
 			}
