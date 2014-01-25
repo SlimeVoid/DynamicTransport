@@ -147,8 +147,8 @@ public class RenderElevator extends Render {
 		} else {
 			int foo = 0;
 			for (int i = 0; i < 6; i++) {
-				textureData[i] = Block.blockDiamond.getIcon(i,
-															0);
+				textureData[i] = ConfigurationLib.blockTransportBase.getIcon(	i,
+																				0);
 
 			}
 		}

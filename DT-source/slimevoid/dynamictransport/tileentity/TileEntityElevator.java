@@ -90,7 +90,7 @@ public class TileEntityElevator extends TileEntityTransportBase {
 																									yCoord,
 																									zCoord)) {
 				this.setCamoItem(entityplayer.getHeldItem().copy());
-				--entityplayer.getHeldItem().stackSize;
+				if (!entityplayer.capabilities.isCreativeMode) --entityplayer.getHeldItem().stackSize;
 				return true;
 			}
 

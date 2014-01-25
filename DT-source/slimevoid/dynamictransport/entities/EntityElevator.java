@@ -318,8 +318,10 @@ public class EntityElevator extends Entity {
 		this.destFloorName = nbttagcompound.getString("destName");
 		this.isNotifierElevator = nbttagcompound.getBoolean("isCenter");
 		this.computerPos = new ChunkCoordinates(nbttagcompound.getInteger("ComputerX"), nbttagcompound.getInteger("ComputerY"), nbttagcompound.getInteger("ComputerZ"));
-		this.getDataWatcher().updateObject(	4,
-											ItemStack.loadItemStackFromNBT(nbttagcompound.getCompoundTag("CamoItem")));
+		if (ItemStack.loadItemStackFromNBT(nbttagcompound.getCompoundTag("CamoItem")) != null) {
+			this.getDataWatcher().updateObject(	4,
+												ItemStack.loadItemStackFromNBT(nbttagcompound.getCompoundTag("CamoItem")));
+		}
 	}
 
 	@Override
@@ -424,8 +426,10 @@ public class EntityElevator extends Entity {
 															y,
 															z);
 			if (tile instanceof TileEntityElevator) {
-				this.getDataWatcher().updateObject(	4,
-													((TileEntityElevator) tile).getCamoItem());
+				if (((TileEntityElevator) tile).getCamoItem() != null) {
+					this.getDataWatcher().updateObject(	4,
+														((TileEntityElevator) tile).getCamoItem());
+				}
 				((TileEntityElevator) tile).removeCamoItemWithoutDrop();
 			}
 
