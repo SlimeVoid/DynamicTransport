@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.Icon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
@@ -90,7 +91,7 @@ public class RenderElevator extends Render {
 											-0.5D,
 											-0.5D,
 											-0.5D,
-											textureData[2]);
+											textureData[3]);
 		f6 = 1.0F;
 
 		if (f6 < f5) {
@@ -104,7 +105,7 @@ public class RenderElevator extends Render {
 											-0.5D,
 											-0.5D,
 											-0.5D,
-											textureData[2]);
+											textureData[4]);
 		f6 = 1.0F;
 
 		if (f6 < f5) {
@@ -118,11 +119,12 @@ public class RenderElevator extends Render {
 											-0.5D,
 											-0.5D,
 											-0.5D,
-											textureData[2]);
+											textureData[5]);
 		tessellator.draw();
 	}
 
 	public void doRenderElevator(EntityElevator elevator, double d, double d1, double d2, float f, float f1) {
+		if (elevator.ticksExisted <= 1) return;
 		GL11.glPushMatrix();
 		Block block = Block.blocksList[ConfigurationLib.blockTransportBaseID];
 		World world = elevator.worldObj;
@@ -134,13 +136,22 @@ public class RenderElevator extends Render {
 		bindTexture(TextureMap.locationBlocksTexture);
 
 		// int textureData[] = elevator.getTextureData();
-		Icon textureData[] = {
-				Block.blockDiamond.getIcon(	0,
-											0),
-				Block.blockIron.getIcon(0,
-										0),
-				Block.blockIron.getIcon(0,
-										0) };
+		ItemStack camoItem = elevator.getDataWatcher().getWatchableObjectItemStack(4);
+		Icon textureData[] = new Icon[6];
+		if (camoItem != null) {
+			for (int i = 0; i < 6; i++) {
+				textureData[i] = Block.blocksList[camoItem.itemID].getIcon(	i,
+																			camoItem.getItemDamage());
+
+			}
+		} else {
+			int foo = 0;
+			for (int i = 0; i < 6; i++) {
+				textureData[i] = Block.blockDiamond.getIcon(i,
+															0);
+
+			}
+		}
 
 		renderElevatorEntity(	block,
 								world,

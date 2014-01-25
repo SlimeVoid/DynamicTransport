@@ -15,9 +15,7 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
 	protected Privacy	privacyLvl	= Privacy.Public;
 
 	public enum Privacy {
-		Public,
-		Restricted,
-		Private
+		Public, Restricted, Private
 	}
 
 	@Override
@@ -66,7 +64,7 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
 		return this.camoItem;
 	}
 
-	protected void setCamoItem(ItemStack itemstack) {
+	public void setCamoItem(ItemStack itemstack) {
 		this.camoItem = itemstack;
 		this.camoItem.stackSize = 1;
 		this.updateBlock();
@@ -80,6 +78,10 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
 							this.camoItem);
 		this.camoItem = null;
 		this.updateBlock();
+	}
+
+	public void removeCamoItemWithoutDrop() {
+		this.camoItem = null;
 	}
 
 	@Override

@@ -25,6 +25,7 @@ public class BlockLib {
 																+ ".marker";
 	public static final String	ITEM_ELEVATOR_TOOL			= PREFIX
 																+ ".elevatortool";
+	public static final int		BLOCK_TRANSIT_ID			= 0;
 
 	public static Icon[][] registerIcons(IconRegister iconRegister, Icon[][] iconList) {
 		iconList[BLOCK_ELEVATOR_ID][1] = Block.blockDiamond.getIcon(1,

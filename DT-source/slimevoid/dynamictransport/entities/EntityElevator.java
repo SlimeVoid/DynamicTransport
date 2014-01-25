@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.server.MinecraftServer;
@@ -21,8 +22,6 @@ import slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
 
 public class EntityElevator extends Entity {
 	// Constants
-	private static final int	blockID					= ConfigurationLib.blockTransportBaseID;
-	private static final int	blockMeta				= BlockLib.BLOCK_ELEVATOR_ID;
 	private static final float	elevatorAccel			= 0.01F;
 	private static final float	minElevatorMovingSpeed	= 0.016F;
 
@@ -84,6 +83,8 @@ public class EntityElevator extends Entity {
 										new Integer(-1));
 		this.getDataWatcher().addObject(3,
 										0f);
+		this.getDataWatcher().addObjectByDataType(	4,
+													5);
 	}
 
 	@Override
@@ -95,20 +96,20 @@ public class EntityElevator extends Entity {
 		boolean blockPlaced = !worldObj.isRemote
 								&& (worldObj.getBlockId(i,
 														curY,
-														k) == blockID || worldObj.canPlaceEntityOnSide(	blockID,
-																										i,
-																										curY,
-																										k,
-																										true,
-																										1,
-																										(Entity) null,
-																										null)
-																			&& worldObj.setBlock(	i,
-																									curY,
-																									k,
-																									blockID,
-																									this.blockMeta,
-																									3));
+														k) == ConfigurationLib.blockTransportBaseID || worldObj.canPlaceEntityOnSide(	ConfigurationLib.blockTransportBaseID,
+																																		i,
+																																		curY,
+																																		k,
+																																		true,
+																																		1,
+																																		(Entity) null,
+																																		null)
+																										&& worldObj.setBlock(	i,
+																																curY,
+																																k,
+																																ConfigurationLib.blockTransportBaseID,
+																																BlockLib.BLOCK_ELEVATOR_ID,
+																																3));
 
 		if (!worldObj.isRemote) {
 			if (blockPlaced) {
@@ -117,10 +118,11 @@ public class EntityElevator extends Entity {
 																								k);
 				if (tile != null) {
 					tile.setParentElevatorComputer(this.computerPos);
+					if (this.getDataWatcher().getWatchableObjectItemStack(4) != null) tile.setCamoItem(this.getDataWatcher().getWatchableObjectItemStack(4));
 				}
 			} else {
-				dropItem(	blockID,
-							1);
+				entityDropItem(	new ItemStack(ConfigurationLib.blockTransportBaseID, 1, BlockLib.BLOCK_ELEVATOR_ID),
+								0.0F);
 			}
 		}
 		this.updateRiderPosition();
@@ -134,10 +136,10 @@ public class EntityElevator extends Entity {
 																					4,
 																					this.worldObj.provider.dimensionId,
 																					new Packet3Chat(this.elevatorName != null
-																									&& this.elevatorName.trim() != "" ? ChatMessageComponent.createFromTranslationWithSubstitutions("slimevoid.DT.entityElevator.arriveWithName",
-																																																	this.elevatorName,
-																																																	destFloorName) : ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.entityElevator.arrive",
-																																																																					this.destFloorName)));
+																									&& !this.elevatorName.trim().equals("") ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.entityElevator.arriveWithName",
+																																																			this.elevatorName,
+																																																			destFloorName) : ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.entityElevator.arrive",
+																																																																							this.destFloorName)));
 
 			}
 
@@ -152,7 +154,7 @@ public class EntityElevator extends Entity {
 		int z = MathHelper.floor_double(posZ);
 
 		// on first update remove blocks
-		if (this.ticksExisted == 1 && !worldObj.isRemote) {
+		if (!worldObj.isRemote && this.ticksExisted == 1) {
 			removeElevatorBlock(x,
 								y,
 								z);
@@ -293,6 +295,16 @@ public class EntityElevator extends Entity {
 									this.computerPos.posY);
 		nbttagcompound.setInteger(	"ComputerZ",
 									this.computerPos.posZ);
+		nbttagcompound.setFloat("TopSpeed",
+								this.getDataWatcher().getWatchableObjectFloat(3));
+
+		if (this.getDataWatcher().getWatchableObjectItemStack(4) != null) {
+			NBTTagCompound itemNBTTagCompound = new NBTTagCompound();
+			this.getDataWatcher().getWatchableObjectItemStack(4).writeToNBT(itemNBTTagCompound);
+
+			nbttagcompound.setTag(	"CamoItem",
+									itemNBTTagCompound);
+		}
 
 	}
 
@@ -300,9 +312,14 @@ public class EntityElevator extends Entity {
 	protected void readEntityFromNBT(NBTTagCompound nbttagcompound) {
 		this.getDataWatcher().updateObject(	2,
 											nbttagcompound.getInteger("destY"));
+		this.getDataWatcher().updateObject(	3,
+											nbttagcompound.getFloat("TopSpeed"));
 		this.emerHalt = nbttagcompound.getBoolean("emerHalt");
+		this.destFloorName = nbttagcompound.getString("destName");
 		this.isNotifierElevator = nbttagcompound.getBoolean("isCenter");
 		this.computerPos = new ChunkCoordinates(nbttagcompound.getInteger("ComputerX"), nbttagcompound.getInteger("ComputerY"), nbttagcompound.getInteger("ComputerZ"));
+		this.getDataWatcher().updateObject(	4,
+											ItemStack.loadItemStackFromNBT(nbttagcompound.getCompoundTag("CamoItem")));
 	}
 
 	@Override
@@ -399,17 +416,26 @@ public class EntityElevator extends Entity {
 	private void removeElevatorBlock(int x, int y, int z) {
 		if (worldObj.getBlockId(x,
 								y,
-								z) == blockID
+								z) == ConfigurationLib.blockTransportBaseID
 			&& worldObj.getBlockMetadata(	x,
 											y,
-											z) == this.blockMeta) {
+											z) == BlockLib.BLOCK_ELEVATOR_ID) {
+			TileEntity tile = worldObj.getBlockTileEntity(	x,
+															y,
+															z);
+			if (tile instanceof TileEntityElevator) {
+				this.getDataWatcher().updateObject(	4,
+													((TileEntityElevator) tile).getCamoItem());
+				((TileEntityElevator) tile).removeCamoItemWithoutDrop();
+			}
+
 			if (this.enableMobilePower) {
 				worldObj.setBlock(	x,
 									y,
 									z,
-									blockID,
+									ConfigurationLib.blockTransportBaseID,
 									1,
-									3);
+									BlockLib.BLOCK_TRANSIT_ID);
 			} else {
 				worldObj.setBlockToAir(	x,
 										y,
@@ -438,9 +464,9 @@ public class EntityElevator extends Entity {
 			worldObj.setBlock(	x,
 								y,
 								z,
-								blockID,
+								ConfigurationLib.blockTransportBaseID,
 								1,
-								3);
+								BlockLib.BLOCK_TRANSIT_ID);
 		}
 
 	}
