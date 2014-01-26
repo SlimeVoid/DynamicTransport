@@ -80,8 +80,14 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
 		this.updateBlock();
 	}
 
-	public void removeCamoItemWithoutDrop() {
-		this.camoItem = null;
+	public ItemStack removeCamoItemWithoutDrop() {
+		ItemStack copyCamoItem = null;
+		if (this.camoItem != null) {
+			copyCamoItem = this.camoItem.copy();
+			this.camoItem = null;
+			this.onInventoryChanged();
+		}
+		return copyCamoItem;
 	}
 
 	@Override

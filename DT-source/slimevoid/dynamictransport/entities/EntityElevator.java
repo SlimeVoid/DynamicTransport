@@ -19,6 +19,7 @@ import slimevoid.dynamictransport.core.lib.BlockLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import slimevoid.dynamictransport.tileentity.TileEntityElevator;
 import slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
+import slimevoidlib.util.helpers.BlockHelper;
 
 public class EntityElevator extends Entity {
 	// Constants
@@ -422,15 +423,17 @@ public class EntityElevator extends Entity {
 			&& worldObj.getBlockMetadata(	x,
 											y,
 											z) == BlockLib.BLOCK_ELEVATOR_ID) {
-			TileEntity tile = worldObj.getBlockTileEntity(	x,
-															y,
-															z);
-			if (tile instanceof TileEntityElevator) {
-				if (((TileEntityElevator) tile).getCamoItem() != null) {
+			TileEntityElevator tile = (TileEntityElevator) BlockHelper.getTileEntity(	this.worldObj,
+																						x,
+																						y,
+																						z,
+																						TileEntityElevator.class);
+			if (tile != null) {
+				if (tile.getCamoItem() != null) {
 					this.getDataWatcher().updateObject(	4,
-														((TileEntityElevator) tile).getCamoItem());
+														tile.removeCamoItemWithoutDrop());
 				}
-				((TileEntityElevator) tile).removeCamoItemWithoutDrop();
+
 			}
 
 			if (this.enableMobilePower) {
