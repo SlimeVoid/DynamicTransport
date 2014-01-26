@@ -28,18 +28,30 @@ public class BlockLib {
 	public static final int		BLOCK_TRANSIT_ID			= 0;
 
 	public static Icon[][] registerIcons(IconRegister iconRegister, Icon[][] iconList) {
-		iconList[BLOCK_ELEVATOR_ID][1] = Block.blockDiamond.getIcon(1,
-																	0);
-		iconList[BLOCK_ELEVATOR_ID][0] = Block.blockDiamond.getIcon(2,
-																	0);
-		iconList[BLOCK_ELEVATOR_ID][2] = Block.blockDiamond.getIcon(2,
-																	0);
-		iconList[BLOCK_ELEVATOR_ID][3] = Block.blockDiamond.getIcon(2,
-																	0);
-		iconList[BLOCK_ELEVATOR_ID][4] = Block.blockDiamond.getIcon(2,
-																	0);
-		iconList[BLOCK_ELEVATOR_ID][5] = Block.blockDiamond.getIcon(2,
-																	0);
+		iconList[BLOCK_ELEVATOR_ID][1] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
+																	+ ":"
+																	+ BLOCK_ELEVATOR
+																	+ ".top");
+		iconList[BLOCK_ELEVATOR_ID][0] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
+																	+ ":"
+																	+ BLOCK_ELEVATOR
+																	+ ".bottom");
+		iconList[BLOCK_ELEVATOR_ID][2] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
+																	+ ":"
+																	+ BLOCK_ELEVATOR
+																	+ ".side");
+		iconList[BLOCK_ELEVATOR_ID][3] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
+																	+ ":"
+																	+ BLOCK_ELEVATOR
+																	+ ".side");
+		iconList[BLOCK_ELEVATOR_ID][4] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
+																	+ ":"
+																	+ BLOCK_ELEVATOR
+																	+ ".side");
+		iconList[BLOCK_ELEVATOR_ID][5] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
+																	+ ":"
+																	+ BLOCK_ELEVATOR
+																	+ ".side");
 		iconList[BLOCK_ELEVATOR_COMPUTER_ID][1] = Block.blockGold.getIcon(	1,
 																			0);
 		iconList[BLOCK_ELEVATOR_COMPUTER_ID][0] = Block.blockGold.getIcon(	2,
@@ -66,5 +78,4 @@ public class BlockLib {
 																		0);
 		return iconList;
 	}
-
 }
