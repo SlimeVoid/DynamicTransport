@@ -363,10 +363,11 @@ public class EntityElevator extends Entity {
 			for (Integer entityID : confirmedRiders) {
 				Entity rider = this.worldObj.getEntityByID(entityID);
 				if (rider != null) {
-					rider.moveEntity(	0,
-										(this.getDestinationY() + 1.0D + this.getMountedYOffset())
-												- rider.boundingBox.minY,
-										0);
+					rider.boundingBox.offset(	0,
+												this.getMountedYOffset(),
+												0);
+					rider.posY = this.getBoundingBox().maxY
+									+ this.getMountedYOffset() + rider.yOffset;
 					rider.isAirBorne = false;
 					rider.onGround = true;
 					rider.fallDistance = 0;
