@@ -62,7 +62,7 @@ public class BlockLib {
 		iconList[BLOCK_ELEVATOR_COMPUTER_ID][2] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
 																			+ ":"
 																			+ BLOCK_ELEVATOR_COMPUTER
-																			+ ".side");
+																			+ ".front");
 		iconList[BLOCK_ELEVATOR_COMPUTER_ID][3] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
 																			+ ":"
 																			+ BLOCK_ELEVATOR_COMPUTER
