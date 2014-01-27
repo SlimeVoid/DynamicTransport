@@ -75,7 +75,34 @@ public class EntityElevator extends Entity {
 		isNotifierElevator = false;
 
 		waitToAccelerate = 0;
+		this.updatePotentialRiders();
+	}
 
+	public int getDestinationY() {
+		return this.getDataWatcher().getWatchableObjectInt(2);
+	}
+
+	public float getMaximumSpeed() {
+		return this.getDataWatcher().getWatchableObjectFloat(3);
+	}
+
+	public ItemStack getCamoItem() {
+		return this.getDataWatcher().getWatchableObjectItemStack(4);
+	}
+
+	protected void setDestinationY(int destinationY) {
+		this.getDataWatcher().updateObject(	2,
+											destinationY);
+	}
+
+	protected void setMaximumSpeed(float speed) {
+		this.getDataWatcher().updateObject(	3,
+											speed);
+	}
+
+	protected void setCamoItem(ItemStack itemstack) {
+		this.getDataWatcher().updateObject(	4,
+											itemstack);
 	}
 
 	@Override
@@ -119,14 +146,16 @@ public class EntityElevator extends Entity {
 																								k);
 				if (tile != null) {
 					tile.setParentElevatorComputer(this.computerPos);
-					if (this.getDataWatcher().getWatchableObjectItemStack(4) != null) tile.setCamoItem(this.getDataWatcher().getWatchableObjectItemStack(4));
+					if (this.getCamoItem() != null) {
+						tile.setCamoItem(this.getCamoItem());
+					}
 				}
 			} else {
 				entityDropItem(	new ItemStack(ConfigurationLib.blockTransportBaseID, 1, BlockLib.BLOCK_ELEVATOR_ID),
 								0.0F);
 			}
 		}
-		this.updateRiderPosition();
+		this.updateRiders(true);
 
 		if (!worldObj.isRemote) {
 			if (isNotifierElevator) {
@@ -161,7 +190,7 @@ public class EntityElevator extends Entity {
 								z);
 		}
 
-		if (this.getDataWatcher().getWatchableObjectInt(2) == -1) return;
+		if (this.getDestinationY() == -1) return;
 
 		// Place transient block
 		if (!worldObj.isRemote && !this.isDead && this.enableMobilePower) {
@@ -179,7 +208,7 @@ public class EntityElevator extends Entity {
 			}
 		}
 
-		float destY = this.getDataWatcher().getWatchableObjectInt(2) + 0.5F;
+		float destY = this.getDestinationY() + 0.5F;
 		float elevatorSpeed = (float) Math.abs(this.motionY);
 		if (emerHalt) {
 			elevatorSpeed = 0;
@@ -192,7 +221,7 @@ public class EntityElevator extends Entity {
 			waitToAccelerate++;
 
 		} else {
-			float maxElevatorSpeed = this.getDataWatcher().getWatchableObjectFloat(3);
+			float maxElevatorSpeed = this.getMaximumSpeed();
 			float tempSpeed = elevatorSpeed + elevatorAccel;
 			if (tempSpeed > maxElevatorSpeed) {
 				tempSpeed = maxElevatorSpeed;
@@ -283,9 +312,11 @@ public class EntityElevator extends Entity {
 	@Override
 	protected void writeEntityToNBT(NBTTagCompound nbttagcompound) {
 		nbttagcompound.setInteger(	"destY",
-									this.getDataWatcher().getWatchableObjectInt(2));
-		if (this.destFloorName != null && !this.destFloorName.trim().isEmpty()) nbttagcompound.setString(	"destName",
-																											this.destFloorName);
+									this.getDestinationY());
+		if (this.destFloorName != null && !this.destFloorName.trim().isEmpty()) {
+			nbttagcompound.setString(	"destName",
+										this.destFloorName);
+		}
 		nbttagcompound.setBoolean(	"emerHalt",
 									emerHalt);
 		nbttagcompound.setBoolean(	"isCenter",
@@ -297,11 +328,11 @@ public class EntityElevator extends Entity {
 		nbttagcompound.setInteger(	"ComputerZ",
 									this.computerPos.posZ);
 		nbttagcompound.setFloat("TopSpeed",
-								this.getDataWatcher().getWatchableObjectFloat(3));
+								this.getMaximumSpeed());
 
-		if (this.getDataWatcher().getWatchableObjectItemStack(4) != null) {
+		if (this.getCamoItem() != null) {
 			NBTTagCompound itemNBTTagCompound = new NBTTagCompound();
-			this.getDataWatcher().getWatchableObjectItemStack(4).writeToNBT(itemNBTTagCompound);
+			this.getCamoItem().writeToNBT(itemNBTTagCompound);
 
 			nbttagcompound.setTag(	"CamoItem",
 									itemNBTTagCompound);
@@ -311,17 +342,14 @@ public class EntityElevator extends Entity {
 
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound nbttagcompound) {
-		this.getDataWatcher().updateObject(	2,
-											nbttagcompound.getInteger("destY"));
-		this.getDataWatcher().updateObject(	3,
-											nbttagcompound.getFloat("TopSpeed"));
+		this.setDestinationY(nbttagcompound.getInteger("destY"));
+		this.setMaximumSpeed(nbttagcompound.getFloat("TopSpeed"));
 		this.emerHalt = nbttagcompound.getBoolean("emerHalt");
 		this.destFloorName = nbttagcompound.getString("destName");
 		this.isNotifierElevator = nbttagcompound.getBoolean("isCenter");
 		this.computerPos = new ChunkCoordinates(nbttagcompound.getInteger("ComputerX"), nbttagcompound.getInteger("ComputerY"), nbttagcompound.getInteger("ComputerZ"));
 		if (ItemStack.loadItemStackFromNBT(nbttagcompound.getCompoundTag("CamoItem")) != null) {
-			this.getDataWatcher().updateObject(	4,
-												ItemStack.loadItemStackFromNBT(nbttagcompound.getCompoundTag("CamoItem")));
+			this.setCamoItem(ItemStack.loadItemStackFromNBT(nbttagcompound.getCompoundTag("CamoItem")));
 		}
 	}
 
@@ -330,53 +358,78 @@ public class EntityElevator extends Entity {
 		return entity.getBoundingBox();
 	}
 
-	// this should be called by each elevator entity and not just the controller
-	@Override
-	public void updateRiderPosition() {
-		if (this.isDead || this.motionY <= 0) {
-			return;
+	protected void unmountRiders() {
+		if (!confirmedRiders.isEmpty()) {
+			for (Integer entityID : confirmedRiders) {
+				Entity rider = this.worldObj.getEntityByID(entityID);
+				rider.moveEntity(	0,
+									(this.getDestinationY() + 1.0D)
+											- rider.boundingBox.minY,
+									0);
+				rider.isAirBorne = false;
+				rider.onGround = true;
+				rider.fallDistance = 0;
+			}
+			confirmedRiders.clear();
 		}
+	}
 
-		Set<Entity> potentialEntities = new HashSet<Entity>();
-		potentialEntities.addAll(worldObj.getEntitiesWithinAABBExcludingEntity(	this,
-																				this.getBoundingBox().offset(	0,
-																												.1,
-																												0)));
-		for (Entity entity : potentialEntities) {
-			if (!(entity instanceof EntityElevator)
-				&& !this.confirmedRiders.contains(entity.entityId)
-				&& entity.boundingBox.minY <= this.getBoundingBox().maxY) {
-				entity.motionY = Math.max(	this.posY
-													+ this.getMountedYOffset()
-													- entity.boundingBox.minY,
-											entity.motionY);
-				entity.onGround = true;
-				entity.fallDistance = 0;
-				this.confirmedRiders.add(entity.entityId);
+	protected void updatePotentialRiders() {
+		// this.confirmedRiders.clear();
+		Set<Entity> potentialRiders = new HashSet<Entity>();
+		AxisAlignedBB boundBox = this.getBoundingBox().offset(	0,
+																1,
+																0).expand(	0,
+																			1.0,
+																			0);
+		potentialRiders.addAll(worldObj.getEntitiesWithinAABBExcludingEntity(	this,
+																				boundBox));
+		for (Entity rider : potentialRiders) {
+			if (!(rider instanceof EntityElevator)
+				&& !this.confirmedRiders.contains(rider.entityId)) {
+				double yPos = (this.posY + this.getMountedYOffset())
+								- rider.boundingBox.minY;
+				rider.motionY = this.motionY < 0 ? this.motionY : Math.max(	yPos,
+																			rider.motionY);
+				rider.isAirBorne = true;
+				rider.onGround = true;
+				rider.fallDistance = 0;
+				this.confirmedRiders.add(rider.entityId);
 			}
 		}
+	}
+
+	protected boolean isRiding(Entity rider) {
+		return rider != null
+				&& rider.boundingBox.maxX >= this.getBoundingBox().minX
+				&& rider.boundingBox.minX <= this.getBoundingBox().maxX
+				&& rider.boundingBox.maxZ >= this.getBoundingBox().minZ
+				&& rider.boundingBox.minZ <= this.getBoundingBox().maxZ
+				&& rider.boundingBox.minY <= (this.posY
+												+ this.getMountedYOffset() + 2.0);
+	}
+
+	protected void updateConfirmedRiders() {
 		if (!confirmedRiders.isEmpty()) {
 			Set<Integer> removedRiders = new HashSet<Integer>();
 			for (Integer entityID : confirmedRiders) {
 				Entity rider = this.worldObj.getEntityByID(entityID);
 
-				if (rider != null
-					&& (rider.boundingBox.maxX >= this.getBoundingBox().minX || rider.boundingBox.minX <= this.getBoundingBox().maxX)
-					&& (rider.boundingBox.maxZ >= this.getBoundingBox().minZ || rider.boundingBox.minZ <= this.getBoundingBox().maxZ)
-					&& rider.boundingBox.minY <= (this.posY
-													+ this.getMountedYOffset() + .05)) {
+				if (isRiding(rider)) {
+					double yPos = (this.posY + this.getMountedYOffset())
+									- rider.boundingBox.minY;
 					double yDif = Math.abs(this.posY + this.getMountedYOffset()
 											- rider.boundingBox.minY);
-					if (yDif < 1.5) {
-						rider.motionY = Math.max(	this.posY
-															+ this.getMountedYOffset()
-															- rider.boundingBox.minY,
-													rider.motionY);
+					if (yDif < 1.0) {
+						rider.motionY = this.motionY < 0 ? this.motionY : Math.max(	yPos,
+																					rider.motionY);
 					} else {
-						rider.posY += this.posY + this.getMountedYOffset()
-										- rider.boundingBox.minY;
+						rider.moveEntity(	0,
+											yPos,
+											0);
 						rider.motionY = this.motionY;
 					}
+					rider.isAirBorne = true;
 					rider.onGround = true;
 					rider.fallDistance = 0;
 				} else {
@@ -390,14 +443,31 @@ public class EntityElevator extends Entity {
 		}
 	}
 
+	public void updateRiders(boolean atDestination) {
+		if (this.isDead) {
+			return;
+		}
+		updatePotentialRiders();
+		if (atDestination) {
+			this.unmountRiders();
+			return;
+		}
+		updateConfirmedRiders();
+	}
+
+	// this should be called by each elevator entity and not just the controller
+	@Override
+	public void updateRiderPosition() {
+		this.updateRiders(false);
+	}
+
 	@Override
 	public double getMountedYOffset() {
-		return 0.55D;
+		return 0.50D;
 	}
 
 	public void setProperties(int destination, String destinationName, float elevatorTopSpeed, ChunkCoordinates computer, boolean haltable, int notifierID, boolean mobilePower) {
-		this.getDataWatcher().updateObject(	2,
-											destination);
+		this.setDestinationY(destination);
 		destFloorName = destinationName != null && destinationName.trim() != "" ? destinationName : String.valueOf(destination);
 
 		this.computerPos = computer;
@@ -406,8 +476,8 @@ public class EntityElevator extends Entity {
 
 		isNotifierElevator = (notifierID == this.entityId);
 
-		this.getDataWatcher().updateObject(	3,
-											elevatorTopSpeed);
+		this.setMaximumSpeed(elevatorTopSpeed);
+
 		waitToAccelerate = 0;
 
 		if (!isNotifierElevator) {
@@ -430,8 +500,7 @@ public class EntityElevator extends Entity {
 																						TileEntityElevator.class);
 			if (tile != null) {
 				if (tile.getCamoItem() != null) {
-					this.getDataWatcher().updateObject(	4,
-														tile.removeCamoItemWithoutDrop());
+					this.setCamoItem(tile.removeCamoItemWithoutDrop());
 				}
 
 			}
@@ -512,7 +581,7 @@ public class EntityElevator extends Entity {
 		}
 		this.setDead();
 		if (isNotifierElevator
-			&& MathHelper.floor_double(posY) == this.getDataWatcher().getWatchableObjectInt(2)) {
+			&& MathHelper.floor_double(posY) == this.getDestinationY()) {
 			TileEntityElevatorComputer comTile = this.getParentElevatorComputer();
 			if (comTile != null) {
 
