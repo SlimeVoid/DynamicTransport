@@ -1,6 +1,5 @@
 package slimevoid.dynamictransport.core.lib;
 
-import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.util.Icon;
 
@@ -52,30 +51,54 @@ public class BlockLib {
 																	+ ":"
 																	+ BLOCK_ELEVATOR
 																	+ ".side");
-		iconList[BLOCK_ELEVATOR_COMPUTER_ID][1] = Block.blockGold.getIcon(	1,
-																			0);
-		iconList[BLOCK_ELEVATOR_COMPUTER_ID][0] = Block.blockGold.getIcon(	2,
-																			0);
-		iconList[BLOCK_ELEVATOR_COMPUTER_ID][2] = Block.blockGold.getIcon(	2,
-																			0);
-		iconList[BLOCK_ELEVATOR_COMPUTER_ID][3] = Block.blockGold.getIcon(	2,
-																			0);
-		iconList[BLOCK_ELEVATOR_COMPUTER_ID][4] = Block.blockGold.getIcon(	2,
-																			0);
-		iconList[BLOCK_ELEVATOR_COMPUTER_ID][5] = Block.blockGold.getIcon(	2,
-																			0);
-		iconList[BLOCK_DYNAMIC_MARK_ID][1] = Block.blockIron.getIcon(	1,
-																		0);
-		iconList[BLOCK_DYNAMIC_MARK_ID][0] = Block.blockIron.getIcon(	2,
-																		0);
-		iconList[BLOCK_DYNAMIC_MARK_ID][2] = Block.blockIron.getIcon(	2,
-																		0);
-		iconList[BLOCK_DYNAMIC_MARK_ID][3] = Block.blockIron.getIcon(	2,
-																		0);
-		iconList[BLOCK_DYNAMIC_MARK_ID][4] = Block.blockIron.getIcon(	2,
-																		0);
-		iconList[BLOCK_DYNAMIC_MARK_ID][5] = Block.blockIron.getIcon(	2,
-																		0);
+		iconList[BLOCK_ELEVATOR_COMPUTER_ID][1] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
+																			+ ":"
+																			+ BLOCK_ELEVATOR_COMPUTER
+																			+ ".top");
+		iconList[BLOCK_ELEVATOR_COMPUTER_ID][0] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
+																			+ ":"
+																			+ BLOCK_ELEVATOR_COMPUTER
+																			+ ".bottom");
+		iconList[BLOCK_ELEVATOR_COMPUTER_ID][2] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
+																			+ ":"
+																			+ BLOCK_ELEVATOR_COMPUTER
+																			+ ".side");
+		iconList[BLOCK_ELEVATOR_COMPUTER_ID][3] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
+																			+ ":"
+																			+ BLOCK_ELEVATOR_COMPUTER
+																			+ ".side");
+		iconList[BLOCK_ELEVATOR_COMPUTER_ID][4] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
+																			+ ":"
+																			+ BLOCK_ELEVATOR_COMPUTER
+																			+ ".side");
+		iconList[BLOCK_ELEVATOR_COMPUTER_ID][5] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
+																			+ ":"
+																			+ BLOCK_ELEVATOR_COMPUTER
+																			+ ".side");
+		iconList[BLOCK_DYNAMIC_MARK_ID][1] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
+																		+ ":"
+																		+ BLOCK_DYNAMIC_MARK
+																		+ ".top");
+		iconList[BLOCK_DYNAMIC_MARK_ID][0] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
+																		+ ":"
+																		+ BLOCK_DYNAMIC_MARK
+																		+ ".bottom");
+		iconList[BLOCK_DYNAMIC_MARK_ID][2] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
+																		+ ":"
+																		+ BLOCK_DYNAMIC_MARK
+																		+ ".side");
+		iconList[BLOCK_DYNAMIC_MARK_ID][3] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
+																		+ ":"
+																		+ BLOCK_DYNAMIC_MARK
+																		+ ".side");
+		iconList[BLOCK_DYNAMIC_MARK_ID][4] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
+																		+ ":"
+																		+ BLOCK_DYNAMIC_MARK
+																		+ ".side");
+		iconList[BLOCK_DYNAMIC_MARK_ID][5] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
+																		+ ":"
+																		+ BLOCK_DYNAMIC_MARK
+																		+ ".side");
 		return iconList;
 	}
 }
