@@ -2,6 +2,7 @@ package slimevoid.dynamictransport.tileentity;
 
 import java.util.ArrayList;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
@@ -15,7 +16,9 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
 	protected Privacy	privacyLvl	= Privacy.Public;
 
 	public enum Privacy {
-		Public, Restricted, Private
+		Public,
+		Restricted,
+		Private
 	}
 
 	@Override
@@ -60,6 +63,39 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
 		return 1.0f; // TODO :: Real Block Hardness
 	}
 
+	@Override
+	public boolean onBlockActivated(EntityPlayer entityplayer) {
+		if (!this.worldObj.isRemote) {
+			if (this.isInMaintenanceMode()) {
+				ItemStack heldItem = entityplayer.getHeldItem();
+				if (this.getCamoItem() == null
+					&& ItemHelper.isSolidBlockStack(heldItem,
+													this.getWorldObj(),
+													this.xCoord,
+													this.yCoord,
+													this.zCoord)) {
+					this.setCamoItem(heldItem.copy());
+					if (!entityplayer.capabilities.isCreativeMode) {
+						--heldItem.stackSize;
+						if (heldItem.stackSize < 0) {
+							heldItem = null;
+						}
+					}
+					return true;
+				}
+
+				if (!this.worldObj.isRemote) {
+					if (this.getCamoItem() != null
+						&& entityplayer.getHeldItem() == null) {
+						this.removeCamoItem();
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
 	public ItemStack getCamoItem() {
 		return this.camoItem;
 	}
@@ -89,6 +125,8 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
 		}
 		return copyCamoItem;
 	}
+
+	protected abstract boolean isInMaintenanceMode();
 
 	@Override
 	protected void addHarvestContents(ArrayList<ItemStack> harvestList) {

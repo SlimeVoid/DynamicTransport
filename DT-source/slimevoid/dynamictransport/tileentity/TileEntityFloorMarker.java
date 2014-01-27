@@ -1,8 +1,6 @@
 package slimevoid.dynamictransport.tileentity;
 
-import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet3Chat;
@@ -11,7 +9,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraftforge.common.ForgeDirection;
-import slimevoid.dynamictransport.blocks.BlockTransportBase;
 import slimevoid.dynamictransport.core.DynamicTransportMod;
 import slimevoid.dynamictransport.core.lib.BlockLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
@@ -25,7 +22,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 	private boolean				Powered	= false;
 	private int					yOffset	= -2;
 
-	public ChunkCoordinates getParent() {
+	public ChunkCoordinates getParentChunkCoords() {
 		return this.parentTransportBase;
 	}
 
@@ -108,73 +105,49 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 		if (this.getWorldObj().isRemote) {
 			return true;
 		}
-		if (!this.getWorldObj().isRemote) {
-			if (entityplayer.getHeldItem() != null
-				&& entityplayer.getHeldItem().itemID == ConfigurationLib.itemElevatorTool.itemID) {
-				NBTTagCompound tags = entityplayer.getHeldItem().getTagCompound();
-				if (tags.hasKey("ComputerX") && tags.getByte("Mode") == 0) {
-					ChunkCoordinates possibleComputer = new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ"));
-					if (entityplayer.isSneaking()) {
-						if (possibleComputer.equals(this.parentTransportBase)) {
-							entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.dynamicMarker.unbound"));// "Block Unbound"
-							this.getParentElevatorComputer().RemoveMarkerBlock(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord));
-							removeParent();
-							return true;
-						} else if (this.parentTransportBase != null) {
-							entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.dynamicMarker.boundToOtherComputer"));// "Block Bound to Another Elevator"
-						}
-					} else {
-						if (this.parentTransportBase == null) {
-							setParentComputer(	new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ")),
-												entityplayer);
-						} else if (possibleComputer.equals(this.parentTransportBase)) {
-							// open option GUI
-							entityplayer.openGui(	DynamicTransportMod.instance,
-													GuiLib.GUIID_FLOOR_MARKER,
-													this.worldObj,
-													this.xCoord,
-													this.yCoord,
-													this.zCoord);
-							return true;
-						}
+		if (entityplayer.getHeldItem() != null
+			&& entityplayer.getHeldItem().itemID == ConfigurationLib.itemElevatorTool.itemID) {
+			NBTTagCompound tags = entityplayer.getHeldItem().getTagCompound();
+			if (tags.hasKey("ComputerX") && tags.getByte("Mode") == 0) {
+				ChunkCoordinates possibleComputer = new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ"));
+				if (entityplayer.isSneaking()) {
+					if (possibleComputer.equals(this.parentTransportBase)) {
+						entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.dynamicMarker.unbound"));// "Block Unbound"
+						this.getParentElevatorComputer().RemoveMarkerBlock(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord));
+						removeParent();
+						return true;
+					} else if (this.parentTransportBase != null) {
+						entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.dynamicMarker.boundToOtherComputer"));// "Block Bound to Another Elevator"
+					}
+				} else {
+					if (this.parentTransportBase == null) {
+						setParentComputer(	new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ")),
+											entityplayer);
+					} else if (possibleComputer.equals(this.parentTransportBase)) {
+						// open option GUI
+						entityplayer.openGui(	DynamicTransportMod.instance,
+												GuiLib.GUIID_FLOOR_MARKER,
+												this.worldObj,
+												this.xCoord,
+												this.yCoord,
+												this.zCoord);
+						return true;
 					}
 				}
-			} else if (this.getParentElevatorComputer() == null
-						|| this.getParentElevatorComputer().getElevatorMode() == TileEntityElevatorComputer.ElevatorMode.Maintenance) {
-				if (this.camoItem == null
-					&& entityplayer.getHeldItem() != null
-					&& entityplayer.getHeldItem().getItem() instanceof ItemBlock
-					&& Block.blocksList[entityplayer.getHeldItem().getItem().itemID] != null
-					&& !(Block.blocksList[entityplayer.getHeldItem().getItem().itemID] instanceof BlockTransportBase)
-					&& Block.blocksList[entityplayer.getHeldItem().getItem().itemID].isBlockNormalCube(	getWorldObj(),
-																										xCoord,
-																										yCoord,
-																										zCoord)) {
-					this.setCamoItem(entityplayer.getHeldItem().copy());
-					if (!entityplayer.capabilities.isCreativeMode) --entityplayer.getHeldItem().stackSize;
-					return true;
-				}
-
-				if (this.camoItem != null && entityplayer.getHeldItem() == null) {
-					this.removeCamoItem();
-					return true;
-				}
-			} else if (!this.getWorldObj().isRemote) {
-				if (this.getParent() != null
-					&& (this.getParentElevatorComputer().getElevatorMode() != TileEntityElevatorComputer.ElevatorMode.Maintenance)) {
-					// show floor selection
-					entityplayer.openGui(	DynamicTransportMod.instance,
-											GuiLib.GUIID_FloorSelection,
-											this.worldObj,
-											this.xCoord,
-											this.yCoord,
-											this.zCoord);
-					return true;
-				}
 			}
-
+		} else {
+			if (!this.isInMaintenanceMode()) {
+				// show floor selection
+				entityplayer.openGui(	DynamicTransportMod.instance,
+										GuiLib.GUIID_FloorSelection,
+										this.worldObj,
+										this.xCoord,
+										this.yCoord,
+										this.zCoord);
+				return true;
+			}
 		}
-		return false;
+		return super.onBlockActivated(entityplayer);
 	}
 
 	private void setParentMarker(ChunkCoordinates possibleMarker, EntityPlayer entityplayer) {
@@ -261,6 +234,13 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 
 	public String getFloorName() {
 		return this.floorName;
+	}
+
+	@Override
+	protected boolean isInMaintenanceMode() {
+		return this.getParentChunkCoords() != null
+				&& this.getParentElevatorComputer() != null
+				&& this.getParentElevatorComputer().isInMaintenanceMode();
 	}
 
 }
