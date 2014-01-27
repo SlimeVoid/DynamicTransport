@@ -81,7 +81,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 		} else {
 			TileEntityElevatorComputer comTile = this.getParentElevatorComputer();
 			if (comTile != null) {
-				String msg = comTile.CallElevator(	this.yCoord - this.yOffset,
+				String msg = comTile.callElevator(	this.yCoord - this.yOffset,
 													this.floorName);
 				if (!this.worldObj.isRemote) {
 					MinecraftServer.getServer().getConfigurationManager().sendToAllNear(this.xCoord,
@@ -113,7 +113,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 				if (entityplayer.isSneaking()) {
 					if (possibleComputer.equals(this.parentTransportBase)) {
 						entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.dynamicMarker.unbound"));// "Block Unbound"
-						this.getParentElevatorComputer().RemoveMarkerBlock(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord));
+						this.getParentElevatorComputer().removeMarkerBlock(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord));
 						removeParent();
 						return true;
 					} else if (this.parentTransportBase != null) {

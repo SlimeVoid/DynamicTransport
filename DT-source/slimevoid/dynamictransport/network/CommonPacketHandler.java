@@ -46,10 +46,10 @@ public class CommonPacketHandler implements IPacketHandler {
 																																				pU.yPosition,
 																																				pU.zPosition);
 							if (pU.command.split(":").length == 2) {
-								comp.CallElevator(	Integer.valueOf(pU.command.split(":")[1]),
+								comp.callElevator(	Integer.valueOf(pU.command.split(":")[1]),
 													"");
 							} else if (pU.command.split(":").length == 3) {
-								comp.CallElevator(	Integer.valueOf(pU.command.split(":")[1]),
+								comp.callElevator(	Integer.valueOf(pU.command.split(":")[1]),
 													pU.command.split(":")[2]);
 							}
 						}

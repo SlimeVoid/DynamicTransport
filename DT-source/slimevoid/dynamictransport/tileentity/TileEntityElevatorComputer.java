@@ -38,8 +38,8 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 	private ElevatorMode					mode				= ElevatorMode.Available;
 	private String							curTechnicianName;
 	private int								elevatorPos;
-	public boolean							pendingMantinance	= false;
-	private float							ElevatorSpeed		= ConfigurationLib.elevatorMaxSpeed;
+	public boolean							pendingMaintenance	= false;
+	private float							elevatorSpeed		= ConfigurationLib.elevatorMaxSpeed;
 	private boolean							isHaltable;
 	private boolean							mobilePower;
 
@@ -166,13 +166,13 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
 	@Override
 	public boolean onBlockActivated(EntityPlayer entityplayer) {
-		if (entityplayer.getHeldItem() != null
-			&& entityplayer.getHeldItem().itemID == ConfigurationLib.itemElevatorTool.itemID) {
+		ItemStack heldItem = entityplayer.getHeldItem();
+		if (heldItem != null
+			&& heldItem.itemID == ConfigurationLib.itemElevatorTool.itemID) {
 			if (this.worldObj.isRemote) {
 				return true;
 			}
 			if (entityplayer.isSneaking()) {
-				ItemStack heldItem = entityplayer.getHeldItem();
 				NBTTagCompound tags = new NBTTagCompound();
 				if (this.curTechnicianName != null
 					&& this.curTechnicianName.equals(entityplayer.username)) {
@@ -202,7 +202,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 						this.elevatorPos = this.yCoord + 1;
 						this.mode = ElevatorMode.Maintenance;
 					} else if (this.elevatorPos > this.yCoord + 1) {
-						this.CallElevator(	this.yCoord + 1,
+						this.callElevator(	this.yCoord + 1,
 											true,
 											"");
 					} else {
@@ -242,19 +242,19 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 											blockBase);
 	}
 
-	public String CallElevator(int i, String Floorname) {
-		return this.CallElevator(	i,
+	public String callElevator(int i, String Floorname) {
+		return this.callElevator(	i,
 									false,
 									Floorname);
 	}
 
-	private String CallElevator(int i, boolean forMaintenance, String floorname) {
+	private String callElevator(int i, boolean forMaintenance, String floorname) {
 
 		if (this.mode == ElevatorMode.Available) {
 			if (forMaintenance) {
 				this.floorSpool.clear();
-				this.pendingMantinance = true;
-				sendMeassageFromAllFloors(this.elevatorName != null
+				this.pendingMaintenance = true;
+				sendMessageFromAllFloors(this.elevatorName != null
 											&& !this.elevatorName.isEmpty() ? ChatMessageComponent.createFromTranslationWithSubstitutions(	"slimevoid.DT.elevatorcomputer.enterMantWithName",
 																																			this.elevatorName) : ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorcomputer.enterMant"));// "Elevator Going into Mantinance Mode"
 
@@ -274,14 +274,14 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
 		} else if (this.mode == ElevatorMode.Maintenance) {
 			if (forMaintenance) {
-				sendMeassageFromAllFloors(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorcomputer.alreadyMant"));
+				sendMessageFromAllFloors(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorcomputer.alreadyMant"));
 			}
-			return "Elevator in Mantinance Mode please Try Again Later";
+			return "Elevator in Maintenance Mode please Try Again Later";
 		} else if (this.mode == ElevatorMode.Transit) {
 			if (forMaintenance) {
-				this.pendingMantinance = true;
-				sendMeassageFromAllFloors(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorcomputer.mantQueued"));
-				return "Mantinance Mode Request Queued";
+				this.pendingMaintenance = true;
+				sendMessageFromAllFloors(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorcomputer.mantQueued"));
+				return "Maintenance Mode Request Queued";
 			} else {
 				this.floorSpool.put(i,
 									floorname);
@@ -294,7 +294,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
 	}
 
-	private void sendMeassageFromAllFloors(ChatMessageComponent chatMessageComponent) {
+	private void sendMessageFromAllFloors(ChatMessageComponent chatMessageComponent) {
 		for (ChunkCoordinates marker : this.boundMarkerBlocks) {
 			if (!this.worldObj.isRemote) MinecraftServer.getServer().getConfigurationManager().sendToAllNear(	marker.posX,
 																												marker.posY,
@@ -327,7 +327,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 				if (first) centerElevator = curElevator.entityId;
 				curElevator.setProperties(	i,
 											floorname,
-											this.ElevatorSpeed,
+											this.elevatorSpeed,
 											new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord + 0),
 											this.isHaltable,
 											centerElevator,
@@ -485,9 +485,9 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 	public void elevatorArrived(int dest, boolean center) {
 		this.elevatorPos = dest;
 		this.floorSpool.remove(dest);
-		if (this.pendingMantinance) {
+		if (this.pendingMaintenance) {
 			if (this.elevatorPos == (this.yCoord + 1)) {
-				this.pendingMantinance = false;
+				this.pendingMaintenance = false;
 				this.mode = ElevatorMode.Maintenance;
 
 			} else {
@@ -569,7 +569,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 		return floors;
 	}
 
-	public void RemoveMarkerBlock(ChunkCoordinates elevatorPosition) {
+	public void removeMarkerBlock(ChunkCoordinates elevatorPosition) {
 		if (this.boundMarkerBlocks.contains(elevatorPosition)) {
 			this.boundMarkerBlocks.remove(this.boundMarkerBlocks.indexOf(elevatorPosition));
 			this.updateBlock();
