@@ -362,13 +362,15 @@ public class EntityElevator extends Entity {
 		if (!confirmedRiders.isEmpty()) {
 			for (Integer entityID : confirmedRiders) {
 				Entity rider = this.worldObj.getEntityByID(entityID);
-				rider.moveEntity(	0,
-									(this.getDestinationY() + 1.0D)
-											- rider.boundingBox.minY,
-									0);
-				rider.isAirBorne = false;
-				rider.onGround = true;
-				rider.fallDistance = 0;
+				if (rider != null) {
+					rider.moveEntity(	0,
+										(this.getDestinationY() + 1.0D + this.getMountedYOffset())
+												- rider.boundingBox.minY,
+										0);
+					rider.isAirBorne = false;
+					rider.onGround = true;
+					rider.fallDistance = 0;
+				}
 			}
 			confirmedRiders.clear();
 		}
