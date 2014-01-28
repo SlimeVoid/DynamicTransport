@@ -2,6 +2,7 @@ package slimevoid.dynamictransport.tileentity;
 
 import java.util.ArrayList;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -16,9 +17,7 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
 	protected Privacy	privacyLvl	= Privacy.Public;
 
 	public enum Privacy {
-		Public,
-		Restricted,
-		Private
+		Public, Restricted, Private
 	}
 
 	@Override
@@ -133,6 +132,14 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
 		if (this.camoItem != null) {
 			harvestList.add(this.camoItem);
 		}
+	}
+
+	@Override
+	public int getLightValue() {
+		return this.camoItem == null ? 0 : Block.blocksList[this.camoItem.itemID].getLightValue(this.worldObj,
+																								this.xCoord,
+																								this.yCoord,
+																								this.zCoord);
 	}
 
 }
