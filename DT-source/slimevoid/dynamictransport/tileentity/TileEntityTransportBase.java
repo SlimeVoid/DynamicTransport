@@ -136,10 +136,7 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
 
 	@Override
 	public int getLightValue() {
-		return this.camoItem == null ? 0 : Block.blocksList[this.camoItem.itemID].getLightValue(this.worldObj,
-																								this.xCoord,
-																								this.yCoord,
-																								this.zCoord);
+		return this.camoItem == null ? 0 : Block.lightValue[this.camoItem.itemID];
 	}
 
 }

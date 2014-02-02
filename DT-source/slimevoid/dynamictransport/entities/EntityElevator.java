@@ -4,7 +4,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet3Chat;
@@ -14,6 +16,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.MathHelper;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import slimevoid.dynamictransport.core.lib.BlockLib;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
@@ -198,6 +201,12 @@ public class EntityElevator extends Entity {
 									y,
 									z);
 		}
+		
+		
+			setLightLvltoCamo(x,
+					y,
+					z);
+		
 		if (this.velocityChanged) {
 			this.velocityChanged = false;
 			setEmerHalt(!emerHalt);
@@ -282,6 +291,14 @@ public class EntityElevator extends Entity {
 			}
 		}
 
+	}
+
+	private void setLightLvltoCamo(int x, int y, int z) {
+		if(this.getCamoItem() != null){
+		this.worldObj.setLightValue(EnumSkyBlock.Block, x, y, z, Block.lightValue[((ItemBlock) this.getCamoItem().getItem()).getBlockID()]);
+		this.worldObj.updateLightByType(EnumSkyBlock.Block, x, y+1, z);
+		this.worldObj.updateLightByType(EnumSkyBlock.Block, x, y-1, z);
+		}
 	}
 
 	@Override
