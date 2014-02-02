@@ -582,4 +582,9 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 	protected boolean isInMaintenanceMode() {
 		return this.getElevatorMode() == TileEntityElevatorComputer.ElevatorMode.Maintenance;
 	}
+
+	@Override
+	public String getInvName() {
+		return BlockLib.BLOCK_ELEVATOR_COMPUTER;
+	}
 }

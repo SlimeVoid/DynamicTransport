@@ -19,7 +19,7 @@ import slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
 import slimevoid.dynamictransport.tileentity.TileEntityFloorMarker;
 import slimevoidlib.ICommonProxy;
 import slimevoidlib.IPacketHandling;
-import slimevoidlib.util.helpers.SlimevoidHelper;
+import slimevoidlib.util.helpers.BlockHelper;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.Player;
 
@@ -48,17 +48,17 @@ public class CommonProxy implements ICommonProxy {
 	@Override
 	public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
 		if (ID == GuiLib.GUIID_FloorSelection) {
-			TileEntity tileentity = SlimevoidHelper.getBlockTileEntity(	world,
-																		x,
-																		y,
-																		z);
-			if (tileentity != null
-				&& tileentity instanceof TileEntityFloorMarker) {
-				tileentity = ((TileEntityFloorMarker) tileentity).getParentElevatorComputer();
+			TileEntityFloorMarker tileentity = (TileEntityFloorMarker) BlockHelper.getTileEntity(	world,
+																									x,
+																									y,
+																									z,
+																									TileEntityFloorMarker.class);
+			TileEntityElevatorComputer computer = null;
+			if (tileentity != null) {
+				computer = tileentity.getParentElevatorComputer();
 			}
-			if (tileentity != null
-				&& tileentity instanceof TileEntityElevatorComputer) {
-				return new ContainerFloorSelection(player.inventory, (TileEntityElevatorComputer) tileentity);
+			if (computer != null) {
+				return new ContainerFloorSelection(player.inventory, computer, world);
 			}
 		}
 		return null;

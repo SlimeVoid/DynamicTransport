@@ -6,9 +6,6 @@ import java.util.SortedMap;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.world.World;
 
 import org.lwjgl.opengl.GL11;
 
@@ -16,21 +13,31 @@ import slimevoid.dynamictransport.container.ContainerFloorSelection;
 import slimevoid.dynamictransport.core.lib.GuiLib;
 import slimevoid.dynamictransport.network.packet.PacketFloorSelected;
 import slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
+import slimevoidlib.core.SlimevoidCore;
+import slimevoidlib.core.lib.CoreLib;
+import slimevoidlib.data.Logger;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 
 public class GuiFloorSelection extends GuiContainer {
 
-	public GuiFloorSelection(EntityPlayer entityplayer, InventoryPlayer playerInventory, World world, TileEntityElevatorComputer elevator) {
-		super(new ContainerFloorSelection(playerInventory, elevator));
-		// TODO Auto-generated constructor stub
-		marker = elevator;
+	public GuiFloorSelection(ContainerFloorSelection container) {
+		super(container);
+		if (container.getComputer() != null
+			&& container.getComputer() instanceof TileEntityElevatorComputer) {
+			marker = (TileEntityElevatorComputer) container.getComputer();
+		} else {
+			SlimevoidCore.console(	CoreLib.MOD_ID,
+									"Failed build Floor Marker GUI",
+									Logger.LogLevel.WARNING.ordinal());
+		}
 	}
 
-	private TileEntityElevatorComputer	marker;
+	protected TileEntityElevatorComputer	marker;
 
 	@Override
 	public void initGui() {
+		super.initGui();
 		// get list of floors
 		SortedMap<Integer, ArrayList<String>> floorList = marker.getFloorList();
 		int x = (this.width - this.xSize) / 2 + 10;

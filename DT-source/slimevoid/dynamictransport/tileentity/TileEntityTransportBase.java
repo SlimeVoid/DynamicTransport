@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -12,13 +13,16 @@ import slimevoidlib.blocks.BlockBase;
 import slimevoidlib.tileentity.TileEntityBase;
 import slimevoidlib.util.helpers.ItemHelper;
 
-public abstract class TileEntityTransportBase extends TileEntityBase {
+public abstract class TileEntityTransportBase extends TileEntityBase implements
+		IInventory {
 	protected ItemStack	camoItem;
 	protected String	owner;
 	protected Privacy	privacyLvl	= Privacy.Public;
 
 	public enum Privacy {
-		Public, Restricted, Private
+		Public,
+		Restricted,
+		Private
 	}
 
 	@Override
@@ -65,7 +69,7 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
 
 	@Override
 	public boolean onBlockActivated(EntityPlayer entityplayer) {
-		if (!this.worldObj.isRemote) {
+		if (!this.getWorldObj().isRemote) {
 			if (this.isInMaintenanceMode()) {
 				ItemStack heldItem = entityplayer.getHeldItem();
 				if (this.getCamoItem() == null
@@ -93,7 +97,7 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
 				}
 			}
 		}
-		return false;
+		return true;
 	}
 
 	public ItemStack getCamoItem() {
@@ -138,6 +142,61 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
 	@Override
 	public int getLightValue() {
 		return this.camoItem == null ? 0 : Block.lightValue[((ItemBlock) this.camoItem.getItem()).getBlockID()];
+	}
+
+	@Override
+	public int getSizeInventory() {
+		return 1;
+	}
+
+	@Override
+	public ItemStack getStackInSlot(int i) {
+		return this.camoItem;
+	}
+
+	@Override
+	public ItemStack decrStackSize(int i, int j) {
+		return null;
+	}
+
+	@Override
+	public ItemStack getStackInSlotOnClosing(int i) {
+		return null;
+	}
+
+	@Override
+	public void setInventorySlotContents(int i, ItemStack itemstack) {
+		if (i == 0) {
+			this.camoItem = itemstack;
+		}
+	}
+
+	@Override
+	public boolean isInvNameLocalized() {
+		return false;
+	}
+
+	@Override
+	public int getInventoryStackLimit() {
+		return 1;
+	}
+
+	@Override
+	public boolean isUseableByPlayer(EntityPlayer entityplayer) {
+		return true;
+	}
+
+	@Override
+	public void openChest() {
+	}
+
+	@Override
+	public void closeChest() {
+	}
+
+	@Override
+	public boolean isItemValidForSlot(int i, ItemStack itemstack) {
+		return i == 0 && ItemHelper.isBlockStack(itemstack);
 	}
 
 }

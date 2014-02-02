@@ -201,12 +201,11 @@ public class EntityElevator extends Entity {
 									y,
 									z);
 		}
-		
-		
-			setLightLvltoCamo(x,
-					y,
-					z);
-		
+
+		setLightLvltoCamo(	x,
+							y,
+							z);
+
 		if (this.velocityChanged) {
 			this.velocityChanged = false;
 			setEmerHalt(!emerHalt);
@@ -294,15 +293,28 @@ public class EntityElevator extends Entity {
 	}
 
 	private void setLightLvltoCamo(int x, int y, int z) {
-		if(this.getCamoItem() != null){
-			this.worldObj.setLightValue(EnumSkyBlock.Block, x, y, z, Block.lightValue[((ItemBlock) this.getCamoItem().getItem()).getBlockID()]);
-			if(this.prevPosY < this.posY)
-			{
-				this.worldObj.updateLightByType(EnumSkyBlock.Block, x, y-1, z);
+		if (this.getCamoItem() != null) {
+			int blockLightValue = Block.lightValue[((ItemBlock) this.getCamoItem().getItem()).getBlockID()];
+			if (blockLightValue > this.worldObj.getSavedLightValue(	EnumSkyBlock.Block,
+																	x,
+																	y,
+																	z)) {
+				this.worldObj.setLightValue(EnumSkyBlock.Block,
+											x,
+											y,
+											z,
+											blockLightValue);
 			}
-			else
-			{
-				this.worldObj.updateLightByType(EnumSkyBlock.Block, x, y+1, z);
+			if (this.prevPosY < this.posY) {
+				this.worldObj.updateLightByType(EnumSkyBlock.Block,
+												x,
+												y - 1,
+												z);
+			} else {
+				this.worldObj.updateLightByType(EnumSkyBlock.Block,
+												x,
+												y + 1,
+												z);
 			}
 		}
 	}

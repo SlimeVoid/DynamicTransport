@@ -52,7 +52,7 @@ public class TileEntityElevator extends TileEntityTransportBase {
 
 	@Override
 	public boolean onBlockActivated(EntityPlayer entityplayer) {
-		if (this.worldObj.isRemote) {
+		if (this.getWorldObj().isRemote) {
 			return true;
 		}
 		ItemStack heldItem = entityplayer.getHeldItem();
@@ -188,6 +188,11 @@ public class TileEntityElevator extends TileEntityTransportBase {
 	protected boolean isInMaintenanceMode() {
 		return this.getParentElevatorComputer() == null
 				|| this.getParentElevatorComputer().isInMaintenanceMode();
+	}
+
+	@Override
+	public String getInvName() {
+		return BlockLib.BLOCK_ELEVATOR;
 	}
 
 }
