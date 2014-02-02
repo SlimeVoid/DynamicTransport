@@ -295,9 +295,15 @@ public class EntityElevator extends Entity {
 
 	private void setLightLvltoCamo(int x, int y, int z) {
 		if(this.getCamoItem() != null){
-		this.worldObj.setLightValue(EnumSkyBlock.Block, x, y, z, Block.lightValue[((ItemBlock) this.getCamoItem().getItem()).getBlockID()]);
-		this.worldObj.updateLightByType(EnumSkyBlock.Block, x, y+1, z);
-		this.worldObj.updateLightByType(EnumSkyBlock.Block, x, y-1, z);
+			this.worldObj.setLightValue(EnumSkyBlock.Block, x, y, z, Block.lightValue[((ItemBlock) this.getCamoItem().getItem()).getBlockID()]);
+			if(this.prevPosY < this.posY)
+			{
+				this.worldObj.updateLightByType(EnumSkyBlock.Block, x, y-1, z);
+			}
+			else
+			{
+				this.worldObj.updateLightByType(EnumSkyBlock.Block, x, y+1, z);
+			}
 		}
 	}
 

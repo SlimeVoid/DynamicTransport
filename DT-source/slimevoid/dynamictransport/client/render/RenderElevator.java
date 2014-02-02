@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Icon;
 import net.minecraft.util.MathHelper;
@@ -140,7 +141,7 @@ public class RenderElevator extends Render {
 		Icon textureData[] = new Icon[6];
 		if (camoItem != null) {
 			for (int i = 0; i < 6; i++) {
-				textureData[i] = Block.blocksList[camoItem.itemID].getIcon(	i,
+				textureData[i] = Block.blocksList[((ItemBlock) camoItem.getItem()).getBlockID()].getIcon(	i,
 																			camoItem.getItemDamage());
 
 			}

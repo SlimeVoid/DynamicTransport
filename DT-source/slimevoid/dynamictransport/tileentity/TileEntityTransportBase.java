@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import slimevoid.dynamictransport.core.lib.ConfigurationLib;
@@ -136,7 +137,7 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
 
 	@Override
 	public int getLightValue() {
-		return this.camoItem == null ? 0 : Block.lightValue[this.camoItem.itemID];
+		return this.camoItem == null ? 0 : Block.lightValue[((ItemBlock) this.camoItem.getItem()).getBlockID()];
 	}
 
 }
