@@ -108,7 +108,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 		if (entityplayer.getHeldItem() != null
 			&& entityplayer.getHeldItem().itemID == ConfigurationLib.itemElevatorTool.itemID) {
 			NBTTagCompound tags = entityplayer.getHeldItem().getTagCompound();
-			if (tags.hasKey("ComputerX") && tags.getByte("Mode") == 0) {
+			if (tags != null && tags.hasKey("ComputerX") && tags.getByte("Mode") == 0) {
 				ChunkCoordinates possibleComputer = new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ"));
 				if (entityplayer.isSneaking()) {
 					if (possibleComputer.equals(this.parentTransportBase)) {
@@ -238,9 +238,9 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 
 	@Override
 	protected boolean isInMaintenanceMode() {
-		return this.getParentChunkCoords() != null
-				&& this.getParentElevatorComputer() != null
-				&& this.getParentElevatorComputer().isInMaintenanceMode();
+		return this.getParentChunkCoords() == null
+				|| this.getParentElevatorComputer() == null
+				|| this.getParentElevatorComputer().isInMaintenanceMode();
 	}
 
 }
