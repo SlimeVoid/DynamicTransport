@@ -62,7 +62,7 @@ public class TileEntityElevator extends TileEntityTransportBase {
 			if (heldItem.hasTagCompound()
 				&& entityplayer.getHeldItem().getTagCompound() != null) {
 				NBTTagCompound tags = entityplayer.getHeldItem().getTagCompound();
-				if (tags.hasKey("ComputerX")) {
+				if (tags != null && tags.hasKey("ComputerX")) {
 					setParentElevatorComputer(	new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ")),
 												entityplayer);
 				}
