@@ -19,74 +19,74 @@ import slimevoidlib.data.LoggerSlimevoidLib;
 
 public class BlockTransportBase extends BlockBase {
 
-	protected Icon[][]	iconList;
+    protected Icon[][] iconList;
 
-	public BlockTransportBase(int blockID) {
-		super(blockID, Material.iron, BlockLib.BLOCK_MAX_TILES);
-	}
+    public BlockTransportBase(int blockID) {
+        super(blockID, Material.iron, BlockLib.BLOCK_MAX_TILES);
+    }
 
-	@Override
-	public CreativeTabs getCreativeTab() {
-		return CreativeTabs.tabTransport;
-	}
+    @Override
+    public CreativeTabs getCreativeTab() {
+        return CreativeTabs.tabTransport;
+    }
 
-	@Override
-	public Icon getIcon(int side, int metadata) {
+    @Override
+    public Icon getIcon(int side, int metadata) {
 
-		return this.iconList[metadata][side];
+        return this.iconList[metadata][side];
 
-	}
+    }
 
-	@Override
-	public void registerIcons(IconRegister iconRegister) {
-		iconList = new Icon[BlockLib.BLOCK_MAX_TILES][6];
-		iconList = BlockLib.registerIcons(	iconRegister,
-											iconList);
-	}
+    @Override
+    public void registerIcons(IconRegister iconRegister) {
+        iconList = new Icon[BlockLib.BLOCK_MAX_TILES][6];
+        iconList = BlockLib.registerIcons(iconRegister,
+                                          iconList);
+    }
 
-	@Override
-	public boolean shouldCheckWeakPower(World world, int x, int y, int z, int side) {
-		return world.getBlockMetadata(	x,
-										y,
-										z) == BlockLib.BLOCK_DYNAMIC_MARK_ID ? false : super.shouldCheckWeakPower(	world,
-																													x,
-																													y,
-																													z,
-																													side);
-	}
+    @Override
+    public boolean shouldCheckWeakPower(World world, int x, int y, int z, int side) {
+        return world.getBlockMetadata(x,
+                                      y,
+                                      z) == BlockLib.BLOCK_DYNAMIC_MARK_ID ? false : super.shouldCheckWeakPower(world,
+                                                                                                                x,
+                                                                                                                y,
+                                                                                                                z,
+                                                                                                                side);
+    }
 
-	@Override
-	public Icon getBlockTexture(IBlockAccess iblockaccess, int i, int j, int k, int l) {
-		Icon output = this.iconList[iblockaccess.getBlockMetadata(	i,
-																	j,
-																	k)][l];
-		try {
-			TileEntity tile = iblockaccess.getBlockTileEntity(	i,
-																j,
-																k);
-			if (tile instanceof TileEntityTransportBase) {
+    @Override
+    public Icon getBlockTexture(IBlockAccess iblockaccess, int i, int j, int k, int l) {
+        Icon output = this.iconList[iblockaccess.getBlockMetadata(i,
+                                                                  j,
+                                                                  k)][l];
+        try {
+            TileEntity tile = iblockaccess.getBlockTileEntity(i,
+                                                              j,
+                                                              k);
+            if (tile instanceof TileEntityTransportBase) {
 
-				ItemStack itemstack = ((TileEntityTransportBase) tile).getCamoItem();
-				if (itemstack == null && tile instanceof TileEntityFloorMarker) {
-					itemstack = ((TileEntityFloorMarker) tile).getCamoItem();
-				}
+                ItemStack itemstack = ((TileEntityTransportBase) tile).getCamoItem();
+                if (itemstack == null && tile instanceof TileEntityFloorMarker) {
+                    itemstack = ((TileEntityFloorMarker) tile).getCamoItem();
+                }
 
-				if (itemstack != null) {
-					int blockID =((ItemBlock) itemstack.getItem()).getBlockID();
-					int damage = itemstack.getItemDamage();
-					output = Block.blocksList[blockID].getIcon(	l,
-																damage);
-				}
-			}
-		} catch (Exception e) {
-			LoggerSlimevoidLib.getInstance(LoggerSlimevoidLib.filterClassName(this.getClass().toString())).write(	false,
-																													"Failed to get Camo Item",
-																													Logger.LogLevel.WARNING);
-			LoggerSlimevoidLib.getInstance(LoggerSlimevoidLib.filterClassName(this.getClass().toString())).writeStackTrace(e);
+                if (itemstack != null) {
+                    int blockID = ((ItemBlock) itemstack.getItem()).getBlockID();
+                    int damage = itemstack.getItemDamage();
+                    output = Block.blocksList[blockID].getIcon(l,
+                                                               damage);
+                }
+            }
+        } catch (Exception e) {
+            LoggerSlimevoidLib.getInstance(LoggerSlimevoidLib.filterClassName(this.getClass().toString())).write(false,
+                                                                                                                 "Failed to get Camo Item",
+                                                                                                                 Logger.LogLevel.WARNING);
+            LoggerSlimevoidLib.getInstance(LoggerSlimevoidLib.filterClassName(this.getClass().toString())).writeStackTrace(e);
 
-		}
+        }
 
-		return output;
-	}
+        return output;
+    }
 
 }

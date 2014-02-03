@@ -6,39 +6,39 @@ import cpw.mods.fml.common.registry.EntityRegistry;
 
 public class DTInit {
 
-	private static boolean	initialized;
+    private static boolean initialized;
 
-	public static void initialize() {
-		if (initialized) {
-			return;
-		}
-		initialized = true;
-		load();
-	}
+    public static void initialize() {
+        if (initialized) {
+            return;
+        }
+        initialized = true;
+        load();
+    }
 
-	public static void load() {
-		SlimevoidCore.console(	CoreLib.MOD_ID,
-								"Registering names...");
-		DTCore.registerNames();
+    public static void load() {
+        SlimevoidCore.console(CoreLib.MOD_ID,
+                              "Registering names...");
+        DTCore.registerNames();
 
-		SlimevoidCore.console(	CoreLib.MOD_ID,
-								"Registering blocks...");
-		DTCore.registerBlocks();
+        SlimevoidCore.console(CoreLib.MOD_ID,
+                              "Registering blocks...");
+        DTCore.registerBlocks();
 
-		SlimevoidCore.console(	CoreLib.MOD_ID,
-								"Registering items...");
-		DTCore.registerItems();
+        SlimevoidCore.console(CoreLib.MOD_ID,
+                              "Registering items...");
+        DTCore.registerItems();
 
-		EntityRegistry.registerModEntity(	slimevoid.dynamictransport.entities.EntityElevator.class,
-											"delv",
-											0,
-											DynamicTransportMod.instance,
-											400,
-											1,
-											true);
+        EntityRegistry.registerModEntity(slimevoid.dynamictransport.entities.EntityElevator.class,
+                                         "delv",
+                                         0,
+                                         DynamicTransportMod.instance,
+                                         400,
+                                         1,
+                                         true);
 
-		DynamicTransportMod.proxy.registerTickHandlers();
-		DynamicTransportMod.proxy.registerEventHandlers();
-		DynamicTransportMod.proxy.registerRenderInformation();
-	}
+        DynamicTransportMod.proxy.registerTickHandlers();
+        DynamicTransportMod.proxy.registerEventHandlers();
+        DynamicTransportMod.proxy.registerRenderInformation();
+    }
 }

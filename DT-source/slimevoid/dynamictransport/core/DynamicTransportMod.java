@@ -14,38 +14,38 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 
 @Mod(
-		modid = CoreLib.MOD_ID,
-		name = CoreLib.MOD_NAME,
-		version = CoreLib.MOD_VERSION,
-		dependencies = CoreLib.MOD_DEPENDENCIES)
+        modid = CoreLib.MOD_ID,
+        name = CoreLib.MOD_NAME,
+        version = CoreLib.MOD_VERSION,
+        dependencies = CoreLib.MOD_DEPENDENCIES)
 @NetworkMod(
-		clientSideRequired = true,
-		serverSideRequired = false,
-		channels = { CoreLib.MOD_CHANNEL },
-		packetHandler = CommonPacketHandler.class,
-		connectionHandler = CommonProxy.class)
+        clientSideRequired = true,
+        serverSideRequired = false,
+        channels = { CoreLib.MOD_CHANNEL },
+        packetHandler = CommonPacketHandler.class,
+        connectionHandler = CommonProxy.class)
 public class DynamicTransportMod {
-	@SidedProxy(
-			clientSide = CoreLib.CLIENT_PROXY,
-			serverSide = CoreLib.COMMON_PROXY)
-	public static ICommonProxy			proxy;
+    @SidedProxy(
+            clientSide = CoreLib.CLIENT_PROXY,
+            serverSide = CoreLib.COMMON_PROXY)
+    public static ICommonProxy        proxy;
 
-	@Instance(CoreLib.MOD_ID)
-	public static DynamicTransportMod	instance;
+    @Instance(CoreLib.MOD_ID)
+    public static DynamicTransportMod instance;
 
-	@EventHandler
-	public void DynamicTransportPreInit(FMLPreInitializationEvent event) {
-		DynamicTransportMod.proxy.registerConfigurationProperties(event.getSuggestedConfigurationFile());
+    @EventHandler
+    public void DynamicTransportPreInit(FMLPreInitializationEvent event) {
+        DynamicTransportMod.proxy.registerConfigurationProperties(event.getSuggestedConfigurationFile());
 
-		DynamicTransportMod.proxy.preInit();
-	}
+        DynamicTransportMod.proxy.preInit();
+    }
 
-	@EventHandler
-	public void DynamicTransportInit(FMLInitializationEvent event) {
-	}
+    @EventHandler
+    public void DynamicTransportInit(FMLInitializationEvent event) {
+    }
 
-	@EventHandler
-	public void DynamicTransportPostInit(FMLPostInitializationEvent event) {
-		DTInit.initialize();
-	}
+    @EventHandler
+    public void DynamicTransportPostInit(FMLPostInitializationEvent event) {
+        DTInit.initialize();
+    }
 }
