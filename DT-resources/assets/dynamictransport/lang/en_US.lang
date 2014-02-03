@@ -1,8 +1,8 @@
 ﻿
 slimevoid.DT.elevatorcomputer.enterMant=Entering Maintenance Mode
-slimevoid.DT.elevatorcomputer.mantComplete=Elevator Mantinaince Complete
-slimevoid.DT.elevatorcomputer.enterMantWithName=Elevator: {0} Entering Mantinaince Mode
-slimevoid.DT.elevatorcomputer.mantCompleteWithName=Elevator: {0} Mantinaince Complete
+slimevoid.DT.elevatorcomputer.mantComplete=Elevator Maintenance Complete
+slimevoid.DT.elevatorcomputer.enterMantWithName=Elevator: {0} Entering Maintenance Mode
+slimevoid.DT.elevatorcomputer.mantCompleteWithName=Elevator: {0} Maintenance Complete
 slimevoid.DT.elevatorcomputer.mantQueued=Maintenance Mode Request Queued
 slimevoid.DT.elevatorcomputer.alreadyMant=Elevator Already in Maintenance Mode
 slimevoid.DT.elevatorcomputer.bindElevatorSuccess=Elevator Block Successfully Bound to Elevator
