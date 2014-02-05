@@ -69,35 +69,34 @@ public abstract class TileEntityTransportBase extends TileEntityBase implements
 
     @Override
     public boolean onBlockActivated(EntityPlayer entityplayer) {
-        if (!this.getWorldObj().isRemote) {
-            if (this.isInMaintenanceMode()) {
-                ItemStack heldItem = entityplayer.getHeldItem();
-                if (this.getCamoItem() == null
-                    && ItemHelper.isSolidBlockStack(heldItem,
-                                                    this.getWorldObj(),
-                                                    this.xCoord,
-                                                    this.yCoord,
-                                                    this.zCoord)) {
-                    this.setCamoItem(heldItem.copy());
-                    if (!entityplayer.capabilities.isCreativeMode) {
-                        --heldItem.stackSize;
-                        if (heldItem.stackSize < 0) {
-                            heldItem = null;
-                        }
+        if (this.getWorldObj().isRemote) {
+            return true;
+        }
+        if (this.isInMaintenanceMode()) {
+            ItemStack heldItem = entityplayer.getHeldItem();
+            if (this.getCamoItem() == null
+                && ItemHelper.isSolidBlockStack(heldItem,
+                                                this.getWorldObj(),
+                                                this.xCoord,
+                                                this.yCoord,
+                                                this.zCoord)) {
+                this.setCamoItem(heldItem.copy());
+                if (!entityplayer.capabilities.isCreativeMode) {
+                    --heldItem.stackSize;
+                    if (heldItem.stackSize < 0) {
+                        heldItem = null;
                     }
-                    return true;
                 }
+                return true;
+            }
 
-                if (!this.worldObj.isRemote) {
-                    if (this.getCamoItem() != null
-                        && entityplayer.getHeldItem() == null) {
-                        this.removeCamoItem();
-                        return true;
-                    }
-                }
+            if (this.getCamoItem() != null
+                && entityplayer.getHeldItem() == null) {
+                this.removeCamoItem();
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     public ItemStack getCamoItem() {

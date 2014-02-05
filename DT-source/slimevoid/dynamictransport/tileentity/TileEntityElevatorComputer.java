@@ -166,12 +166,12 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
     @Override
     public boolean onBlockActivated(EntityPlayer entityplayer) {
+        if (this.worldObj.isRemote) {
+            return true;
+        }
         ItemStack heldItem = entityplayer.getHeldItem();
         if (heldItem != null
             && heldItem.itemID == ConfigurationLib.itemElevatorTool.itemID) {
-            if (this.worldObj.isRemote) {
-                return true;
-            }
             if (entityplayer.isSneaking()) {
                 NBTTagCompound tags = new NBTTagCompound();
                 if (this.curTechnicianName != null
