@@ -10,14 +10,16 @@ public class LocaleLib {
 
     public static void registerLanguages() {
         File Dir = new File(LANGUAGE_PATH);
-        // For every file specified in the localeFiles class, load them into the Language Registry
+        // For every file specified in the localeFiles class, load them into the
+        // Language Registry
         if (Dir.list() != null) {
             for (String localizationFile : Dir.list()) {
-                try{
+                try {
                     LanguageRegistry.instance().loadLocalization(localizationFile,
-                            getLocaleFromFileName(localizationFile),
-                            isXMLLanguageFile(localizationFile));
-                }finally{}
+                                                                 getLocaleFromFileName(localizationFile),
+                                                                 isXMLLanguageFile(localizationFile));
+                } finally {
+                }
             }
         }
     }
@@ -43,12 +45,11 @@ public class LocaleLib {
      */
     public static String getLocaleFromFileName(String fileName) {
         return fileName.substring(fileName.lastIndexOf('/') + 1,
-                fileName.lastIndexOf('.'));
+                                  fileName.lastIndexOf('.'));
     }
 
     public static String getLocalizedString(String key) {
         return LanguageRegistry.instance().getStringLocalization(key);
     }
-
 
 }

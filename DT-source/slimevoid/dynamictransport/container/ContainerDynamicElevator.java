@@ -7,12 +7,12 @@ import slimevoid.dynamictransport.tileentity.TileEntityElevator;
 
 public class ContainerDynamicElevator extends Container {
 
-	public ContainerDynamicElevator(InventoryPlayer playerInventory, TileEntityElevator workBench) {
-	}
+    public ContainerDynamicElevator(InventoryPlayer playerInventory, TileEntityElevator workBench) {
+    }
 
-	@Override
-	public boolean canInteractWith(EntityPlayer entityplayer) {
-		return true;
-	}
+    @Override
+    public boolean canInteractWith(EntityPlayer entityplayer) {
+        return true;
+    }
 
 }
