@@ -444,9 +444,8 @@ public class EntityElevator extends Entity {
 				if (isRiding(rider)) {
 					double yPos = (this.posY + this.getMountedYOffset())
 									- rider.boundingBox.minY;
-					double yDif = Math.abs(this.posY + this.getMountedYOffset()
-											- rider.boundingBox.minY);
-					if (yDif < 1.0) {
+
+					if (rider.posY < this.posY) {
 						rider.motionY = this.motionY < 0 ? this.motionY : Math.max(	yPos,
 																					rider.motionY);
 					} else {
