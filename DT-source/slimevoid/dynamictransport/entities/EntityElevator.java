@@ -6,6 +6,8 @@ import java.util.Set;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -476,8 +478,12 @@ public class EntityElevator extends Entity {
                         rider.motionY = this.motionY;
                     }
                     rider.isAirBorne = true;
+                    
                     rider.onGround = true;
                     rider.fallDistance = 0;
+                    if(rider instanceof EntityPlayerMP){
+                        ((EntityPlayerMP)rider).playerNetServerHandler.ticksForFloatKick = 0;
+                    }
                 } else {
                     removedRiders.add(entityID);
                 }
