@@ -6,8 +6,8 @@ set packagedir=%programdir%\Packages
 set forgedir=%programdir%\Forge
 set fmldir=%forgedir%\fml
 set mcpdir=%forgedir%\mcp
-set dynamictrans=%repodir%\DynamicTransport
-set slimelib=%repodir%\SlimevoidLibrary
+set dynamictrans=%repodir%\DynamicTransport\src\main
+set slimelib=%repodir%\SlimevoidLibrary\src\main\java
 cd %mcpdir%
 
 if not exist %slimelib% GOTO :DTFAIL
@@ -29,8 +29,8 @@ if exist "%mcpdir%\src-work" GOTO :COPYDT
 GOTO :DTFAIL
 
 :COPYDT
-xcopy "%slimelib%\SV-common\*.*" "%mcpdir%\src\minecraft\" /S
-xcopy "%dynamictrans%\DT-source\*.*" "%mcpdir%\src\minecraft\" /S
+xcopy "%slimelib%\*.*" "%mcpdir%\src\minecraft\" /S
+xcopy "%dynamictrans%\java\*.*" "%mcpdir%\src\minecraft\" /S
 pause
 call %mcpdir%\recompile.bat
 call %mcpdir%\reobfuscate.bat
@@ -43,9 +43,9 @@ if exist "%packagedir%\DynamicTransport" (
 del "%packagedir%\DynamicTransport\*.*" /S /Q
 rmdir "%packagedir%\DynamicTransport" /S /Q
 )
-mkdir "%packagedir%\DynamicTransport\slimevoid\dynamictransport"
-xcopy "%mcpdir%\reobf\minecraft\slimevoid\dynamictransport\*.*" "%packagedir%\DynamicTransport\slimevoid\dynamictransport\" /S
-xcopy "%dynamictrans%\DT-resources\*.*" "%packagedir%\DynamicTransport\" /S
+mkdir "%packagedir%\DynamicTransport\com\slimevoid\dynamictransport"
+xcopy "%mcpdir%\reobf\minecraft\com\slimevoid\dynamictransport\*.*" "%packagedir%\DynamicTransport\com\slimevoid\dynamictransport\" /S
+xcopy "%dynamictrans%\resources\*.*" "%packagedir%\DynamicTransport\" /S
 echo "Dynamic Transport Packaged Successfully
 pause
 ren "%mcpdir%\src" src-old
