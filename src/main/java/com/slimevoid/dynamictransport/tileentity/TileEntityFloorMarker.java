@@ -1,11 +1,5 @@
 package com.slimevoid.dynamictransport.tileentity;
 
-import com.slimevoid.dynamictransport.core.DynamicTransportMod;
-import com.slimevoid.dynamictransport.core.lib.BlockLib;
-import com.slimevoid.dynamictransport.core.lib.ConfigurationLib;
-import com.slimevoid.dynamictransport.core.lib.GuiLib;
-import com.slimevoid.library.blocks.BlockBase;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -15,6 +9,12 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraftforge.common.ForgeDirection;
+
+import com.slimevoid.dynamictransport.core.DynamicTransportMod;
+import com.slimevoid.dynamictransport.core.lib.BlockLib;
+import com.slimevoid.dynamictransport.core.lib.ConfigurationLib;
+import com.slimevoid.dynamictransport.core.lib.GuiLib;
+import com.slimevoid.library.blocks.BlockBase;
 
 public class TileEntityFloorMarker extends TileEntityTransportBase {
 
@@ -82,7 +82,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
         } else {
             TileEntityElevatorComputer comTile = this.getParentElevatorComputer();
             if (comTile != null) {
-                String msg = comTile.callElevator(this.yCoord - this.yOffset,
+                String msg = comTile.callElevator(this.yCoord + this.yOffset,
                                                   this.floorName);
                 if (!this.worldObj.isRemote) {
                     MinecraftServer.getServer().getConfigurationManager().sendToAllNear(this.xCoord,
