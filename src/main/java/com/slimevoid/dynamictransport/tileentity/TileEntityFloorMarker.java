@@ -27,16 +27,6 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
         return this.parentTransportBase;
     }
 
-    // used for deciding parent/child behavior
-    private boolean isChildMarker() {
-        TileEntity tile = parentTransportBase == null ? null : this.worldObj.getBlockTileEntity(this.parentTransportBase.posX,
-                                                                                                this.parentTransportBase.posY,
-                                                                                                this.parentTransportBase.posZ);
-        return tile == null || tile instanceof TileEntityFloorMarker;
-    }
-
-    // will try to find the elevator this is bound to even if the block is bound
-    // to another marker
     public TileEntityElevatorComputer getParentElevatorComputer() {
         TileEntity tile = parentTransportBase == null ? null : this.worldObj.getBlockTileEntity(this.parentTransportBase.posX,
                                                                                                 this.parentTransportBase.posY,
@@ -44,12 +34,8 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
         if (tile == null) {
             parentTransportBase = null;
         } else if (!(tile instanceof TileEntityElevatorComputer)) {
-            if ((tile instanceof TileEntityFloorMarker && ((TileEntityFloorMarker) tile).getParentElevatorComputer() != null)) {
-                tile = ((TileEntityFloorMarker) tile).getParentElevatorComputer();
-            } else {
-                tile = null;
-                parentTransportBase = null;
-            }
+            tile = null;
+            parentTransportBase = null;
         }
 
         return (TileEntityElevatorComputer) tile;
@@ -77,28 +63,20 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
     }
 
     private void callElevator() {
-        if (this.isChildMarker()) {
-            this.getParentFloorMarker().callElevator();
-        } else {
-            TileEntityElevatorComputer comTile = this.getParentElevatorComputer();
-            if (comTile != null) {
-                String msg = comTile.callElevator(this.yCoord + this.yOffset,
-                                                  this.floorName);
-                if (!this.worldObj.isRemote) {
-                    MinecraftServer.getServer().getConfigurationManager().sendToAllNear(this.xCoord,
-                                                                                        this.yCoord,
-                                                                                        this.zCoord,
-                                                                                        4,
-                                                                                        this.worldObj.provider.dimensionId,
-                                                                                        new Packet3Chat(ChatMessageComponent.createFromTranslationKey(msg)));
-                }
+
+        TileEntityElevatorComputer comTile = this.getParentElevatorComputer();
+        if (comTile != null) {
+            String msg = comTile.callElevator(this.yCoord + this.yOffset,
+                                              this.floorName);
+            if (!this.worldObj.isRemote) {
+                MinecraftServer.getServer().getConfigurationManager().sendToAllNear(this.xCoord,
+                                                                                    this.yCoord,
+                                                                                    this.zCoord,
+                                                                                    4,
+                                                                                    this.worldObj.provider.dimensionId,
+                                                                                    new Packet3Chat(ChatMessageComponent.createFromTranslationKey(msg)));
             }
         }
-    }
-
-    private TileEntityFloorMarker getParentFloorMarker() {
-        // noop
-        return null;
     }
 
     @Override
@@ -155,10 +133,6 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
         return super.onBlockActivated(entityplayer);
     }
 
-    private void setParentMarker(ChunkCoordinates possibleMarker, EntityPlayer entityplayer) {
-        // noop
-    }
-
     @Override
     public void writeToNBT(NBTTagCompound nbttagcompound) {
         super.writeToNBT(nbttagcompound);
@@ -170,9 +144,8 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
             nbttagcompound.setInteger("ParentTransportComputerZ",
                                       parentTransportBase.posZ);
         }
-        if (this.getParentFloorMarker() == null && this.floorName != null
-            && !this.floorName.isEmpty()) nbttagcompound.setString("FloorName",
-                                                                   floorName);
+        if (this.floorName != null && !this.floorName.isEmpty()) nbttagcompound.setString("FloorName",
+                                                                                          floorName);
         nbttagcompound.setInteger("yOffset",
                                   yOffset);
         nbttagcompound.setBoolean("Powered",
