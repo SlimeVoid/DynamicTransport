@@ -434,7 +434,7 @@ public class EntityElevator extends Entity {
                                                                                   boundBox));
         for (Entity rider : potentialRiders) {
             if (!(rider instanceof EntityElevator)
-                && rider.ridingEntity == null 
+                && rider.isRiding() 
                 && !this.confirmedRiders.contains(rider.entityId)) {
                 double yPos = (this.posY + this.getMountedYOffset())
                               - rider.boundingBox.minY;
@@ -450,7 +450,7 @@ public class EntityElevator extends Entity {
 
     protected boolean isRiding(Entity rider) {
         return rider != null
-               && rider.ridingEntity == null
+               && rider.isRiding()
                && rider.boundingBox.maxX >= this.getBoundingBox().minX
                && rider.boundingBox.minX <= this.getBoundingBox().maxX
                && rider.boundingBox.maxZ >= this.getBoundingBox().minZ
