@@ -20,6 +20,7 @@ public class TileEntityElevator extends TileEntityTransportBase {
     private int              yOffset = 0;
     private int              maxY    = -1;
     private int              minY    = -1;
+    private boolean          floorSelectorMode;
 
     public int getMaxY(boolean reCalculate) {
         if (reCalculate || maxY == -1) {
@@ -65,8 +66,20 @@ public class TileEntityElevator extends TileEntityTransportBase {
                 && entityplayer.getHeldItem().getTagCompound() != null) {
                 NBTTagCompound tags = entityplayer.getHeldItem().getTagCompound();
                 if (tags != null && tags.hasKey("ComputerX")) {
-                    setParentElevatorComputer(new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ")),
-                                              entityplayer);
+                    ChunkCoordinates possibleComputer = new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ"));
+                    if (entityplayer.isSneaking()) {
+                        if (possibleComputer.equals(this.ParentElevatorComputer)) {
+                            entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.dynamicMarker.unbound"));// "Block Unbound"
+                            this.getParentElevatorComputer().removeMarkerBlock(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord));
+                            this.RemoveComputer(possibleComputer);
+                            return true;
+                        } else if (this.ParentElevatorComputer != null) {
+                            entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.dynamicMarker.boundToOtherComputer"));// "Block Bound to Another Elevator"
+                        }
+                    } else {
+                        setParentElevatorComputer(possibleComputer,
+                                                  entityplayer);
+                    }
                 }
             } else {
                 FMLCommonHandler.instance().getFMLLogger().warning("There was an error processing this Transport Component at ["
