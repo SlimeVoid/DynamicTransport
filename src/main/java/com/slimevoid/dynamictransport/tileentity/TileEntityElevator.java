@@ -1,24 +1,25 @@
 package com.slimevoid.dynamictransport.tileentity;
 
-import com.slimevoid.dynamictransport.core.lib.BlockLib;
-import com.slimevoid.dynamictransport.core.lib.ConfigurationLib;
-import com.slimevoid.dynamictransport.util.XZCoords;
-import com.slimevoid.library.blocks.BlockBase;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.ChunkCoordinates;
+
+import com.slimevoid.dynamictransport.core.lib.BlockLib;
+import com.slimevoid.dynamictransport.core.lib.ConfigurationLib;
+import com.slimevoid.dynamictransport.util.XZCoords;
+import com.slimevoid.library.blocks.BlockBase;
+
 import cpw.mods.fml.common.FMLCommonHandler;
 
 public class TileEntityElevator extends TileEntityTransportBase {
 
     private ChunkCoordinates ParentElevatorComputer;
-
-    private int              maxY = -1;
-    private int              minY = -1;
+    private int              yOffset = 0;
+    private int              maxY    = -1;
+    private int              minY    = -1;
 
     public int getMaxY(boolean reCalculate) {
         if (reCalculate || maxY == -1) {
@@ -115,6 +116,7 @@ public class TileEntityElevator extends TileEntityTransportBase {
             if (comTile.addElevator(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord),
                                     entityplayer)) this.ParentElevatorComputer = ComputerLocation;
 
+            this.yOffset = this.yCoord - (ComputerLocation.posY + 1);
         } else {
             ItemStack heldItem = entityplayer.getHeldItem();
             NBTTagCompound tags = new NBTTagCompound();
@@ -164,6 +166,8 @@ public class TileEntityElevator extends TileEntityTransportBase {
                                       ParentElevatorComputer.posY);
             nbttagcompound.setInteger("ParentElevatorComputerZ",
                                       ParentElevatorComputer.posZ);
+            nbttagcompound.setInteger("yOffset",
+                                      this.yOffset);
         }
 
     }
@@ -172,7 +176,7 @@ public class TileEntityElevator extends TileEntityTransportBase {
     public void readFromNBT(NBTTagCompound nbttagcompound) {
         super.readFromNBT(nbttagcompound);
         this.ParentElevatorComputer = new ChunkCoordinates(nbttagcompound.getInteger("ParentElevatorComputerX"), nbttagcompound.getInteger("ParentElevatorComputerY"), nbttagcompound.getInteger("ParentElevatorComputerZ"));
-
+        this.yOffset = nbttagcompound.getInteger("yOffset");
     }
 
     public void RemoveComputer(ChunkCoordinates chunkCoordinates) {
@@ -189,6 +193,15 @@ public class TileEntityElevator extends TileEntityTransportBase {
     protected boolean isInMaintenanceMode() {
         return this.getParentElevatorComputer() == null
                || this.getParentElevatorComputer().isInMaintenanceMode();
+    }
+
+    public void setYOffset(int yOffset) {
+        this.yOffset = yOffset;
+
+    }
+
+    public int getYOffest() {
+        return this.yOffset;
     }
 
     @Override
