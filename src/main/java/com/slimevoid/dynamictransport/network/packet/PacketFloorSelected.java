@@ -2,7 +2,7 @@ package com.slimevoid.dynamictransport.network.packet;
 
 import com.slimevoid.dynamictransport.core.lib.CoreLib;
 import com.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
-import com.slimevoid.library.network.PacketGuiEvent;
+import net.slimevoid.library.network.PacketGuiEvent;
 
 import net.minecraft.world.World;
 

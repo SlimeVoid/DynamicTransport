@@ -10,7 +10,7 @@ import com.slimevoid.dynamictransport.entities.EntityElevator;
 import com.slimevoid.dynamictransport.proxy.CommonProxy;
 import com.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
 import com.slimevoid.dynamictransport.tileentity.TileEntityFloorMarker;
-import com.slimevoid.library.util.helpers.BlockHelper;
+import net.slimevoid.library.util.helpers.BlockHelper;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;

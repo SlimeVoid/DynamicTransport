@@ -1,16 +1,17 @@
 package com.slimevoid.dynamictransport.items;
 
-import com.slimevoid.dynamictransport.core.lib.ConfigurationLib;
-
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
+import com.slimevoid.dynamictransport.core.lib.ConfigurationLib;
+
 public class ItemElevatorTool extends Item {
 
-    public ItemElevatorTool(int par1) {
-        super(par1);
+    public ItemElevatorTool(int itemId) {
+        super();
         this.maxStackSize = 1;
     }
 
@@ -30,10 +31,10 @@ public class ItemElevatorTool extends Item {
     }
 
     @Override
-    public boolean shouldPassSneakingClickToBlock(World world, int x, int y, int z) {
-        return world.getBlockId(x,
-                                y,
-                                z) == ConfigurationLib.blockTransportBaseID;
+    public boolean doesSneakBypassUse(World world, int x, int y, int z, EntityPlayer entityplayer) {
+        return world.getBlock(x,
+                              y,
+                              z) == ConfigurationLib.blockTransportBase;
     }
 
 }

@@ -1,29 +1,27 @@
 package com.slimevoid.dynamictransport.blocks;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.IIcon;
+import net.minecraft.world.IBlockAccess;
+import net.slimevoid.library.blocks.BlockBase;
+import net.slimevoid.library.data.Logger;
+import net.slimevoid.library.data.LoggerSlimevoidLib;
+
 import com.slimevoid.dynamictransport.core.lib.BlockLib;
 import com.slimevoid.dynamictransport.tileentity.TileEntityFloorMarker;
 import com.slimevoid.dynamictransport.tileentity.TileEntityTransportBase;
-import com.slimevoid.library.blocks.BlockBase;
-import com.slimevoid.library.data.Logger;
-import com.slimevoid.library.data.LoggerSlimevoidLib;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Icon;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
 
 public class BlockTransportBase extends BlockBase {
 
-    protected Icon[][] iconList;
+    protected IIcon[][] iconList;
 
     public BlockTransportBase(int blockID) {
-        super(blockID, Material.iron, BlockLib.BLOCK_MAX_TILES);
+        super(Material.iron, BlockLib.BLOCK_MAX_TILES);
     }
 
     @Override
@@ -32,21 +30,21 @@ public class BlockTransportBase extends BlockBase {
     }
 
     @Override
-    public Icon getIcon(int side, int metadata) {
+    public IIcon getIcon(int side, int metadata) {
 
         return this.iconList[metadata][side];
 
     }
 
     @Override
-    public void registerIcons(IconRegister iconRegister) {
-        iconList = new Icon[BlockLib.BLOCK_MAX_TILES][6];
+    public void registerIcons(IIconRegister iconRegister) {
+        iconList = new IIcon[BlockLib.BLOCK_MAX_TILES][6];
         iconList = BlockLib.registerIcons(iconRegister,
                                           iconList);
     }
 
     @Override
-    public boolean shouldCheckWeakPower(World world, int x, int y, int z, int side) {
+    public boolean shouldCheckWeakPower(IBlockAccess world, int x, int y, int z, int side) {
         return world.getBlockMetadata(x,
                                       y,
                                       z) == BlockLib.BLOCK_DYNAMIC_MARK_ID ? false : super.shouldCheckWeakPower(world,
@@ -57,14 +55,14 @@ public class BlockTransportBase extends BlockBase {
     }
 
     @Override
-    public Icon getBlockTexture(IBlockAccess iblockaccess, int i, int j, int k, int l) {
-        Icon output = this.iconList[iblockaccess.getBlockMetadata(i,
-                                                                  j,
-                                                                  k)][l];
+    public IIcon getIcon(IBlockAccess iblockaccess, int i, int j, int k, int l) {
+        IIcon output = this.iconList[iblockaccess.getBlockMetadata(i,
+                                                                   j,
+                                                                   k)][l];
         try {
-            TileEntity tile = iblockaccess.getBlockTileEntity(i,
-                                                              j,
-                                                              k);
+            TileEntity tile = iblockaccess.getTileEntity(i,
+                                                         j,
+                                                         k);
             if (tile instanceof TileEntityTransportBase) {
 
                 ItemStack itemstack = ((TileEntityTransportBase) tile).getCamoItem();
@@ -72,11 +70,11 @@ public class BlockTransportBase extends BlockBase {
                     itemstack = ((TileEntityFloorMarker) tile).getCamoItem();
                 }
 
-                if (itemstack != null) {
-                    int blockID = ((ItemBlock) itemstack.getItem()).getBlockID();
+                if (itemstack != null && itemstack.getItem() != null) {
+                    Block block = Block.getBlockFromItem(itemstack.getItem());
                     int damage = itemstack.getItemDamage();
-                    output = Block.blocksList[blockID].getIcon(l,
-                                                               damage);
+                    output = block.getIcon(l,
+                                           damage);
                 }
             }
         } catch (Exception e) {
@@ -90,4 +88,27 @@ public class BlockTransportBase extends BlockBase {
         return output;
     }
 
+    @Override
+    public IIcon[] registerBottomIcons(IIconRegister iconRegister) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public IIcon[] registerTopIcons(IIconRegister iconRegister) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public IIcon[] registerFrontIcons(IIconRegister iconRegister) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public IIcon[] registerSideIcons(IIconRegister iconRegister) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

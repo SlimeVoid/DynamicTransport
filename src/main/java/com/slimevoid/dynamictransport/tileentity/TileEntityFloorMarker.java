@@ -1,20 +1,19 @@
 package com.slimevoid.dynamictransport.tileentity;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.packet.Packet3Chat;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.ChunkCoordinates;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.slimevoid.library.blocks.BlockBase;
+import net.slimevoid.library.util.helpers.ChatHelper;
 
 import com.slimevoid.dynamictransport.core.DynamicTransportMod;
 import com.slimevoid.dynamictransport.core.lib.BlockLib;
 import com.slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import com.slimevoid.dynamictransport.core.lib.GuiLib;
-import com.slimevoid.library.blocks.BlockBase;
 
 public class TileEntityFloorMarker extends TileEntityTransportBase {
 
@@ -28,9 +27,9 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
     }
 
     public TileEntityElevatorComputer getParentElevatorComputer() {
-        TileEntity tile = parentTransportBase == null ? null : this.worldObj.getBlockTileEntity(this.parentTransportBase.posX,
-                                                                                                this.parentTransportBase.posY,
-                                                                                                this.parentTransportBase.posZ);
+        TileEntity tile = parentTransportBase == null ? null : this.worldObj.getTileEntity(this.parentTransportBase.posX,
+                                                                                           this.parentTransportBase.posY,
+                                                                                           this.parentTransportBase.posZ);
         if (tile == null) {
             parentTransportBase = null;
         } else if (!(tile instanceof TileEntityElevatorComputer)) {
@@ -42,12 +41,12 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
     }
 
     @Override
-    public boolean isBlockSolidOnSide(BlockBase blockBase, ForgeDirection side) {
+    public boolean isSideSolid(BlockBase blockBase, ForgeDirection side) {
         return true;
     }
 
     @Override
-    public void onBlockNeighborChange(int blockID) {
+    public void onBlockNeighborChange(Block block) {
         boolean flag = this.worldObj.isBlockIndirectlyGettingPowered(this.xCoord,
                                                                      this.yCoord,
                                                                      this.zCoord);
@@ -69,12 +68,12 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
             String msg = comTile.callElevator(this.yCoord + this.yOffset,
                                               this.floorName);
             if (!this.worldObj.isRemote) {
-                MinecraftServer.getServer().getConfigurationManager().sendToAllNear(this.xCoord,
-                                                                                    this.yCoord,
-                                                                                    this.zCoord,
-                                                                                    4,
-                                                                                    this.worldObj.provider.dimensionId,
-                                                                                    new Packet3Chat(ChatMessageComponent.createFromTranslationKey(msg)));
+                ChatHelper.sendChatMessageToAllNear(this.getWorldObj(),
+                                                    this.xCoord,
+                                                    this.yCoord,
+                                                    this.zCoord,
+                                                    4,
+                                                    msg);
             }
         }
     }
@@ -86,7 +85,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
         }
         ItemStack heldItem = entityplayer.getHeldItem();
         if (heldItem != null
-            && heldItem.itemID == ConfigurationLib.itemElevatorTool.itemID) {
+            && heldItem.getItem() == ConfigurationLib.itemElevatorTool) {
             if (heldItem.hasTagCompound()
                 && entityplayer.getHeldItem().getTagCompound() != null) {
                 NBTTagCompound tags = entityplayer.getHeldItem().getTagCompound();
@@ -94,12 +93,14 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
                     ChunkCoordinates possibleComputer = new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ"));
                     if (entityplayer.isSneaking()) {
                         if (possibleComputer.equals(this.parentTransportBase)) {
-                            entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.dynamicMarker.unbound"));// "Block Unbound"
+                            ChatHelper.addMessageToPlayer(entityplayer,
+                                                          "slimevoid.DT.dynamicMarker.unbound");// "Block Unbound"
                             this.getParentElevatorComputer().removeMarkerBlock(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord));
                             this.removeParent();
                             return true;
                         } else if (this.parentTransportBase != null) {
-                            entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.dynamicMarker.boundToOtherComputer"));// "Block Bound to Another Elevator"
+                            ChatHelper.addMessageToPlayer(entityplayer,
+                                                          "slimevoid.DT.dynamicMarker.boundToOtherComputer");// "Block Bound to Another Elevator"
                         }
                     } else {
                         if (this.parentTransportBase == null) {
@@ -173,16 +174,16 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
     public void setParentComputer(ChunkCoordinates ComputerLocation, EntityPlayer entityplayer) {
         TileEntityElevatorComputer comTile = getParentElevatorComputer();
 
-        if (this.worldObj.getBlockId(ComputerLocation.posX,
-                                     ComputerLocation.posY,
-                                     ComputerLocation.posZ) == ConfigurationLib.blockTransportBase.blockID
+        if (this.worldObj.getBlock(ComputerLocation.posX,
+                                   ComputerLocation.posY,
+                                   ComputerLocation.posZ) == ConfigurationLib.blockTransportBase
             && this.worldObj.getBlockMetadata(ComputerLocation.posX,
                                               ComputerLocation.posY,
                                               ComputerLocation.posZ) == BlockLib.BLOCK_ELEVATOR_COMPUTER_ID) {
 
-            comTile = (TileEntityElevatorComputer) this.worldObj.getBlockTileEntity(ComputerLocation.posX,
-                                                                                    ComputerLocation.posY,
-                                                                                    ComputerLocation.posZ);
+            comTile = (TileEntityElevatorComputer) this.worldObj.getTileEntity(ComputerLocation.posX,
+                                                                               ComputerLocation.posY,
+                                                                               ComputerLocation.posZ);
             if (comTile.addFloorMarker(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord),
                                        entityplayer)) {
                 this.parentTransportBase = ComputerLocation;
@@ -195,7 +196,8 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
         } else {
             ItemStack heldItem = entityplayer.getHeldItem();
             NBTTagCompound tags = new NBTTagCompound();
-            entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.dynamicMarker.bindMissingElevator"));
+            ChatHelper.addMessageToPlayer(entityplayer,
+                                          "slimevoid.DT.dynamicMarker.bindMissingElevator");
             heldItem.setTagCompound(tags);
         }
 

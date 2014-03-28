@@ -1,5 +1,11 @@
 package com.slimevoid.dynamictransport.core;
 
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import net.slimevoid.library.items.ItemBlockBase;
+
 import com.slimevoid.dynamictransport.blocks.BlockTransportBase;
 import com.slimevoid.dynamictransport.core.lib.BlockLib;
 import com.slimevoid.dynamictransport.core.lib.ConfigurationLib;
@@ -9,12 +15,7 @@ import com.slimevoid.dynamictransport.items.ItemElevatorTool;
 import com.slimevoid.dynamictransport.tileentity.TileEntityElevator;
 import com.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
 import com.slimevoid.dynamictransport.tileentity.TileEntityFloorMarker;
-import com.slimevoid.library.items.ItemBlockBase;
 
-import net.minecraft.block.Block;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 public class DTCore {
@@ -46,37 +47,37 @@ public class DTCore {
                                        "IEI",
                                        "IRI",
                                        Character.valueOf('I'),
-                                       Item.ingotIron,
+                                       Items.iron_ingot,
                                        Character.valueOf('D'),
-                                       Item.diamond,
+                                       Items.diamond,
                                        Character.valueOf('R'),
-                                       Item.redstone,
+                                       Items.redstone,
                                        Character.valueOf('E'),
-                                       Item.enderPearl });
+                                       Items.ender_pearl });
         GameRegistry.addRecipe(new ItemStack(ConfigurationLib.blockTransportBase, 1, BlockLib.BLOCK_ELEVATOR_COMPUTER_ID),
                                new Object[] {
                                        "GEG",
                                        "GAG",
                                        "GRG",
                                        Character.valueOf('G'),
-                                       Item.ingotGold,
+                                       Items.gold_ingot,
                                        Character.valueOf('E'),
-                                       Item.enderPearl,
+                                       Items.ender_pearl,
                                        Character.valueOf('R'),
-                                       Item.redstone,
+                                       Items.redstone,
                                        Character.valueOf('A'),
-                                       Block.glass });
+                                       Blocks.glass });
         GameRegistry.addRecipe(new ItemStack(ConfigurationLib.blockTransportBase, 4, BlockLib.BLOCK_DYNAMIC_MARK_ID),
                                new Object[] {
                                        "III",
                                        "IEI",
                                        "IRI",
                                        Character.valueOf('I'),
-                                       Item.ingotIron,
+                                       Items.iron_ingot,
                                        Character.valueOf('E'),
-                                       Item.enderPearl,
+                                       Items.ender_pearl,
                                        Character.valueOf('R'),
-                                       Item.redstone });
+                                       Items.redstone });
     }
 
     public static void registerItems() {
@@ -93,13 +94,13 @@ public class DTCore {
                                        "LRL",
                                        "LSL",
                                        Character.valueOf('L'),
-                                       new ItemStack(Item.dyePowder, 1, 4),
+                                       new ItemStack(Items.dye, 1, 4),
                                        Character.valueOf('G'),
-                                       Block.thinGlass,
+                                       Blocks.glass_pane,
                                        Character.valueOf('R'),
-                                       Item.redstone,
+                                       Items.redstone,
                                        Character.valueOf('S'),
-                                       Item.silk });
+                                       Items.string });
     }
 
 }

@@ -1,9 +1,8 @@
 package com.slimevoid.dynamictransport.core;
 
+import net.slimevoid.library.ICommonProxy;
+
 import com.slimevoid.dynamictransport.core.lib.CoreLib;
-import com.slimevoid.dynamictransport.network.CommonPacketHandler;
-import com.slimevoid.dynamictransport.proxy.CommonProxy;
-import com.slimevoid.library.ICommonProxy;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -12,19 +11,12 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.network.NetworkMod;
 
 @Mod(
         modid = CoreLib.MOD_ID,
         name = CoreLib.MOD_NAME,
         version = CoreLib.MOD_VERSION,
         dependencies = CoreLib.MOD_DEPENDENCIES)
-@NetworkMod(
-        clientSideRequired = true,
-        serverSideRequired = false,
-        channels = { CoreLib.MOD_CHANNEL },
-        packetHandler = CommonPacketHandler.class,
-        connectionHandler = CommonProxy.class)
 public class DynamicTransportMod {
     @SidedProxy(
             clientSide = CoreLib.CLIENT_PROXY,

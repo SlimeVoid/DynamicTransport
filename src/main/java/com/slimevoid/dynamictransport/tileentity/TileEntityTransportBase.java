@@ -2,20 +2,15 @@ package com.slimevoid.dynamictransport.tileentity;
 
 import java.util.ArrayList;
 
-import com.slimevoid.dynamictransport.core.lib.ConfigurationLib;
-import com.slimevoid.library.blocks.BlockBase;
-import com.slimevoid.library.tileentity.TileEntityBase;
-import com.slimevoid.library.util.helpers.ItemHelper;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.slimevoid.library.blocks.BlockBase;
+import net.slimevoid.library.tileentity.TileEntityBase;
+import net.slimevoid.library.util.helpers.ItemHelper;
 
-public abstract class TileEntityTransportBase extends TileEntityBase implements
-        IInventory {
+public abstract class TileEntityTransportBase extends TileEntityBase {
     protected ItemStack camoItem;
     protected String    owner;
     protected Privacy   privacyLvl = Privacy.Public;
@@ -24,11 +19,6 @@ public abstract class TileEntityTransportBase extends TileEntityBase implements
         Public,
         Restricted,
         Private
-    }
-
-    @Override
-    public int getBlockID() {
-        return ConfigurationLib.blockTransportBaseID;
     }
 
     @Override
@@ -141,7 +131,7 @@ public abstract class TileEntityTransportBase extends TileEntityBase implements
 
     @Override
     public int getLightValue() {
-        return this.camoItem == null ? 0 : Block.lightValue[((ItemBlock) this.camoItem.getItem()).getBlockID()];
+        return this.camoItem == null ? 0 : Block.getBlockFromItem(this.camoItem.getItem()).getLightValue();
     }
 
     @Override
@@ -172,11 +162,6 @@ public abstract class TileEntityTransportBase extends TileEntityBase implements
     }
 
     @Override
-    public boolean isInvNameLocalized() {
-        return false;
-    }
-
-    @Override
     public int getInventoryStackLimit() {
         return 1;
     }
@@ -184,14 +169,6 @@ public abstract class TileEntityTransportBase extends TileEntityBase implements
     @Override
     public boolean isUseableByPlayer(EntityPlayer entityplayer) {
         return true;
-    }
-
-    @Override
-    public void openChest() {
-    }
-
-    @Override
-    public void closeChest() {
     }
 
     @Override

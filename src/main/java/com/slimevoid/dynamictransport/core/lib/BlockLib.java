@@ -1,7 +1,7 @@
 package com.slimevoid.dynamictransport.core.lib;
 
-import net.minecraft.client.renderer.texture.IconRegister;
-import net.minecraft.util.Icon;
+import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.util.IIcon;
 
 public class BlockLib {
 
@@ -26,7 +26,7 @@ public class BlockLib {
                                                              + ".elevatortool";
     public static final int     BLOCK_TRANSIT_ID           = 0;
 
-    public static Icon[][] registerIcons(IconRegister iconRegister, Icon[][] iconList) {
+    public static IIcon[][] registerIcons(IIconRegister iconRegister, IIcon[][] iconList) {
         iconList[BLOCK_ELEVATOR_ID][1] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
                                                                    + ":"
                                                                    + BLOCK_ELEVATOR

@@ -4,13 +4,13 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.ChunkCoordinates;
+import net.slimevoid.library.blocks.BlockBase;
+import net.slimevoid.library.util.helpers.ChatHelper;
 
 import com.slimevoid.dynamictransport.core.lib.BlockLib;
 import com.slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import com.slimevoid.dynamictransport.util.XZCoords;
-import com.slimevoid.library.blocks.BlockBase;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 
@@ -60,7 +60,7 @@ public class TileEntityElevator extends TileEntityTransportBase {
         }
         ItemStack heldItem = entityplayer.getHeldItem();
         if (heldItem != null
-            && heldItem.itemID == ConfigurationLib.itemElevatorTool.itemID) {
+            && heldItem.getItem() == ConfigurationLib.itemElevatorTool) {
 
             if (heldItem.hasTagCompound()
                 && entityplayer.getHeldItem().getTagCompound() != null) {
@@ -69,12 +69,14 @@ public class TileEntityElevator extends TileEntityTransportBase {
                     ChunkCoordinates possibleComputer = new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ"));
                     if (entityplayer.isSneaking()) {
                         if (possibleComputer.equals(this.ParentElevatorComputer)) {
-                            entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.dynamicMarker.unbound"));// "Block Unbound"
+                            ChatHelper.addMessageToPlayer(entityplayer,
+                                                          "slimevoid.DT.dynamicMarker.unbound");// "Block Unbound"
                             this.getParentElevatorComputer().removeMarkerBlock(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord));
                             this.RemoveComputer(possibleComputer);
                             return true;
                         } else if (this.ParentElevatorComputer != null) {
-                            entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.dynamicMarker.boundToOtherComputer"));// "Block Bound to Another Elevator"
+                            ChatHelper.addMessageToPlayer(entityplayer,
+                                                          "slimevoid.DT.dynamicMarker.boundToOtherComputer");// "Block Bound to Another Elevator"
                         }
                     } else {
                         setParentElevatorComputer(possibleComputer,
@@ -82,26 +84,26 @@ public class TileEntityElevator extends TileEntityTransportBase {
                     }
                 }
             } else {
-                FMLCommonHandler.instance().getFMLLogger().warning("There was an error processing this Transport Component at ["
-                                                                   + this.xCoord
-                                                                   + ", "
-                                                                   + this.yCoord
-                                                                   + ", "
-                                                                   + this.zCoord
-                                                                   + "]");
+                FMLCommonHandler.instance().getFMLLogger().warn("There was an error processing this Transport Component at ["
+                                                                + this.xCoord
+                                                                + ", "
+                                                                + this.yCoord
+                                                                + ", "
+                                                                + this.zCoord
+                                                                + "]");
             }
         }
         return super.onBlockActivated(entityplayer);
     }
 
     public void setParentElevatorComputer(ChunkCoordinates ComputerLocation) {
-        TileEntityElevatorComputer comTile = ParentElevatorComputer == null ? null : (TileEntityElevatorComputer) this.worldObj.getBlockTileEntity(this.ParentElevatorComputer.posX,
-                                                                                                                                                   this.ParentElevatorComputer.posY,
-                                                                                                                                                   this.ParentElevatorComputer.posZ);
+        TileEntityElevatorComputer comTile = ParentElevatorComputer == null ? null : (TileEntityElevatorComputer) this.worldObj.getTileEntity(this.ParentElevatorComputer.posX,
+                                                                                                                                              this.ParentElevatorComputer.posY,
+                                                                                                                                              this.ParentElevatorComputer.posZ);
         if (comTile == null) this.ParentElevatorComputer = null;
-        if (this.worldObj.getBlockId(ComputerLocation.posX,
-                                     ComputerLocation.posY,
-                                     ComputerLocation.posZ) == ConfigurationLib.blockTransportBase.blockID
+        if (this.worldObj.getBlock(ComputerLocation.posX,
+                                   ComputerLocation.posY,
+                                   ComputerLocation.posZ) == ConfigurationLib.blockTransportBase
             && this.worldObj.getBlockMetadata(ComputerLocation.posX,
                                               ComputerLocation.posY,
                                               ComputerLocation.posZ) == BlockLib.BLOCK_ELEVATOR_COMPUTER_ID) {
@@ -111,21 +113,21 @@ public class TileEntityElevator extends TileEntityTransportBase {
     }
 
     public void setParentElevatorComputer(ChunkCoordinates ComputerLocation, EntityPlayer entityplayer) {
-        TileEntityElevatorComputer comTile = ParentElevatorComputer == null ? null : (TileEntityElevatorComputer) this.worldObj.getBlockTileEntity(this.ParentElevatorComputer.posX,
-                                                                                                                                                   this.ParentElevatorComputer.posY,
-                                                                                                                                                   this.ParentElevatorComputer.posZ);
+        TileEntityElevatorComputer comTile = ParentElevatorComputer == null ? null : (TileEntityElevatorComputer) this.worldObj.getTileEntity(this.ParentElevatorComputer.posX,
+                                                                                                                                              this.ParentElevatorComputer.posY,
+                                                                                                                                              this.ParentElevatorComputer.posZ);
         if (comTile == null) this.ParentElevatorComputer = null;
 
-        if (this.worldObj.getBlockId(ComputerLocation.posX,
-                                     ComputerLocation.posY,
-                                     ComputerLocation.posZ) == ConfigurationLib.blockTransportBase.blockID
+        if (this.worldObj.getBlock(ComputerLocation.posX,
+                                   ComputerLocation.posY,
+                                   ComputerLocation.posZ) == ConfigurationLib.blockTransportBase
             && this.worldObj.getBlockMetadata(ComputerLocation.posX,
                                               ComputerLocation.posY,
                                               ComputerLocation.posZ) == BlockLib.BLOCK_ELEVATOR_COMPUTER_ID) {
 
-            comTile = (TileEntityElevatorComputer) this.worldObj.getBlockTileEntity(ComputerLocation.posX,
-                                                                                    ComputerLocation.posY,
-                                                                                    ComputerLocation.posZ);
+            comTile = (TileEntityElevatorComputer) this.worldObj.getTileEntity(ComputerLocation.posX,
+                                                                               ComputerLocation.posY,
+                                                                               ComputerLocation.posZ);
             if (comTile.addElevator(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord),
                                     entityplayer)) this.ParentElevatorComputer = ComputerLocation;
 
@@ -133,7 +135,8 @@ public class TileEntityElevator extends TileEntityTransportBase {
         } else {
             ItemStack heldItem = entityplayer.getHeldItem();
             NBTTagCompound tags = new NBTTagCompound();
-            entityplayer.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("slimevoid.DT.elevatorBlock.bindMissingElevator"));
+            ChatHelper.addMessageToPlayer(entityplayer,
+                                          "slimevoid.DT.elevatorBlock.bindMissingElevator");
             heldItem.setTagCompound(tags);
         }
 
@@ -141,9 +144,9 @@ public class TileEntityElevator extends TileEntityTransportBase {
 
     @Override
     public boolean removeBlockByPlayer(EntityPlayer player, BlockBase blockBase) {
-        TileEntityElevatorComputer comTile = ParentElevatorComputer == null ? null : (TileEntityElevatorComputer) this.worldObj.getBlockTileEntity(this.ParentElevatorComputer.posX,
-                                                                                                                                                   this.ParentElevatorComputer.posY,
-                                                                                                                                                   this.ParentElevatorComputer.posZ);
+        TileEntityElevatorComputer comTile = ParentElevatorComputer == null ? null : (TileEntityElevatorComputer) this.worldObj.getTileEntity(this.ParentElevatorComputer.posX,
+                                                                                                                                              this.ParentElevatorComputer.posY,
+                                                                                                                                              this.ParentElevatorComputer.posZ);
         if (comTile != null) {
             ((TileEntityElevatorComputer) comTile).RemoveElevatorBlock(new XZCoords(this.xCoord, this.zCoord));
         }
@@ -156,9 +159,9 @@ public class TileEntityElevator extends TileEntityTransportBase {
     }
 
     public TileEntityElevatorComputer getParentElevatorComputer() {
-        TileEntity tile = ParentElevatorComputer == null ? null : this.worldObj.getBlockTileEntity(this.ParentElevatorComputer.posX,
-                                                                                                   this.ParentElevatorComputer.posY,
-                                                                                                   this.ParentElevatorComputer.posZ);
+        TileEntity tile = ParentElevatorComputer == null ? null : this.worldObj.getTileEntity(this.ParentElevatorComputer.posX,
+                                                                                              this.ParentElevatorComputer.posY,
+                                                                                              this.ParentElevatorComputer.posZ);
         if (tile == null) {
             ParentElevatorComputer = null;
         } else if (!(tile instanceof TileEntityElevatorComputer)) {

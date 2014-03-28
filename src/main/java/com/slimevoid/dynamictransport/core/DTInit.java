@@ -1,7 +1,7 @@
 package com.slimevoid.dynamictransport.core;
 
 import com.slimevoid.dynamictransport.core.lib.CoreLib;
-import com.slimevoid.library.core.SlimevoidCore;
+import net.slimevoid.library.core.SlimevoidCore;
 
 import cpw.mods.fml.common.registry.EntityRegistry;
 

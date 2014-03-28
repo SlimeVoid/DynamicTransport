@@ -5,9 +5,8 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -23,8 +22,8 @@ public class RenderElevator extends Render {
         shadowSize = 0.5F;
     }
 
-    public void renderElevatorEntity(Block elevator, World world, int x, int y, int z, Icon[] textureData) {
-        this.renderBlocks.setRenderBoundsFromBlock(elevator);
+    public void renderElevatorEntity(Block elevator, World world, int x, int y, int z, IIcon[] textureData) {
+        this.field_147909_c/* renderBlocks */.setRenderBoundsFromBlock(elevator);
 
         float f1 = 0.5F;
         float f2 = 1.0F;
@@ -46,11 +45,11 @@ public class RenderElevator extends Render {
         tessellator.setColorOpaque_F(f1 * f6,
                                      f1 * f6,
                                      f1 * f6);
-        this.renderBlocks.renderFaceYNeg(elevator,
-                                         -0.5D,
-                                         -0.5D,
-                                         -0.5D,
-                                         textureData[0]);
+        this.field_147909_c/* renderBlocks */.renderFaceYNeg(elevator,
+                                                             -0.5D,
+                                                             -0.5D,
+                                                             -0.5D,
+                                                             textureData[0]);
         f6 = 1.0F;
 
         if (f6 < f5) {
@@ -60,11 +59,11 @@ public class RenderElevator extends Render {
         tessellator.setColorOpaque_F(f2 * f6,
                                      f2 * f6,
                                      f2 * f6);
-        this.renderBlocks.renderFaceYPos(elevator,
-                                         -0.5D,
-                                         -0.5D,
-                                         -0.5D,
-                                         textureData[1]);
+        this.field_147909_c/* renderBlocks */.renderFaceYPos(elevator,
+                                                             -0.5D,
+                                                             -0.5D,
+                                                             -0.5D,
+                                                             textureData[1]);
         f6 = 1.0F;
 
         if (f6 < f5) {
@@ -74,11 +73,11 @@ public class RenderElevator extends Render {
         tessellator.setColorOpaque_F(f3 * f6,
                                      f3 * f6,
                                      f3 * f6);
-        this.renderBlocks.renderFaceXPos(elevator,
-                                         -0.5D,
-                                         -0.5D,
-                                         -0.5D,
-                                         textureData[2]);
+        this.field_147909_c/* renderBlocks */.renderFaceXPos(elevator,
+                                                             -0.5D,
+                                                             -0.5D,
+                                                             -0.5D,
+                                                             textureData[2]);
         f6 = 1.0F;
 
         if (f6 < f5) {
@@ -88,11 +87,11 @@ public class RenderElevator extends Render {
         tessellator.setColorOpaque_F(f3 * f6,
                                      f3 * f6,
                                      f3 * f6);
-        this.renderBlocks.renderFaceXNeg(elevator,
-                                         -0.5D,
-                                         -0.5D,
-                                         -0.5D,
-                                         textureData[3]);
+        this.field_147909_c/* renderBlocks */.renderFaceXNeg(elevator,
+                                                             -0.5D,
+                                                             -0.5D,
+                                                             -0.5D,
+                                                             textureData[3]);
         f6 = 1.0F;
 
         if (f6 < f5) {
@@ -102,11 +101,11 @@ public class RenderElevator extends Render {
         tessellator.setColorOpaque_F(f4 * f6,
                                      f4 * f6,
                                      f4 * f6);
-        this.renderBlocks.renderFaceZNeg(elevator,
-                                         -0.5D,
-                                         -0.5D,
-                                         -0.5D,
-                                         textureData[4]);
+        this.field_147909_c/* renderBlocks */.renderFaceZNeg(elevator,
+                                                             -0.5D,
+                                                             -0.5D,
+                                                             -0.5D,
+                                                             textureData[4]);
         f6 = 1.0F;
 
         if (f6 < f5) {
@@ -116,18 +115,18 @@ public class RenderElevator extends Render {
         tessellator.setColorOpaque_F(f4 * f6,
                                      f4 * f6,
                                      f4 * f6);
-        this.renderBlocks.renderFaceZPos(elevator,
-                                         -0.5D,
-                                         -0.5D,
-                                         -0.5D,
-                                         textureData[5]);
+        this.field_147909_c/* renderBlocks */.renderFaceZPos(elevator,
+                                                             -0.5D,
+                                                             -0.5D,
+                                                             -0.5D,
+                                                             textureData[5]);
         tessellator.draw();
     }
 
     public void doRenderElevator(EntityElevator elevator, double d, double d1, double d2, float f, float f1) {
         if (elevator.ticksExisted <= 1) return;
         GL11.glPushMatrix();
-        Block block = Block.blocksList[ConfigurationLib.blockTransportBaseID];
+        Block block = ConfigurationLib.blockTransportBase;
         World world = elevator.worldObj;
         GL11.glDisable(GL11.GL_LIGHTING);
         GL11.glTranslatef((float) d,
@@ -138,11 +137,11 @@ public class RenderElevator extends Render {
 
         // int textureData[] = elevator.getTextureData();
         ItemStack camoItem = elevator.getDataWatcher().getWatchableObjectItemStack(4);
-        Icon textureData[] = new Icon[6];
-        if (camoItem != null) {
+        IIcon textureData[] = new IIcon[6];
+        if (camoItem != null && camoItem.getItem() != null) {
             for (int i = 0; i < 6; i++) {
-                textureData[i] = Block.blocksList[((ItemBlock) camoItem.getItem()).getBlockID()].getIcon(i,
-                                                                                                         camoItem.getItemDamage());
+                textureData[i] = Block.getBlockFromItem(camoItem.getItem()).getIcon(i,
+                                                                                    camoItem.getItemDamage());
 
             }
         } else {
@@ -176,7 +175,6 @@ public class RenderElevator extends Render {
 
     @Override
     protected ResourceLocation getEntityTexture(Entity entity) {
-        // TODO Auto-generated method stub
         return TextureMap.locationBlocksTexture;
     }
 }

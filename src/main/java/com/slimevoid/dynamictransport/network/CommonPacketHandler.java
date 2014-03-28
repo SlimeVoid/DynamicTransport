@@ -8,7 +8,7 @@ import java.util.Map;
 import com.slimevoid.dynamictransport.core.lib.CoreLib;
 import com.slimevoid.dynamictransport.network.packet.PacketFloorSelected;
 import com.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
-import com.slimevoid.library.network.handlers.SubPacketHandler;
+import net.slimevoid.library.network.handlers.SubPacketHandler;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.INetworkManager;

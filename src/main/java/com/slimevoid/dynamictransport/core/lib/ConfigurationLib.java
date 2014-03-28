@@ -2,10 +2,10 @@ package com.slimevoid.dynamictransport.core.lib;
 
 import java.io.File;
 
+import net.minecraftforge.common.config.Configuration;
+
 import com.slimevoid.dynamictransport.blocks.BlockTransportBase;
 import com.slimevoid.dynamictransport.items.ItemElevatorTool;
-
-import net.minecraftforge.common.Configuration;
 
 public class ConfigurationLib {
 
@@ -27,10 +27,12 @@ public class ConfigurationLib {
 
         configuration.load();
 
-        blockTransportBaseID = configuration.getBlock("blockTransportBaseID",
-                                                      267).getInt();
-        itemElevatorToolID = configuration.getItem("itemElevatorToolID",
-                                                   268).getInt();
+        blockTransportBaseID = configuration.get(Configuration.CATEGORY_GENERAL,
+                                                 "blockTransportBaseID",
+                                                 267).getInt();
+        itemElevatorToolID = configuration.get(Configuration.CATEGORY_GENERAL,
+                                               "itemElevatorToolID",
+                                               268).getInt();
         elevatorMaxSpeed = (float) configuration.get("Common",
                                                      "MaxElevatorSpeed",
                                                      0.15).getDouble(0.15);

@@ -7,24 +7,20 @@ import java.util.Set;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.packet.Packet3Chat;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
+import net.slimevoid.library.util.helpers.BlockHelper;
+import net.slimevoid.library.util.helpers.ChatHelper;
 
 import com.slimevoid.dynamictransport.core.lib.BlockLib;
 import com.slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import com.slimevoid.dynamictransport.tileentity.TileEntityElevator;
 import com.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
-import com.slimevoid.library.util.helpers.BlockHelper;
-
-import cpw.mods.fml.common.network.PacketDispatcher;
 
 public class EntityElevator extends Entity {
     // Constants
@@ -144,28 +140,28 @@ public class EntityElevator extends Entity {
         int y = this.getTargetY();
 
         boolean blockPlaced = !this.worldObj.isRemote
-                              && (this.worldObj.getBlockId(x,
-                                                           y,
-                                                           z) == ConfigurationLib.blockTransportBaseID || this.worldObj.canPlaceEntityOnSide(ConfigurationLib.blockTransportBaseID,
-                                                                                                                                             x,
-                                                                                                                                             y,
-                                                                                                                                             z,
-                                                                                                                                             true,
-                                                                                                                                             1,
-                                                                                                                                             (Entity) null,
-                                                                                                                                             null)
-                                                                                                          && this.worldObj.setBlock(x,
-                                                                                                                                    y,
-                                                                                                                                    z,
-                                                                                                                                    ConfigurationLib.blockTransportBaseID,
-                                                                                                                                    BlockLib.BLOCK_ELEVATOR_ID,
-                                                                                                                                    3));
+                              && (this.worldObj.getBlock(x,
+                                                         y,
+                                                         z) == ConfigurationLib.blockTransportBase || this.worldObj.canPlaceEntityOnSide(ConfigurationLib.blockTransportBase,
+                                                                                                                                         x,
+                                                                                                                                         y,
+                                                                                                                                         z,
+                                                                                                                                         true,
+                                                                                                                                         1,
+                                                                                                                                         (Entity) null,
+                                                                                                                                         null)
+                                                                                                      && this.worldObj.setBlock(x,
+                                                                                                                                y,
+                                                                                                                                z,
+                                                                                                                                ConfigurationLib.blockTransportBase,
+                                                                                                                                BlockLib.BLOCK_ELEVATOR_ID,
+                                                                                                                                3));
 
         if (!this.worldObj.isRemote) {
             if (blockPlaced) {
-                TileEntityElevator tile = (TileEntityElevator) this.worldObj.getBlockTileEntity(x,
-                                                                                                y,
-                                                                                                z);
+                TileEntityElevator tile = (TileEntityElevator) this.worldObj.getTileEntity(x,
+                                                                                           y,
+                                                                                           z);
                 if (tile != null) {
                     tile.setParentElevatorComputer(this.computerPos);
                     if (this.getCamoItem() != null) {
@@ -174,7 +170,7 @@ public class EntityElevator extends Entity {
                     tile.setYOffset(this.getElevatorYOffset());
                 }
             } else {
-                this.entityDropItem(new ItemStack(ConfigurationLib.blockTransportBaseID, 1, BlockLib.BLOCK_ELEVATOR_ID),
+                this.entityDropItem(new ItemStack(ConfigurationLib.blockTransportBase, 1, BlockLib.BLOCK_ELEVATOR_ID),
                                     0.0F);
             }
         }
@@ -182,22 +178,26 @@ public class EntityElevator extends Entity {
 
         if (!this.worldObj.isRemote) {
             if (this.isNotifierElevator) {
-                ChatMessageComponent message;
                 if (this.elevatorName != null
                     && !this.elevatorName.trim().equals("")) {
-                    message = ChatMessageComponent.createFromTranslationWithSubstitutions("slimevoid.DT.entityElevator.arriveWithName",
-                                                                                          this.elevatorName,
-                                                                                          this.destFloorName);
+
+                    ChatHelper.sendChatMessageToAllNear(this.worldObj,
+                                                        (int) this.posX,
+                                                        (int) this.posY,
+                                                        (int) this.posZ,
+                                                        4,
+                                                        "slimevoid.DT.entityElevator.arriveWithName",
+                                                        this.elevatorName,
+                                                        this.destFloorName);
                 } else {
-                    message = ChatMessageComponent.createFromTranslationWithSubstitutions("slimevoid.DT.entityElevator.arrive",
-                                                                                          this.destFloorName);
+                    ChatHelper.sendChatMessageToAllNear(this.worldObj,
+                                                        (int) this.posX,
+                                                        (int) this.posY,
+                                                        (int) this.posZ,
+                                                        4,
+                                                        "slimevoid.DT.entityElevator.arrive",
+                                                        this.destFloorName);
                 }
-                PacketDispatcher.sendPacketToAllAround(this.posX,
-                                                       this.posY,
-                                                       this.posZ,
-                                                       4,
-                                                       this.worldObj.provider.dimensionId,
-                                                       new Packet3Chat(message));
 
             }
 
@@ -323,7 +323,7 @@ public class EntityElevator extends Entity {
 
     protected void updateLightLevel(int x, int y, int z) {
         if (this.getCamoItem() != null) {
-            int blockLightValue = Block.lightValue[((ItemBlock) this.getCamoItem().getItem()).getBlockID()];
+            int blockLightValue = Block.getBlockFromItem(this.getCamoItem().getItem()).getLightValue();
             if (blockLightValue > this.worldObj.getSavedLightValue(EnumSkyBlock.Block,
                                                                    x,
                                                                    y,
@@ -455,7 +455,7 @@ public class EntityElevator extends Entity {
                                                                                   boundBox));
         for (Entity rider : potentialRiders) {
             if (!(rider instanceof EntityElevator) && !rider.isRiding()
-                && !this.confirmedRiders.contains(rider.entityId)) {
+                && !this.confirmedRiders.contains(rider.getEntityId())) {
                 double yPos = (this.posY + this.getMountedYOffset())
                               - rider.boundingBox.minY;
                 rider.motionY = this.motionY < 0 ? this.motionY : Math.max(yPos,
@@ -463,7 +463,7 @@ public class EntityElevator extends Entity {
                 rider.isAirBorne = true;
                 rider.onGround = true;
                 rider.fallDistance = 0;
-                this.confirmedRiders.add(rider.entityId);
+                this.confirmedRiders.add(rider.getEntityId());
             }
         }
     }
@@ -504,7 +504,8 @@ public class EntityElevator extends Entity {
                     rider.onGround = true;
                     rider.fallDistance = 0;
                     if (rider instanceof EntityPlayerMP) {
-                        ((EntityPlayerMP) rider).playerNetServerHandler.ticksForFloatKick = 0;
+                        // TODO :: Ticks For Kick - ((EntityPlayerMP)
+                        // rider).playerNetServerHandler.ticksForFloatKick = 0;
                     }
                 } else {
                     removedRiders.add(entityID);
@@ -549,7 +550,7 @@ public class EntityElevator extends Entity {
         this.canBeHalted = haltable;
         this.enableMobilePower = mobilePower;
 
-        this.isNotifierElevator = (notifierID == this.entityId);
+        this.isNotifierElevator = (notifierID == this.getEntityId());
 
         this.setMaximumSpeed(elevatorTopSpeed);
 
@@ -557,14 +558,14 @@ public class EntityElevator extends Entity {
 
         if (!this.isNotifierElevator) {
             this.notifierElevatorID = notifierID;
-            this.getNotifier().conjoinedelevators.add(this.entityId);
+            this.getNotifier().conjoinedelevators.add(this.getEntityId());
         }
     }
 
     protected void removeElevatorBlock(int x, int y, int z) {
-        if (this.worldObj.getBlockId(x,
-                                     y,
-                                     z) == ConfigurationLib.blockTransportBaseID
+        if (this.worldObj.getBlock(x,
+                                   y,
+                                   z) == ConfigurationLib.blockTransportBase
             && this.worldObj.getBlockMetadata(x,
                                               y,
                                               z) == BlockLib.BLOCK_ELEVATOR_ID) {
@@ -584,7 +585,7 @@ public class EntityElevator extends Entity {
                 this.worldObj.setBlock(x,
                                        y,
                                        z,
-                                       ConfigurationLib.blockTransportBaseID,
+                                       ConfigurationLib.blockTransportBase,
                                        1,
                                        BlockLib.BLOCK_TRANSIT_ID);
             } else {
@@ -615,7 +616,7 @@ public class EntityElevator extends Entity {
             this.worldObj.setBlock(x,
                                    y,
                                    z,
-                                   ConfigurationLib.blockTransportBaseID,
+                                   ConfigurationLib.blockTransportBase,
                                    1,
                                    BlockLib.BLOCK_TRANSIT_ID);
         }
@@ -670,7 +671,7 @@ public class EntityElevator extends Entity {
     // Used to get isControler on both client and server
     protected boolean isNotifier() {
         return this.isNotifierElevator
-               || (this.notifierElevatorID == this.entityId);
+               || (this.notifierElevatorID == this.getEntityId());
     }
 
     protected EntityElevator getNotifier() {
@@ -692,7 +693,7 @@ public class EntityElevator extends Entity {
     }
 
     protected void doBlockCollisions() {
-        super.doBlockCollisions();
+        super.func_145775_I()/* doBlockCollisions() */;
     }
 
     public void applyEntityCollision(Entity par1Entity) {
