@@ -2,18 +2,20 @@ package com.slimevoid.dynamictransport.client.proxy;
 
 import java.io.File;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
+import net.slimevoid.library.util.helpers.BlockHelper;
+
 import com.slimevoid.dynamictransport.client.presentation.gui.GuiFloorSelection;
 import com.slimevoid.dynamictransport.container.ContainerFloorSelection;
 import com.slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import com.slimevoid.dynamictransport.core.lib.GuiLib;
+import com.slimevoid.dynamictransport.core.lib.PacketLib;
 import com.slimevoid.dynamictransport.entities.EntityElevator;
 import com.slimevoid.dynamictransport.proxy.CommonProxy;
 import com.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
 import com.slimevoid.dynamictransport.tileentity.TileEntityFloorMarker;
-import net.slimevoid.library.util.helpers.BlockHelper;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 
 public class ClientProxy extends CommonProxy {
@@ -40,7 +42,7 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void preInit() {
         super.preInit();
-
+        PacketLib.registerClientPacketHandlers();
     }
 
     @Override

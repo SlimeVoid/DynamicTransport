@@ -1,8 +1,10 @@
 package com.slimevoid.dynamictransport.core;
 
 import net.slimevoid.library.ICommonProxy;
+import net.slimevoid.library.util.helpers.PacketHelper;
 
 import com.slimevoid.dynamictransport.core.lib.CoreLib;
+import com.slimevoid.dynamictransport.core.lib.PacketLib;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -29,16 +31,21 @@ public class DynamicTransportMod {
     @EventHandler
     public void DynamicTransportPreInit(FMLPreInitializationEvent event) {
         DynamicTransportMod.proxy.registerConfigurationProperties(event.getSuggestedConfigurationFile());
-
         DynamicTransportMod.proxy.preInit();
+        DTInit.preInitialize();
     }
 
     @EventHandler
     public void DynamicTransportInit(FMLInitializationEvent event) {
+        proxy.init();
+        PacketHelper.registerHandler(CoreLib.MOD_CHANNEL,
+                                     PacketLib.handler);
+        DTInit.initialize();
     }
 
     @EventHandler
     public void DynamicTransportPostInit(FMLPostInitializationEvent event) {
-        DTInit.initialize();
+        proxy.postInit();
+        DTInit.postInitialize();
     }
 }

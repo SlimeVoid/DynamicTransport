@@ -1,7 +1,8 @@
 package com.slimevoid.dynamictransport.core;
 
-import com.slimevoid.dynamictransport.core.lib.CoreLib;
 import net.slimevoid.library.core.SlimevoidCore;
+
+import com.slimevoid.dynamictransport.core.lib.CoreLib;
 
 import cpw.mods.fml.common.registry.EntityRegistry;
 
@@ -9,15 +10,7 @@ public class DTInit {
 
     private static boolean initialized;
 
-    public static void initialize() {
-        if (initialized) {
-            return;
-        }
-        initialized = true;
-        load();
-    }
-
-    public static void load() {
+    public static void preInitialize() {
         SlimevoidCore.console(CoreLib.MOD_ID,
                               "Registering names...");
         DTCore.registerNames();
@@ -29,7 +22,9 @@ public class DTInit {
         SlimevoidCore.console(CoreLib.MOD_ID,
                               "Registering items...");
         DTCore.registerItems();
+    }
 
+    public static void initialize() {
         EntityRegistry.registerModEntity(com.slimevoid.dynamictransport.entities.EntityElevator.class,
                                          "delv",
                                          0,
@@ -41,5 +36,12 @@ public class DTInit {
         DynamicTransportMod.proxy.registerTickHandlers();
         DynamicTransportMod.proxy.registerEventHandlers();
         DynamicTransportMod.proxy.registerRenderInformation();
+    }
+
+    public static void postInitialize() {
+        if (initialized) {
+            return;
+        }
+        initialized = true;
     }
 }

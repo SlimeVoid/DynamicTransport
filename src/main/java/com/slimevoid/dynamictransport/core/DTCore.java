@@ -88,6 +88,8 @@ public class DTCore {
                                                                                                          + BlockLib.ITEM_ELEVATOR_TOOL);
 
         ConfigurationLib.itemElevatorTool.setCreativeTab(CreativeTabs.tabTransport);
+        GameRegistry.registerItem(ConfigurationLib.itemElevatorTool,
+                                  BlockLib.ITEM_ELEVATOR_TOOL);
         GameRegistry.addRecipe(new ItemStack(ConfigurationLib.itemElevatorTool, 1),
                                new Object[] {
                                        "LGL",

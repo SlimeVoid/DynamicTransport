@@ -12,6 +12,7 @@ import com.slimevoid.dynamictransport.container.ContainerFloorSelection;
 import com.slimevoid.dynamictransport.core.DynamicTransportMod;
 import com.slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import com.slimevoid.dynamictransport.core.lib.GuiLib;
+import com.slimevoid.dynamictransport.core.lib.PacketLib;
 import com.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
 import com.slimevoid.dynamictransport.tileentity.TileEntityFloorMarker;
 
@@ -21,10 +22,9 @@ public class CommonProxy implements ICommonProxy {
 
     @Override
     public void preInit() {
-
         NetworkRegistry.INSTANCE.registerGuiHandler(DynamicTransportMod.instance,
                                                     DynamicTransportMod.proxy);
-
+        PacketLib.registerPacketHandlers();
     }
 
     @Override

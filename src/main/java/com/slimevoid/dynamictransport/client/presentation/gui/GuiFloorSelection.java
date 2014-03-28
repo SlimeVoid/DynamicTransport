@@ -9,13 +9,12 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.slimevoid.library.core.SlimevoidCore;
 import net.slimevoid.library.core.lib.CoreLib;
 import net.slimevoid.library.data.Logger;
-import net.slimevoid.library.util.helpers.PacketHelper;
 
 import org.lwjgl.opengl.GL11;
 
 import com.slimevoid.dynamictransport.container.ContainerFloorSelection;
 import com.slimevoid.dynamictransport.core.lib.GuiLib;
-import com.slimevoid.dynamictransport.network.packet.PacketFloorSelected;
+import com.slimevoid.dynamictransport.core.lib.PacketLib;
 import com.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
 
 import cpw.mods.fml.client.FMLClientHandler;
@@ -82,10 +81,12 @@ public class GuiFloorSelection extends GuiContainer {
 
     @Override
     protected void actionPerformed(GuiButton guibutton) {
-        // create packet
-        PacketFloorSelected packet = new PacketFloorSelected(GuiLib.GUIID_FloorSelection, Integer.valueOf(guibutton.displayString), "", this.marker.xCoord, this.marker.yCoord, this.marker.zCoord);
+        PacketLib.sendFloorSelection(guibutton.displayString,
+                                     null,
+                                     this.marker.xCoord,
+                                     this.marker.yCoord,
+                                     this.marker.zCoord);
 
-        PacketHelper.sendToServer(packet);
         this.onGuiClosed();
         FMLClientHandler.instance().getClient().thePlayer.closeScreen();
     }
