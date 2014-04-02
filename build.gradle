@@ -1,6 +1,4 @@
 buildscript {
-    def slimeVersion="2.0.4.5"
-    def slimeJar="${rootProject.projectDir}/../SlimevoidLibrary/repo/net/slimevoid/SlimevoidLibrary/${slimeVersion}/SlimevoidLibrary-${slimeVersion}.jar"
     repositories {
         mavenCentral()
         maven {
@@ -14,14 +12,15 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:1.1-SNAPSHOT'
-        classpath files(slimeJar)
     }
 }
 
-apply plugin: 'forge'
-
-def slimeVersion="2.0.4.5"
-def slimeJar="${rootProject.projectDir}/../SlimevoidLibrary/repo/net/slimevoid/SlimevoidLibrary/${slimeVersion}/SlimevoidLibrary-${slimeVersion}.jar"
+repositories {
+    maven {
+        name 'slimevoid'
+        url 'http://hyda.slimevoid.net/maven/repos'
+    }
+}
 
 apply plugin: 'forge'
 
@@ -30,7 +29,7 @@ group = "net.slimevoid.dynamictransport"
 archivesBaseName = "DynamicTransport"
 
 dependencies {
-    compile files(slimeJar)
+    compile 'net.slimevoid:SlimevoidLibrary:2.0.4.5'
 }
 minecraft {
     version = "1.7.2-10.12.0.1024"
