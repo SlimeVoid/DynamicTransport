@@ -445,8 +445,9 @@ public class EntityElevator extends Entity {
 
     protected void updatePotentialRiders() {
         Set<Entity> potentialRiders = new HashSet<Entity>();
+        //Only scan any entities that are above the elevators current position for initial scan
         AxisAlignedBB boundBox = this.getBoundingBox().offset(0,
-                                                              1,
+                                                              1.5,
                                                               0).expand(0,
                                                                         1.0,
                                                                         0);
