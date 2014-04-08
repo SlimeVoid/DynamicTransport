@@ -22,10 +22,6 @@ repositories {
 	}
 }
 
-configurations {
-	deployJars
-}
-
 apply plugin: 'maven'
 apply plugin: 'forge'
 apply plugin: 'eclipse'
@@ -39,7 +35,7 @@ group = 'net.slimevoid'
 archivesBaseName = 'DynamicTransport'
 
 dependencies {
-    compile 'net.slimevoid:SlimevoidLibrary:' + slimevoidVersion
+    compile 'net.slimevoid:SlimevoidLibrary:' + slimevoidVersion + ':dev'
 }
 
 minecraft {
@@ -65,11 +61,33 @@ processResources {
     }
 }
 
+task sourceJar(type: Jar) {
+	from sourceSets.main.allSource
+	classifier = 'sources'
+}
+
+task deobfJar(type: Jar) {
+	from sourceSets.main.output
+	classifier = 'dev'
+}
+
+build.dependsOn sourceJar,deobfJar
+
+configurations {
+	deployJars
+}
+
 dependencies {
     deployJars 'org.apache.maven.wagon:wagon-ssh:2.2'
 }
 
+artifacts {
+	archives sourceJar
+	archives deobfJar
+}
+
 uploadArchives {
+	dependsOn 'reobf'
     repositories.mavenDeployer {
     	configuration = configurations.deployJars
         if (project.hasProperty("slimevoidUsername")) {
