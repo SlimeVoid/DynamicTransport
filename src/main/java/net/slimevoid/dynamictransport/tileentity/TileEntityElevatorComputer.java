@@ -3,6 +3,7 @@ package net.slimevoid.dynamictransport.tileentity;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -18,13 +19,15 @@ import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import net.slimevoid.dynamictransport.entities.EntityElevator;
 import net.slimevoid.dynamictransport.util.XZCoords;
 import net.slimevoid.library.blocks.BlockBase;
+import net.slimevoid.library.util.helpers.BlockHelper;
 import net.slimevoid.library.util.helpers.ChatHelper;
 
 public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
     public enum ElevatorMode {
         Maintenance,
-        Transit,
+        TransitUp,
+        TransitDown,
         Available
     }
 
@@ -342,7 +345,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
                 sendMessageFromAllFloors("slimevoid.DT.elevatorcomputer.alreadyMant");
             }
             return "Elevator in Maintenance Mode please Try Again Later";
-        } else if (this.mode == ElevatorMode.Transit) {
+        } else if (this.mode == ElevatorMode.TransitUp || this.mode == ElevatorMode.TransitDown) {
             if (forMaintenance) {
                 this.pendingMaintenance = true;
                 sendMessageFromAllFloors("slimevoid.DT.elevatorcomputer.mantQueued");
@@ -383,17 +386,17 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
     private void doCallElevator(int i, String floorname) {
         // call elevator now
         int centerElevator = -1;
-        List<ChunkCoordinates> invalidElevators = new ArrayList<ChunkCoordinates>();
-        boolean first = true;
-        this.mode = ElevatorMode.Transit;
-        for (ChunkCoordinates pos : this.boundElevatorBlocks) {
+        this.mode = i> this.elevatorPos?ElevatorMode.TransitUp:ElevatorMode.TransitDown;
+        ListIterator<ChunkCoordinates> itr = this.boundElevatorBlocks.listIterator();
+        while (itr.hasNext() ) {
+        	ChunkCoordinates pos =  itr.next();
             if (validElevatorBlock(pos.posX,
                                    this.elevatorPos + pos.posY,
                                    pos.posZ)) {
 
                 EntityElevator curElevator = new EntityElevator(worldObj, pos.posX, this.elevatorPos
                                                                                     + pos.posY, pos.posZ);
-                if (first) centerElevator = curElevator.getEntityId();
+                if (itr.previousIndex() == -1) centerElevator = curElevator.getEntityId();
                 curElevator.setProperties(i,
                                           floorname,
                                           this.elevatorSpeed,
@@ -401,13 +404,11 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
                                           this.isHaltable,
                                           centerElevator,
                                           this.mobilePower);
-                if (first) first = false; // isClient;
                 worldObj.spawnEntityInWorld(curElevator);
             } else {
-                invalidElevators.add(pos);
+            	itr.remove();
             }
         }
-        this.boundElevatorBlocks.removeAll(invalidElevators);
 
     }
 
@@ -519,11 +520,12 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
         return this.elevatorName;
     }
 
-    public void RemoveElevatorBlock(XZCoords elevatorPosition) {
+    public void RemoveElevatorBlock(ChunkCoordinates elevatorPosition) {
         if (this.boundElevatorBlocks.contains(elevatorPosition)) {
             this.boundElevatorBlocks.remove(this.boundElevatorBlocks.indexOf(elevatorPosition));
-            List<ChunkCoordinates> invalidBoundMarkerBlocks = new ArrayList<ChunkCoordinates>();
-            for (ChunkCoordinates boundMarker : this.boundMarkerBlocks) {
+            ListIterator<ChunkCoordinates> itr = this.boundMarkerBlocks.listIterator();
+            while ( itr.hasNext()) {
+            	ChunkCoordinates boundMarker = itr.next();
                 boolean valid = false;
                 for (ChunkCoordinates boundElevators : this.boundElevatorBlocks) {
                     if (MathHelper.sqrt_double(Math.pow((double) boundElevators.posX
@@ -543,13 +545,15 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
                         }
                     }
                 }
-                if (!valid) invalidBoundMarkerBlocks.add(boundMarker);
-            }
-            for (ChunkCoordinates invalidMarker : invalidBoundMarkerBlocks) {
-                if (this.boundMarkerBlocks.contains(invalidMarker)) {
-                    this.boundMarkerBlocks.remove(this.boundMarkerBlocks.indexOf(invalidMarker));
+                if (!valid) {
+                	TileEntityFloorMarker tile = (TileEntityFloorMarker) BlockHelper.getTileEntity(this.worldObj, boundMarker.posX, boundMarker.posY, boundMarker.posZ, TileEntityFloorMarker.class);
+                	if (tile != null){
+                		tile.removeParent();
+                	}
+                	itr.remove();
                 }
             }
+           
             this.updateBlock();
         }
 

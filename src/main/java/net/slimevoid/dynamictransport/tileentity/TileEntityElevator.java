@@ -68,13 +68,13 @@ public class TileEntityElevator extends TileEntityTransportBase {
                     if (entityplayer.isSneaking()) {
                         if (possibleComputer.equals(this.ParentElevatorComputer)) {
                             ChatHelper.addMessageToPlayer(entityplayer,
-                                                          "slimevoid.DT.dynamicMarker.unbound");// "Block Unbound"
-                            this.getParentElevatorComputer().removeMarkerBlock(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord));
+                                                          "slimevoid.DT.elevatorBlock.unbound");// "Block Unbound"
+                            this.getParentElevatorComputer().RemoveElevatorBlock(new ChunkCoordinates(this.xCoord, this.getYOffest(), this.zCoord));
                             this.RemoveComputer(possibleComputer);
                             return true;
                         } else if (this.ParentElevatorComputer != null) {
                             ChatHelper.addMessageToPlayer(entityplayer,
-                                                          "slimevoid.DT.dynamicMarker.boundToOtherComputer");// "Block Bound to Another Elevator"
+                                                          "slimevoid.DT.elevatorBlock.boundToOtherComputer");// "Block Bound to Another Elevator"
                         }
                     } else {
                         setParentElevatorComputer(possibleComputer,
@@ -146,7 +146,7 @@ public class TileEntityElevator extends TileEntityTransportBase {
                                                                                                                                               this.ParentElevatorComputer.posY,
                                                                                                                                               this.ParentElevatorComputer.posZ);
         if (comTile != null) {
-            ((TileEntityElevatorComputer) comTile).RemoveElevatorBlock(new XZCoords(this.xCoord, this.zCoord));
+            ((TileEntityElevatorComputer) comTile).RemoveElevatorBlock(new ChunkCoordinates(this.xCoord,this.getYOffest(), this.zCoord));
         }
         return super.removeBlockByPlayer(player,
                                          blockBase);
