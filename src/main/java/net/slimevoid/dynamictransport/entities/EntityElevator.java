@@ -38,7 +38,6 @@ public class EntityElevator extends Entity {
     protected Set<Integer>       confirmedRiders        = new HashSet<Integer>();
 
     // possible watcher
-    protected byte               waitToAccelerate       = 0;
     protected int                startStops             = 0;
     protected int                notifierElevatorID     = 0;
     protected boolean            emerHalt               = false;
@@ -60,7 +59,6 @@ public class EntityElevator extends Entity {
         this.motionX = 0.0D;
         this.motionY = 0.0D;
         this.motionZ = 0.0D;
-        this.waitToAccelerate = 100;
     }
 
     public EntityElevator(World world, double i, double j, double k) {
@@ -74,7 +72,7 @@ public class EntityElevator extends Entity {
 
         this.isNotifierElevator = false;
 
-        this.waitToAccelerate = 0;
+        this.setWaitToAccelerate((byte)0);
         this.updatePotentialRiders();
     }
 
@@ -118,6 +116,12 @@ public class EntityElevator extends Entity {
         this.getDataWatcher().updateObject(4,
                                            itemstack);
     }
+    public void setWaitToAccelerate(byte value) {
+        this.getDataWatcher().updateObject(6, value);;
+    }
+    public byte getWaitToAccelerate() {
+        return this.getDataWatcher().getWatchableObjectByte(6);
+    }
 
     @Override
     protected void entityInit() {
@@ -129,6 +133,8 @@ public class EntityElevator extends Entity {
                                                   5);
         this.getDataWatcher().addObject(5,
                                         new Integer(-1));
+        this.getDataWatcher().addObject(6,
+                (byte)0);
     }
 
     @Override
@@ -264,13 +270,13 @@ public class EntityElevator extends Entity {
         float elevatorSpeed = (float) Math.abs(this.motionY);
         if (this.emerHalt) {
             elevatorSpeed = 0;
-        } else if (this.waitToAccelerate < 15) {
-            if (this.waitToAccelerate < 10) {
+        } else if (this.getWaitToAccelerate() < 15) {
+            if (this.getWaitToAccelerate() < 10) {
                 elevatorSpeed = 0;
             } else {
                 elevatorSpeed = minElevatorMovingSpeed;
             }
-            this.waitToAccelerate++;
+           this.setWaitToAccelerate((byte)(this.getWaitToAccelerate()+1));
 
         } else {
             float maxElevatorSpeed = this.getMaximumSpeed();
@@ -554,7 +560,7 @@ public class EntityElevator extends Entity {
 
         this.setMaximumSpeed(elevatorTopSpeed);
 
-        this.waitToAccelerate = 0;
+        this.setWaitToAccelerate((byte)0);
 
         if (!this.isNotifierElevator) {
             this.notifierElevatorID = notifierID;
