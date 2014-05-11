@@ -5,7 +5,7 @@
   "description": "The Dynamic Transport mod",
   "version": "${version}",
   "mcversion": "${mcversion}",
-  "url": "https://github.com/SlimeVoid/DynamicElevators-FML",
+  "url": "https://github.com/SlimeVoid/DynamicTransport",
   "updateUrl": "",
   "credits": "IronClad49er, Eurymachus, Tarig0, ShalimerMace",
   "authors": ["Slime Void Crew"],
