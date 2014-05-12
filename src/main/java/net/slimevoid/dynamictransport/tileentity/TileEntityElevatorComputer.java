@@ -396,7 +396,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
                 EntityElevator curElevator = new EntityElevator(worldObj, pos.posX, this.elevatorPos
                                                                                     + pos.posY, pos.posZ);
-                if (itr.previousIndex() == -1) centerElevator = curElevator.getEntityId();
+                if (itr.previousIndex() == 0) centerElevator = curElevator.getEntityId();
                 curElevator.setProperties(i,
                                           floorname,
                                           this.elevatorSpeed,
