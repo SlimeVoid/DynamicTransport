@@ -138,6 +138,11 @@ uploadArchives {
                     name 'Slimevoid Dev Team'
                     roles { role 'developer' }
                 }
+                developer {
+                    id 'Tarig'
+                    name 'Tarig0'
+                    roles { role 'developer' }
+                }
             }
         }
     }
