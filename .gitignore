@@ -1,3 +1,14 @@
-/bin
-/jars
-/lib
+# gradle stuff
+build
+.gradle
+upload.bat
+
+# eclipse stuff
+.classpath
+.project
+.settings
+eclipse
+bin
+
+# run configuration
+run
