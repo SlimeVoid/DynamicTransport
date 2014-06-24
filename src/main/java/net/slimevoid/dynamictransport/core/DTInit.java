@@ -1,7 +1,7 @@
 package net.slimevoid.dynamictransport.core;
 
 import net.slimevoid.dynamictransport.core.lib.CoreLib;
-import net.slimevoid.library.core.SlimevoidCore;
+import net.slimevoid.library.core.*;
 import cpw.mods.fml.common.registry.EntityRegistry;
 
 public class DTInit {

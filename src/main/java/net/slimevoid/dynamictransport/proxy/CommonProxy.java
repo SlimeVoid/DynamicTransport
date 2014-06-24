@@ -5,6 +5,7 @@ import java.io.File;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import net.slimevoid.dynamictransport.container.ContainerDynamicMarker;
 import net.slimevoid.dynamictransport.container.ContainerFloorSelection;
 import net.slimevoid.dynamictransport.core.DynamicTransportMod;
 import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
@@ -48,19 +49,31 @@ public class CommonProxy implements ICommonProxy {
 
     @Override
     public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-        if (ID == GuiLib.GUIID_FloorSelection) {
-            TileEntityFloorMarker tileentity = (TileEntityFloorMarker) BlockHelper.getTileEntity(world,
-                                                                                                 x,
-                                                                                                 y,
-                                                                                                 z,
-                                                                                                 TileEntityFloorMarker.class);
-            TileEntityElevatorComputer computer = null;
-            if (tileentity != null) {
-                computer = tileentity.getParentElevatorComputer();
-            }
-            if (computer != null) {
-                return new ContainerFloorSelection(player.inventory, computer, world);
-            }
+        switch(ID){
+            case GuiLib.GUIID_FloorSelection:
+                TileEntityFloorMarker TE = (TileEntityFloorMarker) BlockHelper.getTileEntity(world,
+                        x,
+                        y,
+                        z,
+                        TileEntityFloorMarker.class);
+                TileEntityElevatorComputer computer = null;
+                if (TE != null) {
+                    computer = TE.getParentElevatorComputer();
+                }
+                if (computer != null) {
+                    return new ContainerFloorSelection(player.inventory, computer, world);
+                }
+                break;
+            case GuiLib.GUIID_FLOOR_MARKER:
+                TileEntityFloorMarker floorMarker = (TileEntityFloorMarker) BlockHelper.getTileEntity(world,
+                        x,
+                        y,
+                        z,
+                        TileEntityFloorMarker.class);
+                if (floorMarker != null) {
+                    return new ContainerDynamicMarker(player.inventory,floorMarker,world);
+                }
+                break;
         }
         return null;
     }

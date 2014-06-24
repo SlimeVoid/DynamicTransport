@@ -27,5 +27,5 @@ public class GuiLib {
 
     public static final ResourceLocation GUI_FLOOR_MARKER     = new ResourceLocation(CoreLib.MOD_RESOURCES, FLOOR_MARKER);
 
-    public static final ResourceLocation GUI_CAMO             = new ResourceLocation(CoreLib.MOD_RESOURCES, FLOOR_MARKER);
+    //public static final ResourceLocation GUI_CAMO             = new ResourceLocation(CoreLib.MOD_RESOURCES, FLOOR_MARKER);
 }

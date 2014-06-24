@@ -4,7 +4,9 @@ import java.io.File;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
+import net.slimevoid.dynamictransport.client.presentation.gui.GuiDynamicMarker;
 import net.slimevoid.dynamictransport.client.presentation.gui.GuiFloorSelection;
+import net.slimevoid.dynamictransport.container.ContainerDynamicMarker;
 import net.slimevoid.dynamictransport.container.ContainerFloorSelection;
 import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import net.slimevoid.dynamictransport.core.lib.GuiLib;
@@ -20,19 +22,30 @@ public class ClientProxy extends CommonProxy {
 
     @Override
     public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-        if (ID == GuiLib.GUIID_FloorSelection) {
-            TileEntityFloorMarker tileentity = (TileEntityFloorMarker) BlockHelper.getTileEntity(world,
-                                                                                                 x,
-                                                                                                 y,
-                                                                                                 z,
-                                                                                                 TileEntityFloorMarker.class);
-            TileEntityElevatorComputer computer = null;
-            if (tileentity != null) {
-                computer = tileentity.getParentElevatorComputer();
-            }
-            if (computer != null) {
-                return new GuiFloorSelection(new ContainerFloorSelection(player.inventory, computer, world));
-            }
+        switch (ID){
+        case GuiLib.GUIID_FloorSelection:
+        	TileEntityFloorMarker tileentity = (TileEntityFloorMarker) BlockHelper.getTileEntity(world,
+                    x,
+                    y,
+                    z,
+                    TileEntityFloorMarker.class);
+        	TileEntityElevatorComputer computer = null;
+    		if (tileentity != null) {
+    			computer = tileentity.getParentElevatorComputer();
+			}
+			if (computer != null) {
+				return new GuiFloorSelection(new ContainerFloorSelection(player.inventory, computer, world));
+			}
+        	break;
+        case GuiLib.GUIID_FLOOR_MARKER:
+        	TileEntityFloorMarker marker = (TileEntityFloorMarker) BlockHelper.getTileEntity(world,
+                    x,
+                    y,
+                    z,
+                    TileEntityFloorMarker.class);
+        	if(marker != null){
+        		return new GuiDynamicMarker(new ContainerDynamicMarker(player.inventory, marker, world));
+        	}
         }
         return null;
     }

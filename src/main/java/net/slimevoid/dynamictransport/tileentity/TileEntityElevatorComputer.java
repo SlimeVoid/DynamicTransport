@@ -17,7 +17,6 @@ import net.minecraft.util.MathHelper;
 import net.slimevoid.dynamictransport.core.lib.BlockLib;
 import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import net.slimevoid.dynamictransport.entities.EntityElevator;
-import net.slimevoid.dynamictransport.util.XZCoords;
 import net.slimevoid.library.blocks.BlockBase;
 import net.slimevoid.library.util.helpers.BlockHelper;
 import net.slimevoid.library.util.helpers.ChatHelper;
