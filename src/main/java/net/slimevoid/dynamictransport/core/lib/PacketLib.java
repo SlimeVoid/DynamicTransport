@@ -1,11 +1,9 @@
 package net.slimevoid.dynamictransport.core.lib;
 
-import net.slimevoid.dynamictransport.network.PacketElevatorCallHandler;
-import net.slimevoid.dynamictransport.network.PacketMarkerConfigurationHandler;
-import net.slimevoid.dynamictransport.network.packet.PacketElevatorCall;
-import net.slimevoid.dynamictransport.network.packet.PacketMarkerConfiguration;
-import net.slimevoid.dynamictransport.network.packet.executors.PacketElevatorCallExecutor;
-import net.slimevoid.dynamictransport.network.packet.executors.PacketMarkerConfigurationExecutor;
+import net.slimevoid.dynamictransport.network.PacketMarkerGUIHandler;
+import net.slimevoid.dynamictransport.network.packet.PacketMarkerData;
+import net.slimevoid.dynamictransport.network.packet.executors.ElevatorCallExecutor;
+import net.slimevoid.dynamictransport.network.packet.executors.MarkerConfigurationExecutor;
 import net.slimevoid.library.network.PacketIds;
 import net.slimevoid.library.network.handlers.PacketPipeline;
 import net.slimevoid.library.util.helpers.PacketHelper;
@@ -21,29 +19,24 @@ public class PacketLib {
     }
 
     public static void registerPacketHandlers() {
-        PacketElevatorCallHandler callHandler = new PacketElevatorCallHandler();
-        callHandler.registerServerExecutor(CommandLib.CALL_ELEVATOR,
-                                           new PacketElevatorCallExecutor());
+        PacketMarkerGUIHandler guiHandler = new PacketMarkerGUIHandler();
+        guiHandler.registerServerExecutor(CommandLib.CALL_ELEVATOR,
+                new ElevatorCallExecutor());
+        guiHandler.registerServerExecutor(CommandLib.UPDATE_MARKER,
+                new MarkerConfigurationExecutor());
 
         handler.registerPacketHandler(PacketIds.GUI,
-                                      callHandler);
-
-        PacketMarkerConfigurationHandler configHandler = new PacketMarkerConfigurationHandler();
-        configHandler.registerServerExecutor(CommandLib.UPDATE_MARKER,
-                new PacketMarkerConfigurationExecutor());
-
-        handler.registerPacketHandler(PacketIds.GUI,
-                configHandler);
+                                      guiHandler);
     }
 
     public static void sendFloorSelection(String floorNumber, String floorName, int x, int y, int z) {
         // create packet
-        PacketElevatorCall packet = new PacketElevatorCall(GuiLib.GUIID_FloorSelection, Integer.valueOf(floorNumber), floorName, x, y, z);
+        PacketMarkerData packet = new PacketMarkerData(GuiLib.GUIID_FloorSelection, Integer.valueOf(floorNumber), floorName, x, y, z, 0);
         PacketHelper.sendToServer(packet);
     }
 
     public static void sendMarkerConfiguration(int floorY, String floorName, int x, int y, int z) {
-        PacketMarkerConfiguration packet = new PacketMarkerConfiguration(GuiLib.GUIID_FLOOR_MARKER, floorY, floorName, x, y, z);
+        PacketMarkerData packet = new PacketMarkerData(GuiLib.GUIID_FLOOR_MARKER, floorY, floorName, x, y, z , 1);
         PacketHelper.sendToServer(packet);
     }
 }

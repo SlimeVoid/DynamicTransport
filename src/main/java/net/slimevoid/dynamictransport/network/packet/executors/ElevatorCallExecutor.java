@@ -2,17 +2,17 @@ package net.slimevoid.dynamictransport.network.packet.executors;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
-import net.slimevoid.dynamictransport.network.packet.PacketElevatorCall;
+import net.slimevoid.dynamictransport.network.packet.PacketMarkerData;
 import net.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
 import net.slimevoid.library.IPacketExecutor;
 import net.slimevoid.library.network.PacketUpdate;
 
-public class PacketElevatorCallExecutor implements IPacketExecutor {
+public class ElevatorCallExecutor implements IPacketExecutor {
 
     @Override
     public void execute(PacketUpdate packet, World world, EntityPlayer entityplayer) {
-        if (packet instanceof PacketElevatorCall) {
-            PacketElevatorCall callPacket = (PacketElevatorCall) packet;
+        if (packet instanceof PacketMarkerData) {
+            PacketMarkerData callPacket = (PacketMarkerData) packet;
             if (callPacket.targetExists(world)) {
                 TileEntityElevatorComputer comp = (TileEntityElevatorComputer) world.getTileEntity(callPacket.xPosition,
                                                                                                    callPacket.yPosition,

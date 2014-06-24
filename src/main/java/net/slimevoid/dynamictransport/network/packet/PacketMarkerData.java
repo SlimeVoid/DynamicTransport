@@ -4,21 +4,29 @@ import net.minecraft.world.World;
 import net.slimevoid.dynamictransport.core.lib.CommandLib;
 import net.slimevoid.dynamictransport.core.lib.CoreLib;
 import net.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
+import net.slimevoid.dynamictransport.tileentity.TileEntityFloorMarker;
 import net.slimevoid.library.network.PacketGuiEvent;
 import net.slimevoid.library.network.PacketPayload;
 
-public class PacketElevatorCall extends PacketGuiEvent {
+public class PacketMarkerData extends PacketGuiEvent {
 
-    public PacketElevatorCall() {
+    public PacketMarkerData() {
         super();
         this.setChannel(CoreLib.MOD_CHANNEL);
     }
 
-    public PacketElevatorCall(int guiid, int destY, String floorname, int compX, int compY, int compZ) {
+    public PacketMarkerData(int guiid, int destY, String floorname, int compX, int compY, int compZ, int commandType) {
         this();
         this.payload = new PacketPayload(1, 0, 1, 0);
         this.setGuiID(guiid);
-        this.setCommand(CommandLib.CALL_ELEVATOR);
+        switch (commandType){
+            case 0:
+                this.setCommand(CommandLib.CALL_ELEVATOR);
+                break;
+            case 1:
+                this.setCommand(CommandLib.UPDATE_MARKER);
+                break;
+        }
         this.setDestinationY(destY);
         this.setFloorName(floorname == null || floorname.equals("") ? "none" : floorname);
         this.xPosition = compX;
@@ -46,9 +54,18 @@ public class PacketElevatorCall extends PacketGuiEvent {
 
     @Override
     public boolean targetExists(World world) {
-        return world.getTileEntity(this.xPosition,
-                                   this.yPosition,
-                                   this.zPosition) instanceof TileEntityElevatorComputer;
+        if (this.command.equals(CommandLib.CALL_ELEVATOR)) {
+            return world.getTileEntity(this.xPosition,
+                    this.yPosition,
+                    this.zPosition) instanceof TileEntityElevatorComputer;
+        }else if (this.command.equals(CommandLib.UPDATE_MARKER)) {
+            return world.getTileEntity(this.xPosition,
+                    this.yPosition,
+                    this.zPosition) instanceof TileEntityFloorMarker;
+        }
+        else {
+            return false;
+        }
     }
 
 }

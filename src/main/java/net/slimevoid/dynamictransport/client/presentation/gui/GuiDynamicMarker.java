@@ -39,7 +39,7 @@ public class GuiDynamicMarker extends GuiContainer {
          }
 
         this.xSize = 176+39;
-        this.ySize = 96;
+        this.ySize = 45;
         this.floorY = this.marker.getFloorY();
     }
 
