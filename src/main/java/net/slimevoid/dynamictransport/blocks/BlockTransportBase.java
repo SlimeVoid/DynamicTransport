@@ -110,4 +110,52 @@ public class BlockTransportBase extends BlockBase {
         // TODO Auto-generated method stub
         return null;
     }
+
+    @Override
+    public int isProvidingWeakPower(IBlockAccess world, int x, int y, int z, int side)
+    {
+
+
+            TileEntity tile = world.getTileEntity(x,
+                    y,
+                    z);
+            if (tile instanceof TileEntityTransportBase) {
+
+                ItemStack itemstack = ((TileEntityTransportBase) tile).getCamoItem();
+                if (itemstack == null && tile instanceof TileEntityFloorMarker) {
+                    itemstack = ((TileEntityFloorMarker) tile).getCamoItem();
+                }
+
+                if (itemstack != null && itemstack.getItem() != null) {
+                    Block block = Block.getBlockFromItem(itemstack.getItem());
+                    return block.isProvidingWeakPower(world,x,y,z,side);
+                }
+            }
+
+        return 0;
+    }
+
+    @Override
+    public int isProvidingStrongPower(IBlockAccess world, int x, int y, int z, int side)
+    {
+
+
+            TileEntity tile = world.getTileEntity(x,
+                    y,
+                    z);
+            if (tile instanceof TileEntityTransportBase) {
+
+                ItemStack itemstack = ((TileEntityTransportBase) tile).getCamoItem();
+                if (itemstack == null && tile instanceof TileEntityFloorMarker) {
+                    itemstack = ((TileEntityFloorMarker) tile).getCamoItem();
+                }
+
+                if (itemstack != null && itemstack.getItem() != null) {
+                    Block block = Block.getBlockFromItem(itemstack.getItem());
+                    return block.isProvidingStrongPower(world,x,y,z,side);
+                }
+            }
+
+            return 0;
+    }
 }
