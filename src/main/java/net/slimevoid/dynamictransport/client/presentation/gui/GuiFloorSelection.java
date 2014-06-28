@@ -31,6 +31,7 @@ public class GuiFloorSelection extends GuiContainer {
                                   "Failed build Floor Marker GUI",
                                   Logger.LogLevel.WARNING.ordinal());
         }
+        this.xSize = 176+39;
     }
 
     protected TileEntityElevatorComputer marker;
@@ -77,18 +78,18 @@ public class GuiFloorSelection extends GuiContainer {
         this.mc.getTextureManager().bindTexture(GuiLib.GUI_ELEVATOR);
         int k = (this.width - this.xSize) / 2;
         int l = (this.height - this.ySize) / 2;
-        this.drawTexturedModalRect(k,
-                                   l,
-                                   0,
-                                   0,
-                                   this.xSize + 39,
-                                   3 * 18 + 17);
-        this.drawTexturedModalRect(k,
-                                   l + 3 * 18 + 17,
-                                   0,
-                                   126,
-                                   this.xSize + 39,
-                                   96);
+        this.drawTexturedModalRect(guiLeft,
+                guiTop,
+                0,
+                0,
+                this.xSize,
+                this.ySize - 5);
+        this.drawTexturedModalRect(guiLeft,
+                guiTop + this.ySize - 5,
+                0,
+                207,
+                this.xSize,
+                5);
 
     }
 

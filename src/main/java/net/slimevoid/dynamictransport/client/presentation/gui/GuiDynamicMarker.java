@@ -28,7 +28,7 @@ public class GuiDynamicMarker extends GuiContainer {
     public GuiDynamicMarker(ContainerDynamicMarker container) {
     	super(container);
         this.xSize = 176+39;
-        this.ySize = 45;
+        this.ySize = 100;
         this.floorY = container.getFloorY();
         this.floorName =container.getFloorName();
     }
@@ -46,7 +46,7 @@ public class GuiDynamicMarker extends GuiContainer {
         this.nameField.setFocused(true);
         this.nameField.setText(this.floorName);
 
-        this.buttonList.add(0, new GuiButton(0,this.guiLeft + 10,this.guiTop + 70,
+        this.buttonList.add(0, new GuiButton(0,this.guiLeft + 10,this.guiTop + 70, this.xSize - 20, 20,
                 I18n.format("slimevoid.container.floormarker.submit", new Object[0])
         ));
         this.buttonList.add(1, new GuiButton(1,this.guiLeft + 10,this.guiTop + 40,20,20,
@@ -62,8 +62,8 @@ public class GuiDynamicMarker extends GuiContainer {
     @Override
     protected void drawGuiContainerForegroundLayer (int par1, int par2)
     {
-        this.fontRendererObj.drawString(I18n.format("slimevoid.container.floormarker.name", new Object[0]), 10, 10, 0xffffff);
-        this.fontRendererObj.drawString(Integer.toString(floorY), 35, 45, 0xffffff);
+        this.fontRendererObj.drawString(I18n.format("slimevoid.container.floormarker.name", new Object[0]), 10, 10, 4210752);
+        this.fontRendererObj.drawString(Integer.toString(floorY), 35, 45, 4210752);
     }
 
     @Override
@@ -79,13 +79,13 @@ public class GuiDynamicMarker extends GuiContainer {
                 0,
                 0,
                 this.xSize,
-                this.ySize - 25);
+                this.ySize - 5);
         this.drawTexturedModalRect(guiLeft,
-                guiTop + this.ySize - 25,
+                guiTop + this.ySize - 5,
                 0,
-                126,
+                207,
                 this.xSize,
-                this.ySize);
+                5);
         this.nameField.drawTextBox();
     }
 
