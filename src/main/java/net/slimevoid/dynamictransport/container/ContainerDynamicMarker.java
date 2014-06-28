@@ -6,6 +6,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.world.World;
 import net.slimevoid.dynamictransport.tileentity.TileEntityElevator;
+import net.slimevoid.dynamictransport.tileentity.TileEntityFloorMarker;
 
 public class ContainerDynamicMarker extends Container {
 	
@@ -22,8 +23,27 @@ public class ContainerDynamicMarker extends Container {
         return true;
     }
     
-    public IInventory getMarker() {
-        return this.marker;
+    public TileEntityFloorMarker getMarker() {
+        if (this.marker != null
+                && this.marker instanceof TileEntityFloorMarker) {
+            return (TileEntityFloorMarker)this.marker;
+        }
+        return null;
     }
 
+    public int getFloorY(){
+            return this.getMarker().getFloorY();
+    }
+
+    public String getFloorName(){
+        return this.getMarker().getFloorName();
+    }
+
+    public void setFloorY(int newFloor){
+        this.getMarker().setFloorY(newFloor);
+    }
+
+    public void setFloorName(String newName){
+        this.getMarker().setFloorName(newName);
+    }
 }

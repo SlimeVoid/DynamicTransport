@@ -20,27 +20,17 @@ import org.lwjgl.opengl.GL11;
 
 public class GuiDynamicMarker extends GuiContainer {
 
-    private TileEntityFloorMarker marker;
     private GuiTextField nameField;
     private String floorName = "";
     private int floorY;
     public boolean active = true;
 
     public GuiDynamicMarker(ContainerDynamicMarker container) {
-    	 super(container);
-         if (container.getMarker() != null
-             && container.getMarker() instanceof TileEntityFloorMarker) {
-             marker = (TileEntityFloorMarker) container.getMarker();
-
-         } else {
-             SlimevoidCore.console(CoreLib.MOD_ID,
-                                   "Failed build Floor Marker GUI",
-                                   Logger.LogLevel.WARNING.ordinal());
-         }
-
+    	super(container);
         this.xSize = 176+39;
         this.ySize = 45;
-        this.floorY = this.marker.getFloorY();
+        this.floorY = container.getFloorY();
+        this.floorName =container.getFloorName();
     }
 
     @Override
@@ -54,17 +44,16 @@ public class GuiDynamicMarker extends GuiContainer {
         this.nameField.setTextColor(16777215);
         this.nameField.setCanLoseFocus(false);
         this.nameField.setFocused(true);
-        this.nameField.setText(marker.getFloorName());
+        this.nameField.setText(this.floorName);
 
         this.buttonList.add(0, new GuiButton(0,this.guiLeft + 10,this.guiTop + 70,
-                //I18n.format("slimevoid.container.floormarker.submitName", new Object[0])
-                "Save"
+                I18n.format("slimevoid.container.floormarker.submit", new Object[0])
         ));
         this.buttonList.add(1, new GuiButton(1,this.guiLeft + 10,this.guiTop + 40,20,20,
 
                 "-"
         ));
-        this.buttonList.add(2, new GuiButton(2,this.guiLeft + 50,this.guiTop + 40,20,20,
+        this.buttonList.add(2, new GuiButton(2,this.guiLeft + 60,this.guiTop + 40,20,20,
 
                 "+"
         ));
@@ -129,11 +118,8 @@ public class GuiDynamicMarker extends GuiContainer {
             switch (Button.id) {
                 case 0:
                     //save
-                    PacketLib.sendMarkerConfiguration(this.floorY,
-                            this.floorName,
-                            this.marker.xCoord,
-                            this.marker.yCoord,
-                            this.marker.zCoord);
+                    this.getContainer().setFloorName(this.floorName);
+                    this.getContainer().setFloorY(this.floorY);
                     break;
                 case 1:
                     this.floorY -= 1;
@@ -143,5 +129,11 @@ public class GuiDynamicMarker extends GuiContainer {
                     break;
         }
         }
+    }
+    protected ContainerDynamicMarker getContainer(){
+        if (this.inventorySlots != null && this.inventorySlots instanceof ContainerDynamicMarker){
+            return (ContainerDynamicMarker) this.inventorySlots;
+        }
+        return  null;
     }
 }
