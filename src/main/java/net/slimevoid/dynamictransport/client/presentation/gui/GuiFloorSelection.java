@@ -1,6 +1,8 @@
 package net.slimevoid.dynamictransport.client.presentation.gui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 
@@ -19,7 +21,6 @@ import org.lwjgl.opengl.GL11;
 import cpw.mods.fml.client.FMLClientHandler;
 
 public class GuiFloorSelection extends GuiContainer {
-
     public GuiFloorSelection(ContainerFloorSelection container) {
         super(container);
         if (container.getComputer() != null
@@ -50,8 +51,21 @@ public class GuiFloorSelection extends GuiContainer {
             } else {
                 y -= 30;
             }
-
         }
+
+
+
+    }
+
+    @Override
+    protected void drawGuiContainerForegroundLayer(int i, int j){
+        for (Object x : buttonList) {
+            GuiButton set = (GuiButton)x;
+            if (i >= set.xPosition && j >= set.yPosition && i < set.xPosition + 20 && j < set.yPosition + 20){
+
+            }
+        }
+
     }
 
     @Override
@@ -80,11 +94,18 @@ public class GuiFloorSelection extends GuiContainer {
 
     @Override
     protected void actionPerformed(GuiButton guibutton) {
+        String floorName = "";
+        for(String name :marker.getFloorList().get(Integer.parseInt(guibutton.displayString))){
+            floorName = name + ", ";
+        }
+        if (floorName.length() > 0) {
+            floorName = floorName.substring(0,floorName.length() - 2);
+        }
         PacketLib.sendFloorSelection(guibutton.displayString,
-                                     null,
-                                     this.marker.xCoord,
-                                     this.marker.yCoord,
-                                     this.marker.zCoord);
+                floorName,
+                this.marker.xCoord,
+                this.marker.yCoord,
+                this.marker.zCoord);
 
         this.onGuiClosed();
         FMLClientHandler.instance().getClient().thePlayer.closeScreen();
