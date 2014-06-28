@@ -456,6 +456,8 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
                                    BoundMarkerBlocksZ);
         nbttagcompound.setIntArray("BoundElevatorBlocksX",
                                    BoundElevatorBlocksX);
+        nbttagcompound.setIntArray("BoundElevatorBlocksY",
+                BoundElevatorBlocksY);
         nbttagcompound.setIntArray("BoundElevatorBlocksZ",
                                    BoundElevatorBlocksZ);
 
