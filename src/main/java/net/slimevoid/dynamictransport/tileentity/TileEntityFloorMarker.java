@@ -229,9 +229,11 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 
     public void setFloorName(String floorName) {
         this.floorName = floorName;
+        this.onInventoryChanged();
     }
 
     public void setFloorY(int floorY) {
-        this.yOffset = this.yCoord - floorY;
+        this.yOffset = floorY - this.yCoord;
+        this.onInventoryChanged();
     }
 }
