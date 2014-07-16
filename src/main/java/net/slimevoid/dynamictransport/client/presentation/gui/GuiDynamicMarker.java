@@ -7,6 +7,7 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.tileentity.TileEntity;
 import net.slimevoid.dynamictransport.container.ContainerDynamicMarker;
 import net.slimevoid.dynamictransport.core.lib.GuiLib;
 import net.slimevoid.dynamictransport.core.lib.PacketLib;
@@ -118,8 +119,11 @@ public class GuiDynamicMarker extends GuiContainer {
             switch (Button.id) {
                 case 0:
                     //save
-                    this.getContainer().setFloorName(this.floorName);
-                    this.getContainer().setFloorY(this.floorY);
+                    PacketLib.sendMarkerConfiguration(this.floorY,
+                            this.floorName,
+                            this.getContainer().getMarker().xCoord,
+                            this.getContainer().getMarker().yCoord,
+                            this.getContainer().getMarker().zCoord);
                     break;
                 case 1:
                     this.floorY -= 1;

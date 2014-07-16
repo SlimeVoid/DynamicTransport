@@ -4,6 +4,8 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -230,10 +232,19 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
     public void setFloorName(String floorName) {
         this.floorName = floorName;
         this.onInventoryChanged();
+        this.markDirty();
     }
 
     public void setFloorY(int floorY) {
         this.yOffset = floorY - this.yCoord;
         this.onInventoryChanged();
+        this.markDirty();
+    }
+
+    public Packet getDescriptionPacket()
+    {
+        NBTTagCompound nbttagcompound = new NBTTagCompound();
+        this.writeToNBT(nbttagcompound);
+        return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 2, nbttagcompound);
     }
 }

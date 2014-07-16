@@ -3,6 +3,7 @@ package net.slimevoid.dynamictransport.core.lib;
 import net.slimevoid.dynamictransport.network.PacketMarkerGUIHandler;
 import net.slimevoid.dynamictransport.network.packet.PacketMarkerData;
 import net.slimevoid.dynamictransport.network.packet.executors.ElevatorCallExecutor;
+import net.slimevoid.dynamictransport.network.packet.executors.MarkerConfigurationExecutor;
 import net.slimevoid.library.network.PacketIds;
 import net.slimevoid.library.network.handlers.PacketPipeline;
 import net.slimevoid.library.util.helpers.PacketHelper;
@@ -21,6 +22,8 @@ public class PacketLib {
         PacketMarkerGUIHandler guiHandler = new PacketMarkerGUIHandler();
         guiHandler.registerServerExecutor(CommandLib.CALL_ELEVATOR,
                 new ElevatorCallExecutor());
+        guiHandler.registerServerExecutor(CommandLib.UPDATE_MARKER,
+                                new MarkerConfigurationExecutor());
 
         handler.registerPacketHandler(PacketIds.GUI,
                                       guiHandler);
