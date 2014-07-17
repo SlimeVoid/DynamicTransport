@@ -84,7 +84,7 @@ public class BlockPoweredLight extends Block {
 
     @Override
     public void onBlockAdded(World world,int x,int y,int z){
-        world.scheduleBlockUpdate(x, y, z, this, 1);
+        world.scheduleBlockUpdate(x, y, z, this, 10);
     }
 
     @Override

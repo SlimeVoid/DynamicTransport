@@ -600,7 +600,7 @@ public class EntityElevator extends Entity {
     protected void setTransitBlocks(int x, int y, int z) {
         if (this.getCamoItem() != null) {
             int blockLightValue = Block.getBlockFromItem(this.getCamoItem().getItem()).getLightValue();
-            int blockWeakPower = Block.getBlockFromItem(this.getCamoItem().getItem()).isProvidingWeakPower(this.worldObj, x, y, z, 0);
+            int blockWeakPower = Block.getBlockFromItem(this.getCamoItem().getItem()).isProvidingWeakPower(this.worldObj, x, y, z, 0)/2;
             if (this.prevPosY < this.posY) {
                 if (this.worldObj.isAirBlock(x,
                         y - 1,
