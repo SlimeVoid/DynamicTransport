@@ -1,9 +1,11 @@
 package net.slimevoid.dynamictransport.core;
 
+import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.slimevoid.dynamictransport.blocks.BlockPoweredLight;
 import net.slimevoid.dynamictransport.blocks.BlockTransportBase;
 import net.slimevoid.dynamictransport.core.lib.BlockLib;
 import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
@@ -23,10 +25,19 @@ public class DTCore {
     }
 
     public static void registerBlocks() {
-        ConfigurationLib.blockTransportBase = new BlockTransportBase(ConfigurationLib.blockTransportBaseID);
+        ConfigurationLib.blockTransportBase = new BlockTransportBase();
         GameRegistry.registerBlock(ConfigurationLib.blockTransportBase,
                                    ItemBlockBase.class,
                                    BlockLib.BLOCK_TRANSPORT_BASE);
+        ConfigurationLib.blockPoweredLight = new BlockPoweredLight[16];
+
+        for (int i = 0; i < 16; i++){
+            ConfigurationLib.blockPoweredLight[i] = new BlockPoweredLight(i);
+            GameRegistry.registerBlock(ConfigurationLib.blockPoweredLight[i],
+                ItemBlockBase.class,
+                BlockLib.BLOCK_POWERED_LiGHT + " " + i
+            );
+        }
         ConfigurationLib.blockTransportBase.addMapping(BlockLib.BLOCK_ELEVATOR_ID,
                                                        TileEntityElevator.class,
                                                        BlockLib.BLOCK_ELEVATOR);
@@ -53,18 +64,18 @@ public class DTCore {
                                        Character.valueOf('E'),
                                        Items.ender_pearl });
         GameRegistry.addRecipe(new ItemStack(ConfigurationLib.blockTransportBase, 1, BlockLib.BLOCK_ELEVATOR_COMPUTER_ID),
-                               new Object[] {
+
                                        "GEG",
                                        "GAG",
                                        "GRG",
-                                       Character.valueOf('G'),
+                                      'G',
                                        Items.gold_ingot,
-                                       Character.valueOf('E'),
+                                       'E',
                                        Items.ender_pearl,
-                                       Character.valueOf('R'),
+                                       'R',
                                        Items.redstone,
-                                       Character.valueOf('A'),
-                                       Blocks.glass });
+                                       'A',
+                                       Blocks.glass );
         GameRegistry.addRecipe(new ItemStack(ConfigurationLib.blockTransportBase, 4, BlockLib.BLOCK_DYNAMIC_MARK_ID),
                                new Object[] {
                                        "III",
@@ -79,7 +90,7 @@ public class DTCore {
     }
 
     public static void registerItems() {
-        ConfigurationLib.itemElevatorTool = new ItemElevatorTool(ConfigurationLib.itemElevatorToolID);
+        ConfigurationLib.itemElevatorTool = new ItemElevatorTool();
 
         ConfigurationLib.itemElevatorTool.setUnlocalizedName(BlockLib.ITEM_ELEVATOR_TOOL).setTextureName(CoreLib.MOD_ID
                                                                                                          + ":"

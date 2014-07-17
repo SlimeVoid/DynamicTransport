@@ -9,7 +9,7 @@ import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
 
 public class ItemElevatorTool extends Item {
 
-    public ItemElevatorTool(int itemId) {
+    public ItemElevatorTool() {
         super();
         this.maxStackSize = 1;
     }

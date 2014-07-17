@@ -10,9 +10,11 @@ public class BlockLib {
     public static final int     BLOCK_ELEVATOR_COMPUTER_ID = 1;
     public static final int     BLOCK_DYNAMIC_MARK_ID      = 2;
 
-    private static final String PREFIX                     = "dt";
+    public static final String PREFIX                     = "dt";
 
     public static final String  BLOCK_TRANSPORT_BASE       = PREFIX + "base";
+
+    public static final String  BLOCK_POWERED_LiGHT       = PREFIX + "PowerdLightLvl";
 
     private static final String BLOCK_TRANSPORT_PREFIX     = PREFIX
                                                              + ".transport";

@@ -19,7 +19,7 @@ public class BlockTransportBase extends BlockBase {
 
     protected IIcon[][] iconList;
 
-    public BlockTransportBase(int blockID) {
+    public BlockTransportBase() {
         super(Material.iron, BlockLib.BLOCK_MAX_TILES);
     }
 

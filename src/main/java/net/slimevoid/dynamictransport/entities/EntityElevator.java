@@ -226,18 +226,11 @@ public class EntityElevator extends Entity {
         if (this.getDestinationY() == -1) {
             return;
         }
-
-        // Place transient block
-        if (!this.worldObj.isRemote && !this.isDead && this.enableMobilePower) {
+        if(this.ticksExisted % 10 ==0) {
             this.setTransitBlocks(x,
-                                  y,
-                                  z);
+                    y,
+                    z);
         }
-
-        this.updateLightLevel(x,
-                              y,
-                              z);
-
         this.moveElevator();
         this.updateRiderPosition();
 
@@ -605,29 +598,36 @@ public class EntityElevator extends Entity {
     }
 
     protected void setTransitBlocks(int x, int y, int z) {
-
-        if (this.motionY > 0) {
-            x = (int) Math.ceil(this.posX - 0.5);
-            y = (int) Math.ceil(this.posY - 0.5);
-            z = (int) Math.ceil(this.posZ - 0.5);
-        } else {
-            x = (int) Math.floor(this.posX - 0.5);
-            y = (int) Math.floor(this.posY - 0.5);
-            z = (int) Math.floor(this.posZ - 0.5);
+        if (this.getCamoItem() != null) {
+            int blockLightValue = Block.getBlockFromItem(this.getCamoItem().getItem()).getLightValue();
+            int blockWeakPower = Block.getBlockFromItem(this.getCamoItem().getItem()).isProvidingWeakPower(this.worldObj, x, y, z, 0);
+            if (this.prevPosY < this.posY) {
+                if (this.worldObj.isAirBlock(x,
+                        y - 1,
+                        z)) {
+                    this.worldObj.setBlock(x,
+                            y,
+                            z,
+                            ConfigurationLib.blockPoweredLight[blockLightValue],
+                            1,
+                            blockWeakPower);
+                }
+            } else {
+                if (this.worldObj.isAirBlock(x,
+                        y + 1,
+                        z)) {
+                    this.worldObj.setBlock(x,
+                            y + 1,
+                            z,
+                            ConfigurationLib.blockPoweredLight[blockLightValue],
+                            1,
+                            blockWeakPower);
+                }
+            }
         }
-
-        if (this.worldObj.isAirBlock(x,
-                                     y,
-                                     z)) {
-            this.worldObj.setBlock(x,
-                                   y,
-                                   z,
-                                   ConfigurationLib.blockTransportBase,
-                                   1,
-                                   BlockLib.BLOCK_TRANSIT_ID);
-        }
-
     }
+
+
 
     // only function that absolutely needs to keep track of elevators
     protected void setEmerHalt(boolean newhalt) {
