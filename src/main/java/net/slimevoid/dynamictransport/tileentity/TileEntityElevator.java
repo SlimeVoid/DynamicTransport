@@ -5,8 +5,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChunkCoordinates;
+import net.slimevoid.dynamictransport.core.DynamicTransportMod;
 import net.slimevoid.dynamictransport.core.lib.BlockLib;
 import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
+import net.slimevoid.dynamictransport.core.lib.GuiLib;
 import net.slimevoid.library.blocks.BlockBase;
 import net.slimevoid.library.util.helpers.ChatHelper;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -17,7 +19,7 @@ public class TileEntityElevator extends TileEntityTransportBase {
     private int              yOffset = 0;
     private int              maxY    = -1;
     private int              minY    = -1;
-    private boolean          floorSelectorMode;
+    private short            overlay = 0;
 
     public int getMaxY(boolean reCalculate) {
         if (reCalculate || maxY == -1) {
@@ -50,11 +52,12 @@ public class TileEntityElevator extends TileEntityTransportBase {
         return minY;
     }
 
-    @Override
-    public boolean onBlockActivated(EntityPlayer entityplayer) {
+
+    public boolean onBlockActivated(EntityPlayer entityplayer, int side, float xHit, float yHit, float zHit) {
         if (this.getWorldObj().isRemote) {
             return true;
         }
+        short digitLoc = (short)Math.pow(2,side);
         ItemStack heldItem = entityplayer.getHeldItem();
         if (heldItem != null
             && heldItem.getItem() == ConfigurationLib.itemElevatorTool) {
@@ -76,8 +79,19 @@ public class TileEntityElevator extends TileEntityTransportBase {
                                                           "slimevoid.DT.elevatorBlock.boundToOtherComputer");// "Block Bound to Another Elevator"
                         }
                     } else {
-                        setParentElevatorComputer(possibleComputer,
-                                                  entityplayer);
+                        if (this.getParent() == null) {
+                            setParentElevatorComputer(possibleComputer,
+                                    entityplayer);
+                        } else if (possibleComputer.equals(this.getParent())) {
+
+                            if ((this.overlay & digitLoc) == digitLoc){
+                                this.overlay = (short)((this.overlay & ~digitLoc) & 127);
+                            }else{
+                                this.overlay = (short)(this.overlay | digitLoc);
+                            }
+                            this.getWorldObj().markBlockForUpdate(this.xCoord,this.yCoord,this.zCoord);
+                            return true;
+                        }
                     }
                 }
             } else {
@@ -89,6 +103,16 @@ public class TileEntityElevator extends TileEntityTransportBase {
                                                                 + this.zCoord
                                                                 + "]");
             }
+        }
+
+        if (!this.isInMaintenanceMode() && (this.overlay & digitLoc) == digitLoc){
+            entityplayer.openGui(DynamicTransportMod.instance,
+                    GuiLib.GUIID_FloorSelection,
+                    this.worldObj,
+                    this.xCoord,
+                    this.yCoord,
+                    this.zCoord);
+            return true;
         }
         return super.onBlockActivated(entityplayer);
     }
@@ -181,6 +205,8 @@ public class TileEntityElevator extends TileEntityTransportBase {
                                       ParentElevatorComputer.posZ);
             nbttagcompound.setInteger("yOffset",
                                       this.yOffset);
+            nbttagcompound.setShort("overLay",
+                    this.overlay);
         }
 
     }
@@ -190,6 +216,7 @@ public class TileEntityElevator extends TileEntityTransportBase {
         super.readFromNBT(nbttagcompound);
         this.ParentElevatorComputer = new ChunkCoordinates(nbttagcompound.getInteger("ParentElevatorComputerX"), nbttagcompound.getInteger("ParentElevatorComputerY"), nbttagcompound.getInteger("ParentElevatorComputerZ"));
         this.yOffset = nbttagcompound.getInteger("yOffset");
+        this.overlay = nbttagcompound.getShort("overLay");
     }
 
     public void RemoveComputer(ChunkCoordinates chunkCoordinates) {
@@ -222,4 +249,11 @@ public class TileEntityElevator extends TileEntityTransportBase {
         return BlockLib.BLOCK_ELEVATOR;
     }
 
+    public short getOverlay() {
+        return overlay;
+    }
+
+    public void setOverlay(Short overlay) {
+        this.overlay = overlay;
+    }
 }

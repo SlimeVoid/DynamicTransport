@@ -6,6 +6,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import net.slimevoid.dynamictransport.client.presentation.gui.GuiDynamicMarker;
 import net.slimevoid.dynamictransport.client.presentation.gui.GuiFloorSelection;
+import net.slimevoid.dynamictransport.client.render.BlockElevatorRenderer;
 import net.slimevoid.dynamictransport.container.ContainerDynamicMarker;
 import net.slimevoid.dynamictransport.container.ContainerFloorSelection;
 import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
@@ -13,6 +14,7 @@ import net.slimevoid.dynamictransport.core.lib.GuiLib;
 import net.slimevoid.dynamictransport.core.lib.PacketLib;
 import net.slimevoid.dynamictransport.entities.EntityElevator;
 import net.slimevoid.dynamictransport.proxy.CommonProxy;
+import net.slimevoid.dynamictransport.tileentity.TileEntityElevator;
 import net.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
 import net.slimevoid.dynamictransport.tileentity.TileEntityFloorMarker;
 import net.slimevoid.library.util.helpers.BlockHelper;
@@ -24,15 +26,25 @@ public class ClientProxy extends CommonProxy {
     public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
         switch (ID){
         case GuiLib.GUIID_FloorSelection:
-        	TileEntityFloorMarker tileentity = (TileEntityFloorMarker) BlockHelper.getTileEntity(world,
+        	TileEntityFloorMarker tileEntity = (TileEntityFloorMarker) BlockHelper.getTileEntity(world,
                     x,
                     y,
                     z,
                     TileEntityFloorMarker.class);
         	TileEntityElevatorComputer computer = null;
-    		if (tileentity != null) {
-    			computer = tileentity.getParentElevatorComputer();
-			}
+    		if (tileEntity != null) {
+    			computer = tileEntity.getParentElevatorComputer();
+			}else{
+                TileEntityElevator tileElevator = (TileEntityElevator) BlockHelper.getTileEntity(world,
+                        x,
+                        y,
+                        z,
+                        TileEntityElevator.class);
+                if (tileElevator != null){
+                    computer = tileElevator.getParentElevatorComputer();
+                }
+            }
+
 			if (computer != null) {
 				return new GuiFloorSelection(new ContainerFloorSelection(player.inventory, computer, world));
 			}
@@ -60,6 +72,8 @@ public class ClientProxy extends CommonProxy {
     public void registerRenderInformation() {
         RenderingRegistry.registerEntityRenderingHandler(EntityElevator.class,
                                                          new net.slimevoid.dynamictransport.client.render.RenderElevator());
+        RenderingRegistry.registerBlockHandler(	ConfigurationLib.ElevatorRenderId,
+                new BlockElevatorRenderer());
     }
 
     @Override
@@ -67,5 +81,6 @@ public class ClientProxy extends CommonProxy {
         super.registerConfigurationProperties(configFile);
         ConfigurationLib.ClientConfig();
     }
+
 
 }

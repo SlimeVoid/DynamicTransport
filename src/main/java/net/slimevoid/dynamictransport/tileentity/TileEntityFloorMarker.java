@@ -120,18 +120,18 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
                     }
                 }
             }
-        } else {
-            if (!this.isInMaintenanceMode()) {
-                // show floor selection
-                entityplayer.openGui(DynamicTransportMod.instance,
-                                     GuiLib.GUIID_FloorSelection,
-                                     this.worldObj,
-                                     this.xCoord,
-                                     this.yCoord,
-                                     this.zCoord);
-                return true;
-            }
         }
+        if (!this.isInMaintenanceMode()) {
+            // show floor selection
+            entityplayer.openGui(DynamicTransportMod.instance,
+                                 GuiLib.GUIID_FloorSelection,
+                                 this.worldObj,
+                                 this.xCoord,
+                                 this.yCoord,
+                                 this.zCoord);
+            return true;
+        }
+
         return super.onBlockActivated(entityplayer);
     }
 

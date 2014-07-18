@@ -6,6 +6,7 @@ import java.util.Set;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -31,7 +32,6 @@ public class EntityElevator extends Entity {
     protected String             elevatorName           = "";
     protected String             destFloorName          = "";
     protected boolean            canBeHalted            = true;
-    protected boolean            enableMobilePower      = false;
 
     // only needed for emerhalt but also used in kill all conjoined
     protected Set<Integer>       conjoinedelevators     = new HashSet<Integer>();
@@ -97,6 +97,10 @@ public class EntityElevator extends Entity {
         return this.getDataWatcher().getWatchableObjectItemStack(4);
     }
 
+    public Short getOverlay(){
+        return this.getDataWatcher().getWatchableObjectShort(7);
+    }
+
     protected void setDestinationY(int destinationY) {
         this.getDataWatcher().updateObject(2,
                                            destinationY);
@@ -115,6 +119,10 @@ public class EntityElevator extends Entity {
     protected void setCamoItem(ItemStack itemstack) {
         this.getDataWatcher().updateObject(4,
                                            itemstack);
+    }
+
+    public void setOverlay(Short overlay){
+         this.getDataWatcher().updateObject(7,overlay);
     }
     public void setWaitToAccelerate(byte value) {
         this.getDataWatcher().updateObject(6, value);;
@@ -135,6 +143,8 @@ public class EntityElevator extends Entity {
                                         new Integer(-1));
         this.getDataWatcher().addObject(6,
                 (byte)0);
+        this.getDataWatcher().addObject(7,
+                (short)0);
     }
 
     @Override
@@ -171,6 +181,7 @@ public class EntityElevator extends Entity {
                     tile.setParentElevatorComputer(this.computerPos);
                     if (this.getCamoItem() != null) {
                         tile.setCamoItem(this.getCamoItem());
+                        tile.setOverlay(this.getOverlay());
                     }
                     tile.setYOffset(this.getElevatorYOffset());
                 }
@@ -402,6 +413,8 @@ public class EntityElevator extends Entity {
                                   itemNBTTagCompound);
         }
 
+        nbttagcompound.setShort("overlay", this.getOverlay());
+
     }
 
     @Override
@@ -416,6 +429,7 @@ public class EntityElevator extends Entity {
         if (ItemStack.loadItemStackFromNBT(nbttagcompound.getCompoundTag("CamoItem")) != null) {
             this.setCamoItem(ItemStack.loadItemStackFromNBT(nbttagcompound.getCompoundTag("CamoItem")));
         }
+        this.setOverlay(nbttagcompound.getShort("overlay"));
     }
 
     @Override
@@ -455,6 +469,11 @@ public class EntityElevator extends Entity {
         for (Entity rider : potentialRiders) {
             if (!(rider instanceof EntityElevator) && !rider.isRiding()
                 && !this.confirmedRiders.contains(rider.getEntityId())) {
+
+                if (rider instanceof EntityPlayer && ((EntityPlayer)rider).capabilities.isFlying){
+                    continue;
+                }
+
                 double yPos = (this.posY + this.getMountedYOffset())
                               - rider.boundingBox.minY;
                 rider.motionY = this.motionY < 0 ? this.motionY : Math.max(yPos,
@@ -462,6 +481,7 @@ public class EntityElevator extends Entity {
                 rider.isAirBorne = true;
                 rider.onGround = true;
                 rider.fallDistance = 0;
+
                 this.confirmedRiders.add(rider.getEntityId());
             }
         }
@@ -540,14 +560,13 @@ public class EntityElevator extends Entity {
         return 0.50D;
     }
 
-    public void setProperties(int destination, String destinationName, float elevatorTopSpeed, ChunkCoordinates computer, boolean haltable, int notifierID, boolean mobilePower) {
+    public void setProperties(int destination, String destinationName, float elevatorTopSpeed, ChunkCoordinates computer, boolean haltable, int notifierID) {
         this.setDestinationY(destination);
         this.destFloorName = destinationName != null
                              && destinationName.trim() != "" ? destinationName : String.valueOf(destination);
 
         this.computerPos = computer;
         this.canBeHalted = haltable;
-        this.enableMobilePower = mobilePower;
 
         this.isNotifierElevator = (notifierID == this.getEntityId());
 
@@ -578,21 +597,11 @@ public class EntityElevator extends Entity {
                     this.setCamoItem(tile.removeCamoItemWithoutDrop());
                 }
                 this.setYOffset(tile.getYOffest());
+                this.setOverlay(tile.getOverlay());
             }
-
-            if (this.enableMobilePower) {
-                this.worldObj.setBlock(x,
-                                       y,
-                                       z,
-                                       ConfigurationLib.blockTransportBase,
-                                       1,
-                                       BlockLib.BLOCK_TRANSIT_ID);
-            } else {
                 this.worldObj.setBlockToAir(x,
                                             y,
                                             z);
-            }
-
         }
 
     }

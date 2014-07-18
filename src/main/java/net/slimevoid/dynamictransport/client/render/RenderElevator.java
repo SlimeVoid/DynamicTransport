@@ -1,6 +1,7 @@
 package net.slimevoid.dynamictransport.client.render;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockGrass;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -10,6 +11,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.slimevoid.dynamictransport.blocks.BlockTransportBase;
 import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import net.slimevoid.dynamictransport.entities.EntityElevator;
 
@@ -21,7 +23,7 @@ public class RenderElevator extends Render {
         shadowSize = 0.5F;
     }
 
-    public void renderElevatorEntity(Block elevator, World world, int x, int y, int z, IIcon[] textureData) {
+    public void renderElevatorEntity(Block elevator, World world, int x, int y, int z, IIcon[] textureData, short overlay) {
         this.field_147909_c/* renderBlocks */.setRenderBoundsFromBlock(elevator);
 
         float f1 = 0.5F;
@@ -119,7 +121,40 @@ public class RenderElevator extends Render {
                                                              -0.5D,
                                                              -0.5D,
                                                              textureData[5]);
+        if ((overlay & 1) == 1){
+            field_147909_c.renderFaceYNeg(elevator, -0.5D,
+                    -0.5D,
+                    -0.5D, BlockTransportBase.getIconSideOverlay());
+        }
+        if ((overlay & 2) == 2){
+            field_147909_c.renderFaceYPos(elevator, -0.5D,
+                    -0.5D,
+                    -0.5D, BlockTransportBase.getIconSideOverlay());
+        }
+        if ((overlay & 4) == 4){
+            field_147909_c.renderFaceZNeg(elevator, -0.5D,
+                    -0.5D,
+                    -0.5D, BlockTransportBase.getIconSideOverlay());
+        }
+        if ((overlay & 8) == 8){
+            field_147909_c.renderFaceZPos(elevator, -0.5D,
+                    -0.5D,
+                    -0.5D, BlockTransportBase.getIconSideOverlay());
+        }
+        if ((overlay & 16) == 16){
+            field_147909_c.renderFaceXNeg(elevator, -0.5D,
+                    -0.5D,
+                    -0.5D, BlockTransportBase.getIconSideOverlay());
+        }
+        if ((overlay & 32) == 32){
+            field_147909_c.renderFaceXPos(elevator, -0.5D,
+                    -0.5D,
+                    -0.5D, BlockTransportBase.getIconSideOverlay());
+        }
+
         tessellator.draw();
+
+
     }
 
     public void doRenderElevator(EntityElevator elevator, double d, double d1, double d2, float f, float f1) {
@@ -135,7 +170,7 @@ public class RenderElevator extends Render {
         bindTexture(TextureMap.locationBlocksTexture);
 
         // int textureData[] = elevator.getTextureData();
-        ItemStack camoItem = elevator.getDataWatcher().getWatchableObjectItemStack(4);
+        ItemStack camoItem = elevator.getCamoItem();
         IIcon textureData[] = new IIcon[6];
         if (camoItem != null && camoItem.getItem() != null) {
             for (int i = 0; i < 6; i++) {
@@ -157,7 +192,8 @@ public class RenderElevator extends Render {
                              MathHelper.floor_double(elevator.posX),
                              MathHelper.floor_double(elevator.posY),
                              MathHelper.floor_double(elevator.posZ),
-                             textureData);
+                             textureData,
+                elevator.getOverlay());
         GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glPopMatrix();
     }

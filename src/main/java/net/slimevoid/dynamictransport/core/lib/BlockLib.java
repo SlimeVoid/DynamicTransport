@@ -27,6 +27,8 @@ public class BlockLib {
     public static final String  ITEM_ELEVATOR_TOOL         = PREFIX
                                                              + ".elevatortool";
     public static final int     BLOCK_TRANSIT_ID           = 0;
+    public static final String BLOCK_ELEVATOR_SENSOR = BLOCK_TRANSPORT_PREFIX
+            + ".sensor";
 
     public static IIcon[][] registerIcons(IIconRegister iconRegister, IIcon[][] iconList) {
         iconList[BLOCK_ELEVATOR_ID][1] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
@@ -103,4 +105,12 @@ public class BlockLib {
                                                                        + ".side");
         return iconList;
     }
+    public static IIcon[] registerIconOverLays(IIconRegister iconRegister, IIcon[] iconList) {
+        iconList[0] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
+                + ":"
+                + BLOCK_ELEVATOR
+                + ".overlay");
+    return iconList;
+    }
+
 }

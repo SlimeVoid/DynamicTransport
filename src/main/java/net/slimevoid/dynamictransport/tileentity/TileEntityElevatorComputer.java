@@ -41,7 +41,6 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
     public boolean                         pendingMaintenance  = false;
     private float                          elevatorSpeed       = ConfigurationLib.elevatorMaxSpeed;
     private boolean                        isHaltable;
-    private boolean                        mobilePower;
 
     public boolean addElevator(ChunkCoordinates elevator, EntityPlayer entityplayer) {
         if (this.mode == ElevatorMode.Maintenance
@@ -401,8 +400,8 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
                                           this.elevatorSpeed,
                                           new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord + 0),
                                           this.isHaltable,
-                                          centerElevator,
-                                          this.mobilePower);
+                                          centerElevator
+                                          );
                 worldObj.spawnEntityInWorld(curElevator);
             } else {
             	itr.remove();
