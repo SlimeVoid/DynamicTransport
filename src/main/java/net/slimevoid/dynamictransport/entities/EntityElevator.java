@@ -151,9 +151,10 @@ public class EntityElevator extends Entity {
     public void setDead() {
         int x = MathHelper.floor_double(this.posX);
         int z = MathHelper.floor_double(this.posZ);
-        // put the elevator directly where the dest Y is
-        int y = this.getTargetY();
-
+        int y =  MathHelper.floor_double(this.posY);
+        if (Math.abs(y -  this.getTargetY()) < 1){
+            y = this.getTargetY();
+        }
         boolean blockPlaced = !this.worldObj.isRemote
                               && (this.worldObj.getBlock(x,
                                                          y,
