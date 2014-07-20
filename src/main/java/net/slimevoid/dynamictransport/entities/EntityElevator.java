@@ -182,9 +182,9 @@ public class EntityElevator extends Entity {
                     tile.setParentElevatorComputer(this.computerPos);
                     if (this.getCamoItem() != null) {
                         tile.setCamoItem(this.getCamoItem());
-                        tile.setOverlay(this.getOverlay());
                     }
                     tile.setYOffset(this.getElevatorYOffset());
+                    tile.setOverlay(this.getOverlay());
                 }
             } else {
                 this.entityDropItem(new ItemStack(ConfigurationLib.blockTransportBase, 1, BlockLib.BLOCK_ELEVATOR_ID),
