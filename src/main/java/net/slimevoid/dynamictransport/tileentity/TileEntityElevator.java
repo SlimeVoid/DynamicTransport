@@ -52,7 +52,6 @@ public class TileEntityElevator extends TileEntityTransportBase {
         return minY;
     }
 
-
     public boolean onBlockActivated(EntityPlayer entityplayer, int side, float xHit, float yHit, float zHit) {
         if (this.getWorldObj().isRemote) {
             return true;
@@ -160,7 +159,7 @@ public class TileEntityElevator extends TileEntityTransportBase {
                                           "slimevoid.DT.elevatorBlock.bindMissingElevator");
             heldItem.setTagCompound(tags);
         }
-
+        this.updateBlock();
     }
 
     @Override
@@ -221,7 +220,7 @@ public class TileEntityElevator extends TileEntityTransportBase {
 
     public void RemoveComputer(ChunkCoordinates chunkCoordinates) {
         this.ParentElevatorComputer = null;
-
+        this.updateBlock();
     }
 
     @Override

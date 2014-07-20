@@ -167,9 +167,8 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
     }
 
     public void removeParent() {
-
         this.parentTransportBase = null;
-
+        this.updateBlock();
     }
 
     public void setParentComputer(ChunkCoordinates ComputerLocation, EntityPlayer entityplayer) {
@@ -201,7 +200,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
                                           "slimevoid.DT.dynamicMarker.bindMissingElevator");
             heldItem.setTagCompound(tags);
         }
-
+        this.updateBlock();
     }
 
     @Override
