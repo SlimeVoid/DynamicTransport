@@ -286,20 +286,21 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
     @Override
     public boolean removeBlockByPlayer(EntityPlayer player, BlockBase blockBase) {
         for (ChunkCoordinates boundElevator : this.boundElevatorBlocks) {
-            TileEntity eleTile = this.worldObj.getTileEntity(boundElevator.posY,
+            TileEntityElevator eleTile = (TileEntityElevator)BlockHelper.getTileEntity(this.getWorldObj(),boundElevator.posY,
                                                              this.elevatorPos
                                                                      + boundElevator.posY,
-                                                             boundElevator.posZ);
+                                                             boundElevator.posZ,      TileEntityElevator.class);
             if (eleTile != null) {
-                ((TileEntityElevator) eleTile).RemoveComputer(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord));
+                 eleTile.RemoveComputer(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord));
             }
         }
         for (ChunkCoordinates boundFloorMarker : this.boundMarkerBlocks) {
-            TileEntity markerTile = this.worldObj.getTileEntity(boundFloorMarker.posX,
+            TileEntityFloorMarker markerTile = (TileEntityFloorMarker)BlockHelper.getTileEntity(this.getWorldObj(),boundFloorMarker.posX,
                                                                 boundFloorMarker.posY,
-                                                                boundFloorMarker.posZ);
+                                                                boundFloorMarker.posZ,
+                    TileEntityFloorMarker.class);
             if (markerTile != null) {
-                ((TileEntityFloorMarker) markerTile).removeParent();
+                 markerTile.removeParent();
             }
         }
         return super.removeBlockByPlayer(player,
