@@ -8,7 +8,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -27,8 +26,6 @@ import net.slimevoid.library.data.Logger;
 import net.slimevoid.library.data.LoggerSlimevoidLib;
 import net.slimevoid.library.tileentity.TileEntityBase;
 import net.slimevoid.library.util.helpers.BlockHelper;
-
-import java.util.Random;
 
 public class BlockTransportBase extends BlockBase {
 
@@ -49,7 +46,7 @@ public class BlockTransportBase extends BlockBase {
 
         return this.iconList[metadata][side];
 
-    }
+   }
 
     @Override
     public void registerIcons(IIconRegister iconRegister) {
@@ -64,7 +61,7 @@ public class BlockTransportBase extends BlockBase {
     public boolean shouldCheckWeakPower(IBlockAccess world, int x, int y, int z, int side) {
         return world.getBlockMetadata(x,
                 y,
-                z) == BlockLib.BLOCK_DYNAMIC_MARK_ID ? false : super.shouldCheckWeakPower(world,
+                z) != BlockLib.BLOCK_DYNAMIC_MARK_ID && super.shouldCheckWeakPower(world,
                 x,
                 y,
                 z,
@@ -227,7 +224,7 @@ public class BlockTransportBase extends BlockBase {
                         break;
                     case BlockLib.BLOCK_DYNAMIC_MARK_ID:
                         TileEntityFloorMarker marker = (TileEntityFloorMarker) BlockHelper.getTileEntity(world, x, y, z, TileEntityFloorMarker.class);
-                        if (marker != null && marker.getParentChunkCoords().equals(possibleComputer)) {
+                        if (marker != null && marker.getParentChunkCoords() != null && marker.getParentChunkCoords().equals(possibleComputer)) {
                             return ConfigurationLib.MarkerMaintenanceHighlight;
                         }
                         break;

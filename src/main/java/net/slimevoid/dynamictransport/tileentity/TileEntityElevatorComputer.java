@@ -21,6 +21,7 @@ import net.slimevoid.library.blocks.BlockBase;
 import net.slimevoid.library.util.helpers.BlockHelper;
 import net.slimevoid.library.util.helpers.ChatHelper;
 
+@SuppressWarnings("MalformedFormatString")
 public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
     public enum ElevatorMode {
@@ -40,7 +41,8 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
     private int                            elevatorPos;
     public boolean                         pendingMaintenance  = false;
     private float                          elevatorSpeed       = ConfigurationLib.elevatorMaxSpeed;
-    private boolean                        isHaltable;
+    @SuppressWarnings("FieldCanBeLocal")
+    private boolean                        isHaltAble = false;
 
     public boolean addElevator(ChunkCoordinates elevator, EntityPlayer entityplayer) {
         if (this.mode == ElevatorMode.Maintenance
@@ -145,11 +147,11 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
                             if (this.elevatorName != null
                                 && !this.elevatorName.isEmpty()) {
                                 ChatHelper.addMessageToPlayer(entityplayer,
-                                                              String.format("Block Succesfully Bound to Elevator: %0$s.",
+                                                              String.format("Block Successfully Bound to Elevator: %0$s.",
                                                                             this.elevatorName));
                             } else {
                                 ChatHelper.addMessageToPlayer(entityplayer,
-                                                              "Block Succesfully Bound to Elevator");
+                                                              "Block Successfully Bound to Elevator");
                             }
                             this.updateBlock();
                             return true;
@@ -202,11 +204,11 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
         } else {
             if (this.elevatorName != null && !this.elevatorName.isEmpty()) {
                 ChatHelper.addMessageToPlayer(entityplayer,
-                                              String.format("You are no longer the Technition for the Elevator %0$s",
+                                              String.format("You are no longer the Technician for the Elevator %0$s",
                                                             this.elevatorName));
             } else {
                 ChatHelper.addMessageToPlayer(entityplayer,
-                                              String.format("You are no longer the Technition for the Elevator at %0$s, %1$s ,%2$s",
+                                              String.format("You are no longer the Technician for the Elevator at %0$s, %1$s ,%2$s",
                                                             this.xCoord,
                                                             this.yCoord,
                                                             this.zCoord));
@@ -276,8 +278,6 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
                 }
                 heldItem.setTagCompound(tags);
                 this.updateBlock();
-            } else {
-                // open GUI
             }
         }
         return false;
@@ -286,7 +286,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
     @Override
     public boolean removeBlockByPlayer(EntityPlayer player, BlockBase blockBase) {
         for (ChunkCoordinates boundElevator : this.boundElevatorBlocks) {
-            TileEntityElevator eleTile = (TileEntityElevator)BlockHelper.getTileEntity(this.getWorldObj(),boundElevator.posY,
+            TileEntityElevator eleTile = (TileEntityElevator)BlockHelper.getTileEntity(this.getWorldObj(),boundElevator.posX,
                                                              this.elevatorPos
                                                                      + boundElevator.posY,
                                                              boundElevator.posZ,      TileEntityElevator.class);
@@ -395,12 +395,12 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
                 EntityElevator curElevator = new EntityElevator(worldObj, pos.posX, this.elevatorPos
                                                                                     + pos.posY, pos.posZ);
-                if (itr.previousIndex() == 0) centerElevator = curElevator.getEntityId();
+                if (centerElevator == -1) centerElevator = curElevator.getEntityId();
                 curElevator.setProperties(i,
                                           floorname,
                                           this.elevatorSpeed,
-                                          new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord + 0),
-                                          this.isHaltable,
+                                          new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord),
+                                          this.isHaltAble,
                                           centerElevator
                                           );
                 worldObj.spawnEntityInWorld(curElevator);
@@ -414,7 +414,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
     private boolean validElevatorBlock(int x, int y, int z) {
         TileEntity tile = this.worldObj.getTileEntity(x,
                                                       y,
-                                                      z + 0);
+                                                      z);
         if (tile != null && tile instanceof TileEntityElevator) {
             if (((TileEntityElevator) tile).getParentElevatorComputer() != null) {
                 ChunkCoordinates thisCoords = new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord);
@@ -447,7 +447,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
         }
 
         if (elevatorName != null && !elevatorName.isEmpty()) nbttagcompound.setString("ElevatorName",
-                                                                                      elevatorName);
+                                                                                      this.elevatorName);
         nbttagcompound.setIntArray("BoundMarkerBlocksX",
                                    BoundMarkerBlocksX);
         nbttagcompound.setIntArray("BoundMarkerBlocksY",
@@ -475,7 +475,8 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
         nbttagcompound.setInteger("Mode",
                                   mode.ordinal());
         nbttagcompound.setInteger("ElevPos",
-                                  this.elevatorPos);
+                this.elevatorPos);
+
         if (curTechnicianName != null && !curTechnicianName.isEmpty()) nbttagcompound.setString("CurTechnicianName",
                                                                                                 curTechnicianName);
 
@@ -512,12 +513,12 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
         this.curTechnicianName = nbttagcompound.getString("CurTechnicianName");
 
-        elevatorName = nbttagcompound.getString("ElevatorName");
+        this.elevatorName = nbttagcompound.getString("ElevatorName");
 
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public String getElevatorName() {
-        // TODO Auto-generated method stub
         return this.elevatorName;
     }
 
@@ -560,9 +561,9 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
     }
 
-    public void elevatorArrived(int dest, boolean center) {
-        this.elevatorPos = dest;
-        this.floorSpool.remove(dest);
+    public void elevatorArrived(int destination) {
+        this.elevatorPos = destination;
+        this.floorSpool.remove(destination);
         if (this.pendingMaintenance) {
             if (this.elevatorPos == (this.yCoord + 1)) {
                 this.pendingMaintenance = false;
@@ -584,13 +585,12 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public int getElevatorPos() {
-        // TODO Auto-generated method stub
         return this.elevatorPos;
     }
 
     public ElevatorMode getElevatorMode() {
-        // TODO Auto-generated method stub
         return this.mode;
     }
 
@@ -612,15 +612,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
                 }
             }
         }
-        if (shouldCheckComputer) {
-            return MathHelper.sqrt_double(Math.pow((double) this.xCoord
-                                                           - (double) bindingBlock.posX,
-                                                   2)
-                                          + Math.pow((double) this.zCoord
-                                                             - (double) bindingBlock.posZ,
-                                                     2)) <= ConfigurationLib.MaxBindingRange;
-        }
-        return false;
+        return shouldCheckComputer && MathHelper.sqrt_double(Math.pow((double) this.xCoord - (double) bindingBlock.posX, 2) + Math.pow((double) this.zCoord - (double) bindingBlock.posZ, 2)) <= ConfigurationLib.MaxBindingRange;
     }
 
     public SortedMap<Integer, ArrayList<String>> getFloorList() {
@@ -637,7 +629,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
                         floors.put(floorY,
                                    new ArrayList<String>());
                     }
-                    if (floorName != null && floorName.trim() != "") {
+                    if (floorName != null && !floorName.trim().equals("")) {
                         floors.get(floorY).add(floorName);
                     }
                 }

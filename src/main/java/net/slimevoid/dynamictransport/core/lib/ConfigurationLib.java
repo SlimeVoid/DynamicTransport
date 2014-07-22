@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.block.Block;
 import net.minecraftforge.common.config.Configuration;
 import net.slimevoid.dynamictransport.blocks.BlockPoweredLight;
 import net.slimevoid.dynamictransport.blocks.BlockTransportBase;
@@ -23,7 +22,6 @@ public class ConfigurationLib {
     public static float              elevatorMaxSpeed;
     public static int                MaxBindingRange = 3;
     public static BlockPoweredLight[] blockPoweredLight;
-    @SideOnly(Side.CLIENT)
     public static int ElevatorRenderId;
     @SideOnly(Side.CLIENT)
     public static Integer ElevatorMaintenanceHighlight;
@@ -46,10 +44,10 @@ public class ConfigurationLib {
 
         configuration.save();
 
+        ElevatorRenderId = RenderingRegistry.getNextAvailableRenderId();
     }
 
     public static void ClientConfig() {
-        ElevatorRenderId = RenderingRegistry.getNextAvailableRenderId();
         useClientMotionTick = configuration.get("Client",
                                                 "useClientMotionTickHandler",
                                                 false).getBoolean(false);
