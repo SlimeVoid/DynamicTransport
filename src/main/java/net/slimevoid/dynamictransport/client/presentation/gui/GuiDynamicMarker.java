@@ -126,9 +126,11 @@ public class GuiDynamicMarker extends GuiContainer {
                             this.getContainer().getMarker().zCoord);
                     break;
                 case 1:
+                    if (this.floorY > getContainer().getMarker().yCoord -2)
                     this.floorY -= 1;
                     break;
                 case 2:
+                    if (this.floorY < getContainer().getMarker().yCoord +2)
                     this.floorY += 1;
                     break;
         }
