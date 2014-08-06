@@ -13,8 +13,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.slimevoid.dynamictransport.blocks.BlockTransportBase;
 import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
-import net.slimevoid.dynamictransport.entities.EntityElevator;
 
+import net.slimevoid.dynamictransport.entities.EntityElevatorPart;
 import org.lwjgl.opengl.GL11;
 
 public class RenderElevator extends Render {
@@ -157,7 +157,7 @@ public class RenderElevator extends Render {
 
     }
 
-    public void doRenderElevator(EntityElevator elevator, double d, double d1, double d2, float f, float f1) {
+    public void doRenderElevator(EntityElevatorPart elevator, double d, double d1, double d2, float f, float f1) {
         if (elevator.ticksExisted <= 1) return;
         GL11.glPushMatrix();
         Block block = ConfigurationLib.blockTransportBase;
@@ -169,7 +169,6 @@ public class RenderElevator extends Render {
         // GL11.glScalef(-1F, -1F, 1.0F); - ceilings?
         bindTexture(TextureMap.locationBlocksTexture);
 
-        // int textureData[] = elevator.getTextureData();
         ItemStack camoItem = elevator.getCamoItem();
         IIcon textureData[] = new IIcon[6];
         if (camoItem != null && camoItem.getItem() != null) {
@@ -200,7 +199,7 @@ public class RenderElevator extends Render {
 
     @Override
     public void doRender(Entity entity, double d, double d1, double d2, float f, float f1) {
-        doRenderElevator((EntityElevator) entity,
+        doRenderElevator((EntityElevatorPart) entity,
                          d,
                          d1,
                          d2,

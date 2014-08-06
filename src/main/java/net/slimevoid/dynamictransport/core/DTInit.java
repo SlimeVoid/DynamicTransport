@@ -1,6 +1,8 @@
 package net.slimevoid.dynamictransport.core;
 
 import net.slimevoid.dynamictransport.core.lib.CoreLib;
+import net.slimevoid.dynamictransport.entities.EntityElevatorPart;
+import net.slimevoid.dynamictransport.entities.EntityMasterElevator;
 import net.slimevoid.library.core.*;
 import cpw.mods.fml.common.registry.EntityRegistry;
 
@@ -23,13 +25,20 @@ public class DTInit {
     }
 
     public static void initialize() {
-        EntityRegistry.registerModEntity(net.slimevoid.dynamictransport.entities.EntityElevator.class,
+        EntityRegistry.registerModEntity(EntityMasterElevator.class,
                                          "delv",
                                          0,
                                          DynamicTransportMod.instance,
                                          400,
                                          1,
                                          true);
+        EntityRegistry.registerModEntity(EntityElevatorPart.class,
+                "delvp",
+                1,
+                DynamicTransportMod.instance,
+                400,
+                1,
+                true);
 
         DynamicTransportMod.proxy.registerTickHandlers();
         DynamicTransportMod.proxy.registerEventHandlers();

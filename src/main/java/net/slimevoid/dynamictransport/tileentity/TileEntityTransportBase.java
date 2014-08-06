@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import net.slimevoid.library.blocks.BlockBase;
 import net.slimevoid.library.tileentity.TileEntityBase;
 import net.slimevoid.library.util.helpers.ItemHelper;
@@ -55,7 +56,7 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
 
     @Override
     public float getBlockHardness(BlockBase blockBase) {
-        return 1.0f; // TODO :: Real Block Hardness
+        return 1.0f;
     }
 
     @Override
@@ -98,6 +99,7 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
         this.camoItem = itemstack;
         this.camoItem.stackSize = 1;
         this.updateBlock();
+        this.getWorldObj().notifyBlockChange(this.xCoord,this.yCoord,this.zCoord, ConfigurationLib.blockTransportBase);
     }
 
     protected void removeCamoItem() {

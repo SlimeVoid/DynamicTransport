@@ -104,25 +104,21 @@ public class BlockTransportBase extends BlockBase {
 
     @Override
     public IIcon[] registerBottomIcons(IIconRegister iconRegister) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public IIcon[] registerTopIcons(IIconRegister iconRegister) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public IIcon[] registerFrontIcons(IIconRegister iconRegister) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public IIcon[] registerSideIcons(IIconRegister iconRegister) {
-        // TODO Auto-generated method stub
         return null;
     }
 

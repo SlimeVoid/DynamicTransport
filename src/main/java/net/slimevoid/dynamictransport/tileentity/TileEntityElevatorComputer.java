@@ -16,7 +16,7 @@ import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.MathHelper;
 import net.slimevoid.dynamictransport.core.lib.BlockLib;
 import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
-import net.slimevoid.dynamictransport.entities.EntityElevator;
+import net.slimevoid.dynamictransport.entities.EntityMasterElevator;
 import net.slimevoid.library.blocks.BlockBase;
 import net.slimevoid.library.util.helpers.BlockHelper;
 import net.slimevoid.library.util.helpers.ChatHelper;
@@ -383,33 +383,24 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
     }
 
     private void doCallElevator(int i, String floorname) {
-        // call elevator now
-        int centerElevator = -1;
-        this.mode = i> this.elevatorPos?ElevatorMode.TransitUp:ElevatorMode.TransitDown;
-        ListIterator<ChunkCoordinates> itr = this.boundElevatorBlocks.listIterator();
-        while (itr.hasNext() ) {
-        	ChunkCoordinates pos =  itr.next();
-            if (validElevatorBlock(pos.posX,
-                                   this.elevatorPos + pos.posY,
-                                   pos.posZ)) {
+        this.mode = i > this.elevatorPos ? ElevatorMode.TransitUp : ElevatorMode.TransitDown;
 
-                EntityElevator curElevator = new EntityElevator(worldObj, pos.posX, this.elevatorPos
-                                                                                    + pos.posY, pos.posZ);
-                if (centerElevator == -1) centerElevator = curElevator.getEntityId();
-                curElevator.setProperties(i,
-                                          floorname,
-                                          this.elevatorSpeed,
-                                          new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord),
-                                          this.isHaltAble,
-                                          centerElevator
-                                          );
-                worldObj.spawnEntityInWorld(curElevator);
-            } else {
-            	itr.remove();
-            }
-        }
+
+        EntityMasterElevator curElevator = new EntityMasterElevator(worldObj, this.xCoord, this.elevatorPos,
+                this.zCoord);
+        worldObj.spawnEntityInWorld(curElevator);
+        curElevator.setProperties(i,
+                floorname,
+                this.elevatorSpeed,
+                new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord),
+                this.isHaltAble,
+                this.boundElevatorBlocks
+        );
+
 
     }
+
+
 
     private boolean validElevatorBlock(int x, int y, int z) {
         TileEntity tile = this.worldObj.getTileEntity(x,

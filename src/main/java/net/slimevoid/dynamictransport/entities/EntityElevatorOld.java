@@ -19,7 +19,7 @@ import net.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
 import net.slimevoid.library.util.helpers.BlockHelper;
 import net.slimevoid.library.util.helpers.ChatHelper;
 
-public class EntityElevator extends Entity {
+public class EntityElevatorOld extends Entity {
     // Constants
     protected static final float elevatorAccel          = 0.01F;
     protected static final float minElevatorMovingSpeed = 0.016F;
@@ -44,28 +44,28 @@ public class EntityElevator extends Entity {
     protected byte               stillCount             = 0;
     protected boolean            slowingDown            = false;
 
-    public EntityElevator(World world) {
+    public EntityElevatorOld(World world) {
         super(world);
         this.preventEntitySpawning = true;
         this.isImmuneToFire = true;
         this.entityCollisionReduction = 1.0F;
         this.ignoreFrustumCheck = true;
         this.setSize(0.5F,
-                     0.5F);
+                0.5F);
 
         this.motionX = 0.0D;
         this.motionY = 0.0D;
         this.motionZ = 0.0D;
     }
 
-    public EntityElevator(World world, double i, double j, double k) {
+    public EntityElevatorOld(World world, double i, double j, double k) {
         this(world);
         this.prevPosX = i + 0.5F;
         this.prevPosY = j + 0.5F;
         this.prevPosZ = k + 0.5F;
         this.setPosition(prevPosX,
-                         prevPosY,
-                         prevPosZ);
+                prevPosY,
+                prevPosZ);
 
         this.isNotifierElevator = false;
 
@@ -83,7 +83,7 @@ public class EntityElevator extends Entity {
 
     public int getTargetY() {
         return this.getDataWatcher().getWatchableObjectInt(2)
-               + this.getDataWatcher().getWatchableObjectInt(5);
+                + this.getDataWatcher().getWatchableObjectInt(5);
     }
 
     public float getMaximumSpeed() {
@@ -100,30 +100,32 @@ public class EntityElevator extends Entity {
 
     protected void setDestinationY(int destinationY) {
         this.getDataWatcher().updateObject(2,
-                                           destinationY);
+                destinationY);
     }
 
     protected void setYOffset(int yOffset) {
         this.getDataWatcher().updateObject(5,
-                                           yOffset);
+                yOffset);
     }
 
     protected void setMaximumSpeed(float speed) {
         this.getDataWatcher().updateObject(3,
-                                           speed);
+                speed);
     }
 
     protected void setCamoItem(ItemStack itemstack) {
         this.getDataWatcher().updateObject(4,
-                                           itemstack);
+                itemstack);
     }
 
     public void setOverlay(Short overlay){
-         this.getDataWatcher().updateObject(7,overlay);
+        this.getDataWatcher().updateObject(7,overlay);
     }
+
     public void setWaitToAccelerate(byte value) {
         this.getDataWatcher().updateObject(6, value);
     }
+
     public byte getWaitToAccelerate() {
         return this.getDataWatcher().getWatchableObjectByte(6);
     }
@@ -133,9 +135,9 @@ public class EntityElevator extends Entity {
         this.getDataWatcher().addObject(2,
                 -1);
         this.getDataWatcher().addObject(3,
-                                        0f);
+                0f);
         this.getDataWatcher().addObjectByDataType(4,
-                                                  5);
+                5);
         this.getDataWatcher().addObject(5,
                 -1);
         this.getDataWatcher().addObject(6,
@@ -153,28 +155,28 @@ public class EntityElevator extends Entity {
             y = this.getTargetY();
         }
         boolean blockPlaced = !this.worldObj.isRemote
-                              && (this.worldObj.getBlock(x,
-                                                         y,
-                                                         z) == ConfigurationLib.blockTransportBase || this.worldObj.canPlaceEntityOnSide(ConfigurationLib.blockTransportBase,
-                                                                                                                                         x,
-                                                                                                                                         y,
-                                                                                                                                         z,
-                                                                                                                                         true,
-                                                                                                                                         1,
-                                                                                                                                         null,
-                                                                                                                                         null)
-                                                                                                      && this.worldObj.setBlock(x,
-                                                                                                                                y,
-                                                                                                                                z,
-                                                                                                                                ConfigurationLib.blockTransportBase,
-                                                                                                                                BlockLib.BLOCK_ELEVATOR_ID,
-                                                                                                                                3));
+                && (this.worldObj.getBlock(x,
+                y,
+                z) == ConfigurationLib.blockTransportBase || this.worldObj.canPlaceEntityOnSide(ConfigurationLib.blockTransportBase,
+                x,
+                y,
+                z,
+                true,
+                1,
+                null,
+                null)
+                && this.worldObj.setBlock(x,
+                y,
+                z,
+                ConfigurationLib.blockTransportBase,
+                BlockLib.BLOCK_ELEVATOR_ID,
+                3));
 
         if (!this.worldObj.isRemote) {
             if (blockPlaced) {
                 TileEntityElevator tile = (TileEntityElevator) this.worldObj.getTileEntity(x,
-                                                                                           y,
-                                                                                           z);
+                        y,
+                        z);
                 if (tile != null) {
                     tile.setParentElevatorComputer(this.computerPos);
                     if (this.getCamoItem() != null) {
@@ -185,7 +187,7 @@ public class EntityElevator extends Entity {
                 }
             } else {
                 this.entityDropItem(new ItemStack(ConfigurationLib.blockTransportBase, 1, BlockLib.BLOCK_ELEVATOR_ID),
-                                    0.0F);
+                        0.0F);
             }
         }
         this.updateRiders(true);
@@ -193,24 +195,24 @@ public class EntityElevator extends Entity {
         if (!this.worldObj.isRemote) {
             if (this.isNotifierElevator) {
                 if (this.elevatorName != null
-                    && !this.elevatorName.trim().equals("")) {
+                        && !this.elevatorName.trim().equals("")) {
 
                     ChatHelper.sendChatMessageToAllNear(this.worldObj,
-                                                        (int) this.posX,
-                                                        (int) this.posY,
-                                                        (int) this.posZ,
-                                                        4,
-                                                        "slimevoid.DT.entityElevator.arriveWithName",
-                                                        this.elevatorName,
-                                                        this.destFloorName);
+                            (int) this.posX,
+                            (int) this.posY,
+                            (int) this.posZ,
+                            4,
+                            "slimevoid.DT.entityElevator.arriveWithName",
+                            this.elevatorName,
+                            this.destFloorName);
                 } else {
                     ChatHelper.sendChatMessageToAllNear(this.worldObj,
-                                                        (int) this.posX,
-                                                        (int) this.posY,
-                                                        (int) this.posZ,
-                                                        4,
-                                                        "slimevoid.DT.entityElevator.arrive",
-                                                        this.destFloorName);
+                            (int) this.posX,
+                            (int) this.posY,
+                            (int) this.posZ,
+                            4,
+                            "slimevoid.DT.entityElevator.arrive",
+                            this.destFloorName);
                 }
 
             }
@@ -228,8 +230,8 @@ public class EntityElevator extends Entity {
         // on first update remove blocks
         if (!this.worldObj.isRemote && this.ticksExisted == 1) {
             this.removeElevatorBlock(x,
-                                     y,
-                                     z);
+                    y,
+                    z);
         }
 
         if (this.getDestinationY() == -1) {
@@ -278,7 +280,7 @@ public class EntityElevator extends Entity {
             } else {
                 elevatorSpeed = minElevatorMovingSpeed;
             }
-           this.setWaitToAccelerate((byte)(this.getWaitToAccelerate()+1));
+            this.setWaitToAccelerate((byte)(this.getWaitToAccelerate()+1));
 
         } else {
             float maxElevatorSpeed = this.getMaximumSpeed();
@@ -289,10 +291,10 @@ public class EntityElevator extends Entity {
             // Calculate elevator range to break
 
             if (!this.slowingDown
-                && MathHelper.abs((float) (destY - posY)) >= (tempSpeed
-                                                              * tempSpeed - minElevatorMovingSpeed
-                                                                            * minElevatorMovingSpeed)
-                                                             / (2 * elevatorAccel)) {
+                    && MathHelper.abs((float) (destY - posY)) >= (tempSpeed
+                    * tempSpeed - minElevatorMovingSpeed
+                    * minElevatorMovingSpeed)
+                    / (2 * elevatorAccel)) {
                 // if current destination is further away than this range and <
                 // max speed, continue to accelerate
                 elevatorSpeed = tempSpeed;
@@ -311,7 +313,7 @@ public class EntityElevator extends Entity {
         }
         // check whether at the destination or not
         boolean atDestination = this.onGround
-                                || (MathHelper.abs((float) (destY - this.posY)) < elevatorSpeed);
+                || (MathHelper.abs((float) (destY - this.posY)) < elevatorSpeed);
         if (destY < 1 || destY > this.worldObj.getHeight()) {
             atDestination = true;
         }
@@ -324,8 +326,8 @@ public class EntityElevator extends Entity {
             return;
         }
         this.moveEntity(this.motionX,
-                        this.motionY,
-                        this.motionX);
+                this.motionY,
+                this.motionX);
     }
 
     @Override
@@ -336,11 +338,11 @@ public class EntityElevator extends Entity {
     @Override
     public AxisAlignedBB getBoundingBox() {
         return AxisAlignedBB.getBoundingBox(this.posX - 0.5,
-                                            this.posY - 0.5,
-                                            this.posZ - 0.5,
-                                            this.posX + 0.5,
-                                            this.posY + 0.5,
-                                            this.posZ + 0.5);
+                this.posY - 0.5,
+                this.posZ - 0.5,
+                this.posX + 0.5,
+                this.posY + 0.5,
+                this.posZ + 0.5);
     }
 
     @Override
@@ -356,32 +358,32 @@ public class EntityElevator extends Entity {
     @Override
     protected void writeEntityToNBT(NBTTagCompound nbttagcompound) {
         nbttagcompound.setInteger("destY",
-                                  this.getDestinationY());
+                this.getDestinationY());
         if (this.destFloorName != null && !this.destFloorName.trim().isEmpty()) {
             nbttagcompound.setString("destName",
-                                     this.destFloorName);
+                    this.destFloorName);
         }
         nbttagcompound.setInteger("yOffset",
-                                  this.getElevatorYOffset());
+                this.getElevatorYOffset());
         nbttagcompound.setBoolean("emerHalt",
-                                  this.emerHalt);
+                this.emerHalt);
         nbttagcompound.setBoolean("isCenter",
-                                  isNotifierElevator);
+                isNotifierElevator);
         nbttagcompound.setInteger("ComputerX",
-                                  this.computerPos.posX);
+                this.computerPos.posX);
         nbttagcompound.setInteger("ComputerY",
-                                  this.computerPos.posY);
+                this.computerPos.posY);
         nbttagcompound.setInteger("ComputerZ",
-                                  this.computerPos.posZ);
+                this.computerPos.posZ);
         nbttagcompound.setFloat("TopSpeed",
-                                this.getMaximumSpeed());
+                this.getMaximumSpeed());
 
         if (this.getCamoItem() != null) {
             NBTTagCompound itemNBTTagCompound = new NBTTagCompound();
             this.getCamoItem().writeToNBT(itemNBTTagCompound);
 
             nbttagcompound.setTag("CamoItem",
-                                  itemNBTTagCompound);
+                    itemNBTTagCompound);
         }
 
         nbttagcompound.setShort("overlay", this.getOverlay());
@@ -414,10 +416,10 @@ public class EntityElevator extends Entity {
                 Entity rider = this.worldObj.getEntityByID(entityID);
                 if (rider != null) {
                     rider.boundingBox.offset(0,
-                                             this.getMountedYOffset(),
-                                             0);
+                            this.getMountedYOffset(),
+                            0);
                     rider.posY = this.getBoundingBox().maxY
-                                 + this.getMountedYOffset() + rider.yOffset;
+                            + this.getMountedYOffset() + rider.yOffset;
                     rider.isAirBorne = false;
                     rider.onGround = true;
                     rider.fallDistance = 0;
@@ -432,24 +434,24 @@ public class EntityElevator extends Entity {
         Set<Entity> potentialRiders = new HashSet<Entity>();
         //Only scan any entities that are above the elevators current position for initial scan
         AxisAlignedBB boundBox = this.getBoundingBox().offset(0,
-                                                              1.5,
-                                                              0).expand(0,
-                                                                        1.0,
-                                                                        0);
+                1.5,
+                0).expand(0,
+                1.0,
+                0);
         potentialRiders.addAll(this.worldObj.getEntitiesWithinAABBExcludingEntity(this,
-                                                                                  boundBox));
+                boundBox));
         for (Entity rider : potentialRiders) {
-            if (!(rider instanceof EntityElevator) && !rider.isRiding()
-                && !this.confirmedRiders.contains(rider.getEntityId())) {
+            if (!(rider instanceof EntityElevatorOld) && !rider.isRiding()
+                    && !this.confirmedRiders.contains(rider.getEntityId())) {
 
                 if (rider instanceof EntityPlayer && ((EntityPlayer)rider).capabilities.isFlying){
                     continue;
                 }
 
                 double yPos = (this.posY + this.getMountedYOffset())
-                              - rider.boundingBox.minY;
+                        - rider.boundingBox.minY;
                 rider.motionY = this.motionY < 0 ? this.motionY : Math.max(yPos,
-                                                                           rider.motionY);
+                        rider.motionY);
                 rider.isAirBorne = true;
                 rider.onGround = true;
                 rider.fallDistance = 0;
@@ -461,13 +463,13 @@ public class EntityElevator extends Entity {
 
     protected boolean isRiding(Entity rider) {
         return rider != null
-               && !rider.isRiding()
-               && rider.boundingBox.maxX >= this.getBoundingBox().minX
-               && rider.boundingBox.minX <= this.getBoundingBox().maxX
-               && rider.boundingBox.maxZ >= this.getBoundingBox().minZ
-               && rider.boundingBox.minZ <= this.getBoundingBox().maxZ
-               && rider.boundingBox.minY <= (this.posY
-                                             + this.getMountedYOffset() + 2.0);
+                && !rider.isRiding()
+                && rider.boundingBox.maxX >= this.getBoundingBox().minX
+                && rider.boundingBox.minX <= this.getBoundingBox().maxX
+                && rider.boundingBox.maxZ >= this.getBoundingBox().minZ
+                && rider.boundingBox.minZ <= this.getBoundingBox().maxZ
+                && rider.boundingBox.minY <= (this.posY
+                + this.getMountedYOffset() + 2.0);
     }
 
     protected void updateConfirmedRiders() {
@@ -478,16 +480,16 @@ public class EntityElevator extends Entity {
 
                 if (isRiding(rider)) {
                     double yPos = (this.posY + this.getMountedYOffset())
-                                  - rider.boundingBox.minY;
+                            - rider.boundingBox.minY;
                     double yDif = Math.abs(this.posY + this.getMountedYOffset()
-                                           - rider.boundingBox.minY);
+                            - rider.boundingBox.minY);
                     if (yDif < 1.0) {
                         rider.motionY = this.motionY < 0 ? this.motionY : Math.max(yPos,
-                                                                                   rider.motionY);
+                                rider.motionY);
                     } else {
                         rider.moveEntity(0,
-                                         yPos,
-                                         0);
+                                yPos,
+                                0);
                         rider.motionY = this.motionY;
                     }
                     rider.isAirBorne = true;
@@ -532,7 +534,7 @@ public class EntityElevator extends Entity {
     public void setProperties(int destination, String destinationName, float elevatorTopSpeed, ChunkCoordinates computer, boolean haltable, int notifierID) {
         this.setDestinationY(destination);
         this.destFloorName = destinationName != null
-                             && !destinationName.trim().equals("") ? destinationName : String.valueOf(destination);
+                && !destinationName.trim().equals("") ? destinationName : String.valueOf(destination);
 
         this.computerPos = computer;
         this.canBeHalted = haltable;
@@ -551,16 +553,16 @@ public class EntityElevator extends Entity {
 
     protected void removeElevatorBlock(int x, int y, int z) {
         if (this.worldObj.getBlock(x,
-                                   y,
-                                   z) == ConfigurationLib.blockTransportBase
-            && this.worldObj.getBlockMetadata(x,
-                                              y,
-                                              z) == BlockLib.BLOCK_ELEVATOR_ID) {
+                y,
+                z) == ConfigurationLib.blockTransportBase
+                && this.worldObj.getBlockMetadata(x,
+                y,
+                z) == BlockLib.BLOCK_ELEVATOR_ID) {
             TileEntityElevator tile = (TileEntityElevator) BlockHelper.getTileEntity(this.worldObj,
-                                                                                     x,
-                                                                                     y,
-                                                                                     z,
-                                                                                     TileEntityElevator.class);
+                    x,
+                    y,
+                    z,
+                    TileEntityElevator.class);
             if (tile != null) {
                 if (tile.getCamoItem() != null) {
                     this.setCamoItem(tile.removeCamoItemWithoutDrop());
@@ -568,9 +570,9 @@ public class EntityElevator extends Entity {
                 this.setYOffset(tile.getYOffest());
                 this.setOverlay(tile.getOverlay());
             }
-                this.worldObj.setBlockToAir(x,
-                                            y,
-                                            z);
+            this.worldObj.setBlockToAir(x,
+                    y,
+                    z);
         }
 
     }
@@ -605,8 +607,6 @@ public class EntityElevator extends Entity {
         }
     }
 
-
-
     // only function that absolutely needs to keep track of elevators
     protected void setEmerHalt(boolean newhalt) {
         if (!this.canBeHalted && newhalt) {
@@ -621,26 +621,26 @@ public class EntityElevator extends Entity {
         if (this.isNotifier()) {
 
             for (Integer conjoinedElevator : this.conjoinedelevators) {
-                EntityElevator curElevator = (EntityElevator) this.worldObj.getEntityByID(conjoinedElevator);
+                EntityElevatorOld curElevator = (EntityElevatorOld) this.worldObj.getEntityByID(conjoinedElevator);
                 if (curElevator != this
                         && curElevator.emerHalt != this.emerHalt) {
                     curElevator.setEmerHalt(this.emerHalt);
                 }
             }
         } else if (this.getNotifier() != null
-                   && this.getNotifier().emerHalt != this.emerHalt) {
+                && this.getNotifier().emerHalt != this.emerHalt) {
             this.getNotifier().setEmerHalt(this.emerHalt);
         }
     }
 
     protected void killAllConjoined() {
         for (Integer conjoinedElevator : this.conjoinedelevators) {
-            EntityElevator curElevator = (EntityElevator) this.worldObj.getEntityByID(conjoinedElevator);
+            EntityElevatorOld curElevator = (EntityElevatorOld) this.worldObj.getEntityByID(conjoinedElevator);
             if (curElevator != null) curElevator.setDead();
         }
         this.setDead();
         if (this.isNotifierElevator
-            && MathHelper.floor_double(this.posY) == this.getTargetY()) {
+                && MathHelper.floor_double(this.posY) == this.getTargetY()) {
             TileEntityElevatorComputer computer = this.getParentElevatorComputer();
             if (computer != null) {
                 computer.elevatorArrived(this.getDestinationY());
@@ -652,11 +652,11 @@ public class EntityElevator extends Entity {
     // Used to get isControler on both client and server
     protected boolean isNotifier() {
         return this.isNotifierElevator
-               || (this.notifierElevatorID == this.getEntityId());
+                || (this.notifierElevatorID == this.getEntityId());
     }
 
-    protected EntityElevator getNotifier() {
-        return ((EntityElevator) this.worldObj.getEntityByID(this.notifierElevatorID));
+    protected EntityElevatorOld getNotifier() {
+        return ((EntityElevatorOld) this.worldObj.getEntityByID(this.notifierElevatorID));
     }
 
     // used to get access to the elevators computer
@@ -664,10 +664,10 @@ public class EntityElevator extends Entity {
         TileEntityElevatorComputer computer = null;
         if (this.computerPos != null) {
             computer = (TileEntityElevatorComputer) BlockHelper.getTileEntity(this.worldObj,
-                                                                              this.computerPos.posX,
-                                                                              this.computerPos.posY,
-                                                                              this.computerPos.posZ,
-                                                                              TileEntityElevatorComputer.class);
+                    this.computerPos.posX,
+                    this.computerPos.posY,
+                    this.computerPos.posZ,
+                    TileEntityElevatorComputer.class);
         }
 
         return computer;

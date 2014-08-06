@@ -16,7 +16,8 @@ import net.slimevoid.dynamictransport.container.ContainerFloorSelection;
 import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import net.slimevoid.dynamictransport.core.lib.GuiLib;
 import net.slimevoid.dynamictransport.core.lib.PacketLib;
-import net.slimevoid.dynamictransport.entities.EntityElevator;
+import net.slimevoid.dynamictransport.entities.EntityElevatorPart;
+import net.slimevoid.dynamictransport.entities.EntityMasterElevator;
 import net.slimevoid.dynamictransport.proxy.CommonProxy;
 import net.slimevoid.dynamictransport.tileentity.TileEntityElevator;
 import net.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
@@ -74,7 +75,7 @@ public class ClientProxy extends CommonProxy {
 
     @Override
     public void registerRenderInformation() {
-        RenderingRegistry.registerEntityRenderingHandler(EntityElevator.class,
+        RenderingRegistry.registerEntityRenderingHandler(EntityElevatorPart.class,
                                                          new net.slimevoid.dynamictransport.client.render.RenderElevator());
         RenderingRegistry.registerBlockHandler(	ConfigurationLib.ElevatorRenderId,
                 new BlockElevatorRenderer());
