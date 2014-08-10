@@ -17,7 +17,6 @@ public class GuiDynamicElevator extends GuiContainer {
     public GuiDynamicElevator(EntityPlayer entityplayer, InventoryPlayer playerInventory, World world, TileEntityElevator elevator) {
         super(new ContainerDynamicElevator(playerInventory, elevator));
         this.elevator = elevator;
-        // TODO:On Init Scan for floors if dirty flag set
 
         this.ySize = 222;
 
