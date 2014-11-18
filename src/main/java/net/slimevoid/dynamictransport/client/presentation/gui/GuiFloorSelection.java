@@ -45,7 +45,11 @@ public class GuiFloorSelection extends GuiContainer {
         int y = ((this.height - this.ySize) / 2) + 130;
         int id = 0;
         for (Entry<Integer, ArrayList<String>> set : floorList.entrySet()) {
-            this.buttonList.add(new GuiFloorButton(id++, x, y, 80, 20, set.getKey().toString(), set.getValue().get(0)));
+            String floorName = set.getKey().toString();
+            if (set.getValue().size() > 0) {
+                floorName = set.getValue().get(0);
+            }
+            this.buttonList.add(new GuiFloorButton(id++, x, y, 80, 20, set.getKey().toString(), floorName));
             if (y < ((this.height - this.ySize) / 2) + 30) {
                 x += 90;
                 y = ((this.height - this.ySize) / 2) + 130;
