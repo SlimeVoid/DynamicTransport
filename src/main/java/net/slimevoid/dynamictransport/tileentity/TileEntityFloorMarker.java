@@ -22,6 +22,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
     private String           floorName;
     private boolean          Powered = false;
     private int              yOffset = -2;
+    public boolean atFloor = false;
 
     public ChunkCoordinates getParentChunkCoords() {
         return this.parentTransportBase;
@@ -152,7 +153,8 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
                                   yOffset);
         nbttagcompound.setBoolean("Powered",
                                   this.Powered);
-
+        nbttagcompound.setBoolean("atFloor",
+                                  this.atFloor);
     }
 
     @Override
@@ -164,6 +166,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 
         this.yOffset = nbttagcompound.getInteger("yOffset");
         this.Powered = nbttagcompound.getBoolean("Powered");
+        this.atFloor = nbttagcompound.getBoolean("atFloor");
     }
 
     public void removeParent() {
@@ -245,5 +248,9 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
         this.writeToNBT(nbttagcompound);
         return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 2, nbttagcompound);
+    }
+
+    public void setActive(boolean flag) {
+        this.atFloor = flag;
     }
 }

@@ -123,12 +123,22 @@ public class BlockTransportBase extends BlockBase {
     }
 
     @Override
+    public boolean canProvidePower() {
+        return true;
+    }
+
+    @Override
     public int isProvidingWeakPower(IBlockAccess world, int x, int y, int z, int side) {
 
 
         TileEntity tile = world.getTileEntity(x,
                 y,
                 z);
+        if (tile instanceof TileEntityFloorMarker) {
+            if (((TileEntityFloorMarker) tile).atFloor) {
+                return 3;
+            }
+        }
         if (tile instanceof TileEntityTransportBase) {
 
             ItemStack itemstack = ((TileEntityTransportBase) tile).getCamoItem();
@@ -152,6 +162,11 @@ public class BlockTransportBase extends BlockBase {
         TileEntity tile = world.getTileEntity(x,
                 y,
                 z);
+        if (tile instanceof TileEntityFloorMarker) {
+            if (((TileEntityFloorMarker) tile).atFloor) {
+                return 3;
+            }
+        }
         if (tile instanceof TileEntityTransportBase) {
 
             ItemStack itemstack = ((TileEntityTransportBase) tile).getCamoItem();
