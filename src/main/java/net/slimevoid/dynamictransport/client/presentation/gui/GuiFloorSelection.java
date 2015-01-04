@@ -45,9 +45,13 @@ public class GuiFloorSelection extends GuiContainer {
         int y = ((this.height - this.ySize) / 2) + 130;
         int id = 0;
         for (Entry<Integer, ArrayList<String>> set : floorList.entrySet()) {
-            this.buttonList.add(new GuiButton(id++, x, y, 20, 20, set.getKey().toString()));
+            String floorName = set.getKey().toString();
+            if (set.getValue().size() > 0) {
+                floorName = set.getValue().get(0);
+            }
+            this.buttonList.add(new GuiFloorButton(id++, x, y, 80, 20, set.getKey().toString(), floorName));
             if (y < ((this.height - this.ySize) / 2) + 30) {
-                x += 30;
+                x += 90;
                 y = ((this.height - this.ySize) / 2) + 130;
             } else {
                 y -= 30;
@@ -61,7 +65,7 @@ public class GuiFloorSelection extends GuiContainer {
     @Override
     protected void drawGuiContainerForegroundLayer(int i, int j){
         for (Object x : buttonList) {
-            GuiButton set = (GuiButton)x;
+            GuiFloorButton set = (GuiFloorButton)x;
             if (i >= set.xPosition && j >= set.yPosition && i < set.xPosition + 20 && j < set.yPosition + 20){
 
             }
@@ -94,15 +98,22 @@ public class GuiFloorSelection extends GuiContainer {
     }
 
     @Override
-    protected void actionPerformed(GuiButton guibutton) {
+    protected void actionPerformed(GuiButton button) {
+        GuiFloorButton guibutton;
+        if (button instanceof GuiFloorButton) {
+            guibutton = (GuiFloorButton) button;
+        } else {
+            System.out.println("Something went wrong!");
+            return;
+        }
         String floorName = "";
-        for(String name :marker.getFloorList().get(Integer.parseInt(guibutton.displayString))){
+        for(String name :marker.getFloorList().get(Integer.parseInt(guibutton.getFloorLevel()))){
             floorName = name + ", ";
         }
         if (floorName.length() > 0) {
             floorName = floorName.substring(0,floorName.length() - 2);
         }
-        PacketLib.sendFloorSelection(guibutton.displayString,
+        PacketLib.sendFloorSelection(guibutton.getFloorLevel(),
                 floorName,
                 this.marker.xCoord,
                 this.marker.yCoord,
