@@ -1,5 +1,6 @@
 package net.slimevoid.dynamictransport.core.lib;
 
+import net.minecraft.util.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.slimevoid.dynamictransport.network.PacketMarkerGUIHandler;
@@ -29,14 +30,14 @@ public class PacketLib {
                                       guiHandler);
     }
 
-    public static void sendFloorSelection(String floorNumber, String floorName, int x, int y, int z) {
+    public static void sendFloorSelection(String floorNumber, String floorName, BlockPos pos) {
         // create packet
-        PacketMarkerData packet = new PacketMarkerData(GuiLib.GUIID_FloorSelection, Integer.valueOf(floorNumber), floorName, x, y, z, 0);
+        PacketMarkerData packet = new PacketMarkerData(GuiLib.GUIID_FloorSelection, Integer.valueOf(floorNumber), floorName, pos.getX(), pos.getY(), pos.getZ(), 0);
         PacketHelper.sendToServer(packet);
     }
 
-    public static void sendMarkerConfiguration(int floorY, String floorName, int x, int y, int z) {
-        PacketMarkerData packet = new PacketMarkerData(GuiLib.GUIID_FLOOR_MARKER, floorY, floorName, x, y, z , 1);
+    public static void sendMarkerConfiguration(int floorY, String floorName, BlockPos pos) {
+        PacketMarkerData packet = new PacketMarkerData(GuiLib.GUIID_FLOOR_MARKER, floorY, floorName, pos.getX(), pos.getY(), pos.getZ(), 1);
         PacketHelper.sendToServer(packet);
     }
 }

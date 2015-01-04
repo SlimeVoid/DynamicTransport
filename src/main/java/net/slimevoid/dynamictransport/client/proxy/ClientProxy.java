@@ -3,6 +3,7 @@ package net.slimevoid.dynamictransport.client.proxy;
 import java.io.File;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -32,18 +33,14 @@ public class ClientProxy extends CommonProxy {
         switch (ID){
         case GuiLib.GUIID_FloorSelection:
         	TileEntityFloorMarker tileEntity = (TileEntityFloorMarker) BlockHelper.getTileEntity(world,
-                    x,
-                    y,
-                    z,
+                    new BlockPos(x, y, z),
                     TileEntityFloorMarker.class);
         	TileEntityElevatorComputer computer = null;
     		if (tileEntity != null) {
     			computer = tileEntity.getParentElevatorComputer();
 			}else{
                 TileEntityElevator tileElevator = (TileEntityElevator) BlockHelper.getTileEntity(world,
-                        x,
-                        y,
-                        z,
+                        new BlockPos(x, y, z),
                         TileEntityElevator.class);
                 if (tileElevator != null){
                     computer = tileElevator.getParentElevatorComputer();
@@ -56,9 +53,7 @@ public class ClientProxy extends CommonProxy {
         	break;
         case GuiLib.GUIID_FLOOR_MARKER:
         	TileEntityFloorMarker marker = (TileEntityFloorMarker) BlockHelper.getTileEntity(world,
-                    x,
-                    y,
-                    z,
+                    new BlockPos(x, y, z),
                     TileEntityFloorMarker.class);
         	if(marker != null){
         		return new GuiDynamicMarker(new ContainerDynamicMarker(player.inventory, marker, world));
@@ -75,10 +70,10 @@ public class ClientProxy extends CommonProxy {
 
     @Override
     public void registerRenderInformation() {
-        RenderingRegistry.registerEntityRenderingHandler(EntityElevatorPart.class,
-                                                         new net.slimevoid.dynamictransport.client.render.RenderElevator());
-        RenderingRegistry.registerBlockHandler(	ConfigurationLib.ElevatorRenderId,
-                new BlockElevatorRenderer());
+        //RenderingRegistry.registerEntityRenderingHandler(EntityElevatorPart.class,
+        //                                                 new net.slimevoid.dynamictransport.client.render.RenderElevator());
+        //RenderingRegistry.registerBlockHandler(	ConfigurationLib.ElevatorRenderId,
+        //        new BlockElevatorRenderer());
     }
 
     @Override

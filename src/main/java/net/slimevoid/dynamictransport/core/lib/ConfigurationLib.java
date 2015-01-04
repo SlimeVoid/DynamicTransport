@@ -44,7 +44,7 @@ public class ConfigurationLib {
 
         configuration.save();
 
-        ElevatorRenderId = RenderingRegistry.getNextAvailableRenderId();
+        // ElevatorRenderId = RenderingRegistry.getNextAvailableRenderId();
     }
 
     public static void ClientConfig() {

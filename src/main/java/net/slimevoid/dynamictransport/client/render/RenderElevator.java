@@ -16,14 +16,14 @@ import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import net.slimevoid.dynamictransport.entities.EntityElevatorPart;
 import org.lwjgl.opengl.GL11;
 
-public class RenderElevator extends Render {
+public class RenderElevator { // extends Render {
 
-    public RenderElevator() {
+    /**public RenderElevator() {
         shadowSize = 0.5F;
     }
 
     public void renderElevatorEntity(Block elevator, World world, int x, int y, int z, IIcon[] textureData, short overlay) {
-        this.field_147909_c/* renderBlocks */.setRenderBoundsFromBlock(elevator);
+        this.field_147909_c.setRenderBoundsFromBlock(elevator);
 
         float f1 = 0.5F;
         float f2 = 1.0F;
@@ -45,7 +45,7 @@ public class RenderElevator extends Render {
         tessellator.setColorOpaque_F(f1 * f6,
                                      f1 * f6,
                                      f1 * f6);
-        this.field_147909_c/* renderBlocks */.renderFaceYNeg(elevator,
+        this.field_147909_c.renderFaceYNeg(elevator,
                                                              -0.5D,
                                                              -0.5D,
                                                              -0.5D,
@@ -59,7 +59,7 @@ public class RenderElevator extends Render {
         tessellator.setColorOpaque_F(f2 * f6,
                                      f2 * f6,
                                      f2 * f6);
-        this.field_147909_c/* renderBlocks */.renderFaceYPos(elevator,
+        this.field_147909_c.renderFaceYPos(elevator,
                                                              -0.5D,
                                                              -0.5D,
                                                              -0.5D,
@@ -73,7 +73,7 @@ public class RenderElevator extends Render {
         tessellator.setColorOpaque_F(f3 * f6,
                                      f3 * f6,
                                      f3 * f6);
-        this.field_147909_c/* renderBlocks */.renderFaceXPos(elevator,
+        this.field_147909_c.renderFaceXPos(elevator,
                                                              -0.5D,
                                                              -0.5D,
                                                              -0.5D,
@@ -87,7 +87,7 @@ public class RenderElevator extends Render {
         tessellator.setColorOpaque_F(f3 * f6,
                                      f3 * f6,
                                      f3 * f6);
-        this.field_147909_c/* renderBlocks */.renderFaceXNeg(elevator,
+        this.field_147909_c.renderFaceXNeg(elevator,
                                                              -0.5D,
                                                              -0.5D,
                                                              -0.5D,
@@ -101,7 +101,7 @@ public class RenderElevator extends Render {
         tessellator.setColorOpaque_F(f4 * f6,
                                      f4 * f6,
                                      f4 * f6);
-        this.field_147909_c/* renderBlocks */.renderFaceZNeg(elevator,
+        this.field_147909_c.renderFaceZNeg(elevator,
                                                              -0.5D,
                                                              -0.5D,
                                                              -0.5D,
@@ -115,7 +115,7 @@ public class RenderElevator extends Render {
         tessellator.setColorOpaque_F(f4 * f6,
                                      f4 * f6,
                                      f4 * f6);
-        this.field_147909_c/* renderBlocks */.renderFaceZPos(elevator,
+        this.field_147909_c.renderFaceZPos(elevator,
                                                              -0.5D,
                                                              -0.5D,
                                                              -0.5D,
@@ -154,9 +154,11 @@ public class RenderElevator extends Render {
         tessellator.draw();
 
 
-    }
+    }**/
+	
+	// TODO :: field_147909_c/* renderBlocks */
 
-    public void doRenderElevator(EntityElevatorPart elevator, double d, double d1, double d2, float f, float f1) {
+    /**public void doRenderElevator(EntityElevatorPart elevator, double d, double d1, double d2, float f, float f1) {
         if (elevator.ticksExisted <= 1) return;
         GL11.glPushMatrix();
         Block block = ConfigurationLib.blockTransportBase;
@@ -209,5 +211,5 @@ public class RenderElevator extends Render {
     @Override
     protected ResourceLocation getEntityTexture(Entity entity) {
         return TextureMap.locationBlocksTexture;
-    }
+    }**/
 }

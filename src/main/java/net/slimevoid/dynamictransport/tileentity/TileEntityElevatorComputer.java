@@ -8,11 +8,15 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.util.MathHelper;
 import net.slimevoid.dynamictransport.core.lib.BlockLib;
 import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
@@ -33,8 +37,8 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
     // Persistent Data
     private String                         elevatorName;
-    private List<ChunkCoordinates>         boundMarkerBlocks   = new ArrayList<ChunkCoordinates>();
-    private List<ChunkCoordinates>         boundElevatorBlocks = new ArrayList<ChunkCoordinates>();
+    private List<BlockPos>         boundMarkerBlocks   = new ArrayList<BlockPos>();
+    private List<BlockPos>         boundElevatorBlocks = new ArrayList<BlockPos>();
     private LinkedHashMap<Integer, String> floorSpool          = new LinkedHashMap<Integer, String>();
     private ElevatorMode                   mode                = ElevatorMode.Available;
     private String                         curTechnicianName;
@@ -44,23 +48,19 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
     @SuppressWarnings("FieldCanBeLocal")
     private boolean                        isHaltAble = false;
 
-    public boolean addElevator(ChunkCoordinates elevator, EntityPlayer entityplayer) {
+    public boolean addElevator(BlockPos elevator, EntityPlayer entityplayer) {
         if (this.mode == ElevatorMode.Maintenance
             && this.curTechnicianName != null
             && this.curTechnicianName.equals(entityplayer.getGameProfile().getName())) {
-            if (!boundElevatorBlocks.contains(new ChunkCoordinates(elevator.posX, elevator.posY
-                                                                                  - (this.yCoord + 1), elevator.posZ))) {
+            if (!boundElevatorBlocks.contains(elevator.add(0, elevator.getY()
+                    - (this.pos.getY() + 1), 0))) {
 
                 if (isInRange(elevator,
                               true)) {
-                    if (this.worldObj.getBlock(elevator.posX,
-                                               elevator.posY,
-                                               elevator.posZ) == ConfigurationLib.blockTransportBase
-                        && this.worldObj.getBlockMetadata(elevator.posX,
-                                                          elevator.posY,
-                                                          elevator.posZ) == BlockLib.BLOCK_ELEVATOR_ID) {
-                        this.boundElevatorBlocks.add(new ChunkCoordinates(elevator.posX, elevator.posY
-                                                                                         - (this.yCoord + 1), elevator.posZ));
+                	IBlockState state = this.worldObj.getBlockState(elevator);
+                    if (state.getBlock() == ConfigurationLib.blockTransportBase
+                        && Block.getStateId(state) == BlockLib.BLOCK_ELEVATOR_ID) {
+                        this.boundElevatorBlocks.add(elevator.add(0, elevator.getY() - (this.pos.getY() + 1), 0));
                         if (this.elevatorName != null
                             && !this.elevatorName.isEmpty()) {
                             ChatHelper.addMessageToPlayer(entityplayer,
@@ -117,9 +117,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
             } else {
                 ChatHelper.addMessageToPlayer(entityplayer,
                                               "slimevoid.DT.elevatorcomputer.bindNoLongerTech",
-                                              this.xCoord,
-                                              this.yCoord,
-                                              this.zCoord);
+                                              this.pos);
             }
             ItemStack heldItem = entityplayer.getHeldItem();
             NBTTagCompound tags = new NBTTagCompound();
@@ -129,7 +127,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
         return false;
     }
 
-    public boolean addFloorMarker(ChunkCoordinates markerBlock, EntityPlayer entityplayer) {
+    public boolean addFloorMarker(BlockPos markerBlock, EntityPlayer entityplayer) {
         if (this.mode == ElevatorMode.Maintenance
             && this.curTechnicianName != null
             && this.curTechnicianName.equals(entityplayer.getGameProfile().getName())) {
@@ -137,12 +135,9 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
                 if (boundElevatorBlocks.size() != 0) {
                     if (isInRange(markerBlock,
                                   false)) {
-                        if (this.worldObj.getBlock(markerBlock.posX,
-                                                   markerBlock.posY,
-                                                   markerBlock.posZ) == ConfigurationLib.blockTransportBase
-                            && this.worldObj.getBlockMetadata(markerBlock.posX,
-                                                              markerBlock.posY,
-                                                              markerBlock.posZ) == BlockLib.BLOCK_DYNAMIC_MARK_ID) {
+                    	IBlockState state  = this.worldObj.getBlockState(markerBlock);
+                        if (state.getBlock() == ConfigurationLib.blockTransportBase
+                            && Block.getStateId(state) == BlockLib.BLOCK_DYNAMIC_MARK_ID) {
                             this.boundMarkerBlocks.add(markerBlock);
                             if (this.elevatorName != null
                                 && !this.elevatorName.isEmpty()) {
@@ -209,16 +204,14 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
             } else {
                 ChatHelper.addMessageToPlayer(entityplayer,
                                               String.format("You are no longer the Technician for the Elevator at %0$s, %1$s ,%2$s",
-                                                            this.xCoord,
-                                                            this.yCoord,
-                                                            this.zCoord));
+                                                            this.pos));
             }
         }
         return false;
     }
 
     @Override
-    public boolean onBlockActivated(EntityPlayer entityplayer) {
+    public boolean onBlockActivated(IBlockState blockState, EntityPlayer entityplayer, EnumFacing side, float xHit, float yHit, float zHit) {
         if (this.worldObj.isRemote) {
             return true;
         }
@@ -246,11 +239,11 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
                     // that we either inform the previous elevator that
                     // Maintenance is over or keep the tool from binding
                     tags.setInteger("ComputerX",
-                                    this.xCoord);
+                                    this.pos.getX());
                     tags.setInteger("ComputerY",
-                                    this.yCoord);
+                                    this.pos.getY());
                     tags.setInteger("ComputerZ",
-                                    this.zCoord);
+                                    this.pos.getZ());
                     this.curTechnicianName = entityplayer.getGameProfile().getName();
                     if (this.elevatorName != null
                         && !this.elevatorName.isEmpty()) {
@@ -264,10 +257,10 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
                     // Move Elevator for Maintenance
                     if (this.boundElevatorBlocks.size() == 0) {
                         this.floorSpool.clear();
-                        this.elevatorPos = this.yCoord + 1;
+                        this.elevatorPos = this.pos.getY() + 1;
                         this.mode = ElevatorMode.Maintenance;
-                    } else if (this.elevatorPos > this.yCoord + 1) {
-                        this.callElevator(this.yCoord + 1,
+                    } else if (this.elevatorPos > this.pos.getY() + 1) {
+                        this.callElevator(this.pos.getY() + 1,
                                           true,
                                           "");
                     } else {
@@ -284,27 +277,26 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
     }
 
     @Override
-    public boolean removeBlockByPlayer(EntityPlayer player, BlockBase blockBase) {
-        for (ChunkCoordinates boundElevator : this.boundElevatorBlocks) {
-            TileEntityElevator eleTile = (TileEntityElevator)BlockHelper.getTileEntity(this.getWorldObj(),boundElevator.posX,
-                                                             this.elevatorPos
-                                                                     + boundElevator.posY,
-                                                             boundElevator.posZ,      TileEntityElevator.class);
+    public boolean removeBlockByPlayer(EntityPlayer player, BlockBase blockBase, boolean willHarvest) {
+        for (BlockPos boundElevator : this.boundElevatorBlocks) {
+            TileEntityElevator eleTile = (TileEntityElevator) BlockHelper.getTileEntity(this.getWorld(),
+            												 							boundElevator.add(0, this.elevatorPos, 0),
+							                                                            TileEntityElevator.class);
             if (eleTile != null) {
-                 eleTile.RemoveComputer(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord));
+                 eleTile.RemoveComputer(this.pos);
             }
         }
-        for (ChunkCoordinates boundFloorMarker : this.boundMarkerBlocks) {
-            TileEntityFloorMarker markerTile = (TileEntityFloorMarker)BlockHelper.getTileEntity(this.getWorldObj(),boundFloorMarker.posX,
-                                                                boundFloorMarker.posY,
-                                                                boundFloorMarker.posZ,
-                    TileEntityFloorMarker.class);
+        for (BlockPos boundFloorMarker : this.boundMarkerBlocks) {
+            TileEntityFloorMarker markerTile = (TileEntityFloorMarker) BlockHelper.getTileEntity(this.getWorld(),
+            																					 boundFloorMarker,
+            																					 TileEntityFloorMarker.class);
             if (markerTile != null) {
                  markerTile.removeParent();
             }
         }
         return super.removeBlockByPlayer(player,
-                                         blockBase);
+                                         blockBase,
+                                         willHarvest);
     }
 
     public String callElevator(int i, String Floorname) {
@@ -362,20 +354,20 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
     }
 
     private void sendMessageFromAllFloors(String message, Object... args) {
-        for (ChunkCoordinates marker : this.boundMarkerBlocks) {
-            ChatHelper.sendChatMessageToAllNear(this.getWorldObj(),
-                                                marker.posX,
-                                                marker.posY,
-                                                marker.posZ,
+        for (BlockPos marker : this.boundMarkerBlocks) {
+            ChatHelper.sendChatMessageToAllNear(this.getWorld(),
+                                                marker.getX(),
+                                                marker.getY(),
+                                                marker.getZ(),
                                                 4,
                                                 message,
                                                 args);
         }
         if (!this.worldObj.isRemote) {
-            ChatHelper.sendChatMessageToAllNear(this.getWorldObj(),
-                                                this.xCoord,
-                                                this.yCoord,
-                                                this.zCoord,
+            ChatHelper.sendChatMessageToAllNear(this.getWorld(),
+                                                this.pos.getX(),
+                                                this.pos.getY(),
+                                                this.pos.getZ(),
                                                 4,
                                                 message,
                                                 args);
@@ -386,13 +378,15 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
         this.mode = i > this.elevatorPos ? ElevatorMode.TransitUp : ElevatorMode.TransitDown;
 
 
-        EntityMasterElevator curElevator = new EntityMasterElevator(worldObj, this.xCoord, this.elevatorPos,
-                this.zCoord);
+        EntityMasterElevator curElevator = new EntityMasterElevator(this.getWorld(),
+        															this.pos.getX(),
+        															this.elevatorPos,
+        															this.pos.getZ());
         worldObj.spawnEntityInWorld(curElevator);
         curElevator.setProperties(i,
                 floorname,
                 this.elevatorSpeed,
-                new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord),
+                this.pos,
                 this.isHaltAble,
                 this.boundElevatorBlocks
         );
@@ -400,16 +394,11 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
     }
 
-
-
-    private boolean validElevatorBlock(int x, int y, int z) {
-        TileEntity tile = this.worldObj.getTileEntity(x,
-                                                      y,
-                                                      z);
+    private boolean validElevatorBlock(BlockPos pos) {
+        TileEntity tile = this.worldObj.getTileEntity(pos);
         if (tile != null && tile instanceof TileEntityElevator) {
             if (((TileEntityElevator) tile).getParentElevatorComputer() != null) {
-                ChunkCoordinates thisCoords = new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord);
-                return ((TileEntityElevator) tile).getParent().equals(thisCoords);
+                return ((TileEntityElevator) tile).getParent().equals(this.pos);
 
             }
         }
@@ -424,17 +413,17 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
         int BoundMarkerBlocksY[] = new int[boundMarkerBlocks.size()];
         int BoundMarkerBlocksZ[] = new int[boundMarkerBlocks.size()];
         for (int i = 0; i < boundMarkerBlocks.size(); i++) {
-            BoundMarkerBlocksX[i] = boundMarkerBlocks.get(i).posX;
-            BoundMarkerBlocksY[i] = boundMarkerBlocks.get(i).posY;
-            BoundMarkerBlocksZ[i] = boundMarkerBlocks.get(i).posZ;
+            BoundMarkerBlocksX[i] = boundMarkerBlocks.get(i).getX();
+            BoundMarkerBlocksY[i] = boundMarkerBlocks.get(i).getY();
+            BoundMarkerBlocksZ[i] = boundMarkerBlocks.get(i).getZ();
         }
         int BoundElevatorBlocksX[] = new int[boundElevatorBlocks.size()];
         int BoundElevatorBlocksY[] = new int[boundElevatorBlocks.size()];
         int BoundElevatorBlocksZ[] = new int[boundElevatorBlocks.size()];
         for (int i = 0; i < boundElevatorBlocks.size(); i++) {
-            BoundElevatorBlocksX[i] = boundElevatorBlocks.get(i).posX;
-            BoundElevatorBlocksY[i] = boundElevatorBlocks.get(i).posY;
-            BoundElevatorBlocksZ[i] = boundElevatorBlocks.get(i).posZ;
+            BoundElevatorBlocksX[i] = boundElevatorBlocks.get(i).getX();
+            BoundElevatorBlocksY[i] = boundElevatorBlocks.get(i).getY();
+            BoundElevatorBlocksZ[i] = boundElevatorBlocks.get(i).getZ();
         }
 
         if (elevatorName != null && !elevatorName.isEmpty()) nbttagcompound.setString("ElevatorName",
@@ -488,10 +477,10 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
         boundElevatorBlocks.clear();
         this.floorSpool.clear();
         for (int i = 0; i < BoundMarkerBlocksX.length; i++) {
-            boundMarkerBlocks.add(new ChunkCoordinates(BoundMarkerBlocksX[i], BoundMarkerBlocksY[i], BoundMarkerBlocksZ[i]));
+            boundMarkerBlocks.add(new BlockPos(BoundMarkerBlocksX[i], BoundMarkerBlocksY[i], BoundMarkerBlocksZ[i]));
         }
         for (int i = 0; i < BoundElevatorBlocksY.length; i++) {
-            boundElevatorBlocks.add(new ChunkCoordinates(BoundElevatorBlocksX[i], BoundElevatorBlocksY[i], BoundElevatorBlocksZ[i]));
+            boundElevatorBlocks.add(new BlockPos(BoundElevatorBlocksX[i], BoundElevatorBlocksY[i], BoundElevatorBlocksZ[i]));
         }
         for (int i = 0; i < tempSpool.length; i++) {
             this.floorSpool.put(tempSpool[i],
@@ -513,33 +502,29 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
         return this.elevatorName;
     }
 
-    public void RemoveElevatorBlock(ChunkCoordinates elevatorPosition) {
+    public void RemoveElevatorBlock(BlockPos elevatorPosition) {
         if (this.boundElevatorBlocks.contains(elevatorPosition)) {
             this.boundElevatorBlocks.remove(this.boundElevatorBlocks.indexOf(elevatorPosition));
-            ListIterator<ChunkCoordinates> itr = this.boundMarkerBlocks.listIterator();
+            ListIterator<BlockPos> itr = this.boundMarkerBlocks.listIterator();
             while ( itr.hasNext()) {
-            	ChunkCoordinates boundMarker = itr.next();
+            	BlockPos boundMarker = itr.next();
                 boolean valid = false;
-                for (ChunkCoordinates boundElevators : this.boundElevatorBlocks) {
-                    if (MathHelper.sqrt_double(Math.pow((double) boundElevators.posX
-                                                                - (double) boundMarker.posX,
-                                                        2)
-                                               + Math.pow((double) boundElevators.posZ
-                                                                  - (double) boundMarker.posZ,
-                                                          2)) <= ConfigurationLib.MaxBindingRange) {
-                        if (this.worldObj.getBlock(boundMarker.posX,
-                                                   boundMarker.posY,
-                                                   boundMarker.posZ) == ConfigurationLib.blockTransportBase
-                            && this.worldObj.getBlockMetadata(boundMarker.posX,
-                                                              boundMarker.posY,
-                                                              boundMarker.posZ) == BlockLib.BLOCK_DYNAMIC_MARK_ID) {
+                for (BlockPos boundElevators : this.boundElevatorBlocks) {
+                	double powerX = Math.pow((double) boundElevators.getX() - (double) boundMarker.getX(), 2);
+                	double powerZ = Math.pow((double) boundElevators.getZ() - (double) boundMarker.getZ(), 2);
+                    if (MathHelper.sqrt_double(powerX + powerZ) <= ConfigurationLib.MaxBindingRange) {
+                    	IBlockState state = this.worldObj.getBlockState(boundMarker);
+                        if (state.getBlock() == ConfigurationLib.blockTransportBase
+                            && Block.getStateId(state) == BlockLib.BLOCK_DYNAMIC_MARK_ID) {
                             valid = true;
                             break;
                         }
                     }
                 }
                 if (!valid) {
-                	TileEntityFloorMarker tile = (TileEntityFloorMarker) BlockHelper.getTileEntity(this.worldObj, boundMarker.posX, boundMarker.posY, boundMarker.posZ, TileEntityFloorMarker.class);
+                	TileEntityFloorMarker tile = (TileEntityFloorMarker) BlockHelper.getTileEntity(this.worldObj,
+                																				   boundMarker,
+                																				   TileEntityFloorMarker.class);
                 	if (tile != null){
                 		tile.removeParent();
                 	}
@@ -556,13 +541,13 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
         this.elevatorPos = destination;
         this.floorSpool.remove(destination);
         if (this.pendingMaintenance) {
-            if (this.elevatorPos == (this.yCoord + 1)) {
+            if (this.elevatorPos == (this.pos.getY() + 1)) {
                 this.pendingMaintenance = false;
                 this.mode = ElevatorMode.Maintenance;
 
             } else {
                 this.floorSpool.clear();
-                doCallElevator(this.yCoord + 1,
+                doCallElevator(this.pos.getY() + 1,
                                "");
             }
         } else {
@@ -590,29 +575,26 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
         return BlockLib.BLOCK_ELEVATOR_COMPUTER_ID;
     }
 
-    public boolean isInRange(ChunkCoordinates bindingBlock, boolean shouldCheckComputer) {
+    public boolean isInRange(BlockPos bindingBlock, boolean shouldCheckComputer) {
         if (boundElevatorBlocks != null && boundElevatorBlocks.size() > 0) {
-            for (ChunkCoordinates boundBlock : boundElevatorBlocks) {
-                if (MathHelper.sqrt_double(Math.pow((double) boundBlock.posX
-                                                            - (double) bindingBlock.posX,
-                                                    2)
-                                           + Math.pow((double) boundBlock.posZ
-                                                              - (double) bindingBlock.posZ,
-                                                      2)) <= ConfigurationLib.MaxBindingRange) {
+            for (BlockPos boundBlock : boundElevatorBlocks) {
+            	double powerX = Math.pow((double) boundBlock.getX() - (double) bindingBlock.getX(), 2);
+            	double powerZ = Math.pow((double) boundBlock.getZ() - (double) bindingBlock.getZ(), 2);
+                if (MathHelper.sqrt_double(powerX + powerZ) <= ConfigurationLib.MaxBindingRange) {
                     return true;
                 }
             }
         }
-        return shouldCheckComputer && MathHelper.sqrt_double(Math.pow((double) this.xCoord - (double) bindingBlock.posX, 2) + Math.pow((double) this.zCoord - (double) bindingBlock.posZ, 2)) <= ConfigurationLib.MaxBindingRange;
+        double powerX = Math.pow((double) this.pos.getX() - (double) bindingBlock.getX(), 2);
+        double powerZ = Math.pow((double) this.pos.getZ() - (double) bindingBlock.getZ(), 2);
+        return shouldCheckComputer && MathHelper.sqrt_double(powerX + powerZ) <= ConfigurationLib.MaxBindingRange;
     }
 
     public SortedMap<Integer, ArrayList<String>> getFloorList() {
         SortedMap<Integer, ArrayList<String>> floors = new TreeMap<Integer, ArrayList<String>>();
         if (this.boundMarkerBlocks != null && this.boundMarkerBlocks.size() > 0) {
-            for (ChunkCoordinates boundBlock : boundMarkerBlocks) {
-                TileEntity tile = this.worldObj.getTileEntity(boundBlock.posX,
-                                                              boundBlock.posY,
-                                                              boundBlock.posZ);
+            for (BlockPos boundBlock : boundMarkerBlocks) {
+                TileEntity tile = this.worldObj.getTileEntity(boundBlock);
                 if (tile != null && tile instanceof TileEntityFloorMarker) {
                     int floorY = ((TileEntityFloorMarker) tile).getFloorY();
                     String floorName = ((TileEntityFloorMarker) tile).getFloorName();
@@ -630,7 +612,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
         return floors;
     }
 
-    public void removeMarkerBlock(ChunkCoordinates elevatorPosition) {
+    public void removeMarkerBlock(BlockPos elevatorPosition) {
         if (this.boundMarkerBlocks.contains(elevatorPosition)) {
             this.boundMarkerBlocks.remove(this.boundMarkerBlocks.indexOf(elevatorPosition));
             this.updateBlock();

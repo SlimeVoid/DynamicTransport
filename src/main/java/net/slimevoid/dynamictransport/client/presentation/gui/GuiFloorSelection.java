@@ -1,13 +1,12 @@
 package net.slimevoid.dynamictransport.client.presentation.gui;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import net.slimevoid.dynamictransport.container.ContainerFloorSelection;
 import net.slimevoid.dynamictransport.core.lib.GuiLib;
 import net.slimevoid.dynamictransport.core.lib.PacketLib;
@@ -17,8 +16,6 @@ import net.slimevoid.library.core.lib.CoreLib;
 import net.slimevoid.library.data.Logger;
 
 import org.lwjgl.opengl.GL11;
-
-import cpw.mods.fml.client.FMLClientHandler;
 
 public class GuiFloorSelection extends GuiContainer {
     public GuiFloorSelection(ContainerFloorSelection container) {
@@ -104,9 +101,7 @@ public class GuiFloorSelection extends GuiContainer {
         }
         PacketLib.sendFloorSelection(guibutton.displayString,
                 floorName,
-                this.marker.xCoord,
-                this.marker.yCoord,
-                this.marker.zCoord);
+                this.marker.getPos());
 
         this.onGuiClosed();
         FMLClientHandler.instance().getClient().thePlayer.closeScreen();

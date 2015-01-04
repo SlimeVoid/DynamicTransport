@@ -1,5 +1,7 @@
 package net.slimevoid.dynamictransport.client.presentation.gui;
 
+import java.io.IOException;
+
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
@@ -15,8 +17,8 @@ import net.slimevoid.dynamictransport.tileentity.TileEntityFloorMarker;
 import net.slimevoid.library.core.SlimevoidCore;
 import net.slimevoid.library.core.lib.CoreLib;
 import net.slimevoid.library.data.Logger;
-import org.lwjgl.input.Keyboard;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 public class GuiDynamicMarker extends GuiContainer {
@@ -38,7 +40,7 @@ public class GuiDynamicMarker extends GuiContainer {
     public void initGui() {
         super.initGui();
         this.guiTop -= 25;
-        this.nameField = new GuiTextField(this.fontRendererObj, this.guiLeft + 10, this.guiTop + 25, 89, this.fontRendererObj.FONT_HEIGHT);
+        this.nameField = new GuiTextField(0, this.fontRendererObj, this.guiLeft + 10, this.guiTop + 25, 89, this.fontRendererObj.FONT_HEIGHT);
         this.nameField.setMaxStringLength(15);
         this.nameField.setEnableBackgroundDrawing(true);
         this.nameField.setVisible(true);
@@ -97,7 +99,7 @@ public class GuiDynamicMarker extends GuiContainer {
         this.nameField.updateCursorCounter();
     }
 
-    protected void keyTyped(char par1, int par2)
+    protected void keyTyped(char par1, int par2) throws IOException
     {
             if (!this.checkHotbarKeys(par2))
             {
@@ -119,18 +121,17 @@ public class GuiDynamicMarker extends GuiContainer {
             switch (Button.id) {
                 case 0:
                     //save
-                    PacketLib.sendMarkerConfiguration(this.floorY,
+                    PacketLib.sendMarkerConfiguration(
+                    		this.floorY,
                             this.floorName,
-                            this.getContainer().getMarker().xCoord,
-                            this.getContainer().getMarker().yCoord,
-                            this.getContainer().getMarker().zCoord);
+                            this.getContainer().getMarker().getPos());
                     break;
                 case 1:
-                    if (this.floorY > getContainer().getMarker().yCoord -2)
+                    if (this.floorY > getContainer().getMarker().getPos().getY() - 2)
                     this.floorY -= 1;
                     break;
                 case 2:
-                    if (this.floorY < getContainer().getMarker().yCoord +2)
+                    if (this.floorY < getContainer().getMarker().getPos().getY() + 2)
                     this.floorY += 1;
                     break;
         }

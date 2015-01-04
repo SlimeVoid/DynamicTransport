@@ -1,5 +1,6 @@
 package net.slimevoid.dynamictransport.network.packet;
 
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.slimevoid.dynamictransport.core.lib.CommandLib;
 import net.slimevoid.dynamictransport.core.lib.CoreLib;
@@ -54,14 +55,13 @@ public class PacketMarkerData extends PacketGuiEvent {
 
     @Override
     public boolean targetExists(World world) {
+    	BlockPos pos = new BlockPos(this.xPosition,
+                this.yPosition,
+                this.zPosition);
         if (this.command.equals(CommandLib.CALL_ELEVATOR)) {
-            return world.getTileEntity(this.xPosition,
-                    this.yPosition,
-                    this.zPosition) instanceof TileEntityElevatorComputer;
+            return world.getTileEntity(pos) instanceof TileEntityElevatorComputer;
         }else if (this.command.equals(CommandLib.UPDATE_MARKER)) {
-            return world.getTileEntity(this.xPosition,
-                    this.yPosition,
-                    this.zPosition) instanceof TileEntityFloorMarker;
+            return world.getTileEntity(pos) instanceof TileEntityFloorMarker;
         }
         else {
             return false;

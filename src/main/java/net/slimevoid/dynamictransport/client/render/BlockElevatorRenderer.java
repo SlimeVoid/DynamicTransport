@@ -13,9 +13,8 @@ import org.lwjgl.opengl.GL11;
 /**
  * Created by Allen on 7/18/2014.
  */
-public class BlockElevatorRenderer implements
-        ISimpleBlockRenderingHandler {
-    @Override
+public class BlockElevatorRenderer {//implements ISimpleBlockRenderingHandler {
+    /**@Override
     public void renderInventoryBlock(Block block, int metadata, int modelId, RenderBlocks renderer) {
         if (modelId == ConfigurationLib.ElevatorRenderId) {
             Tessellator tessellator = Tessellator.instance;
@@ -88,5 +87,5 @@ public class BlockElevatorRenderer implements
     @Override
     public int getRenderId() {
         return -1;
-    }
+    }**/
 }

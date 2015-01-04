@@ -1,20 +1,25 @@
 package net.slimevoid.dynamictransport.entities;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.slimevoid.dynamictransport.core.lib.BlockLib;
 import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import net.slimevoid.dynamictransport.tileentity.TileEntityElevator;
 import net.slimevoid.library.util.helpers.BlockHelper;
-
-import java.util.*;
+import net.slimevoid.library.util.helpers.EntityHelper;
 
 public class EntityElevatorPart  extends Entity {
     public EntityMasterElevator entityElevatorObj;
@@ -118,54 +123,43 @@ public class EntityElevatorPart  extends Entity {
     }
 
     protected void removeElevatorBlock() {
-        int x = MathHelper.floor_double(this.posX);
-        int y = MathHelper.floor_double(this.posY);
-        int z = MathHelper.floor_double(this.posZ);
-
-        if (this.worldObj.getBlock(x, y, z) == ConfigurationLib.blockTransportBase &&
-                this.worldObj.getBlockMetadata(x, y, z) == BlockLib.BLOCK_ELEVATOR_ID) {
-            TileEntityElevator tile = (TileEntityElevator) BlockHelper.getTileEntity(this.worldObj, x, y, z, TileEntityElevator.class);
+    	BlockPos pos = EntityHelper.getFlooredPosition(this.posX, this.posY, this.posZ);
+        if (Block.getStateId(this.worldObj.getBlockState(pos)) == BlockLib.BLOCK_ELEVATOR_ID) {
+            TileEntityElevator tile = (TileEntityElevator) BlockHelper.getTileEntity(this.worldObj, pos, TileEntityElevator.class);
             if (tile != null) {
                 if (tile.getCamoItem() != null) this.setCamoItem(tile.removeCamoItemWithoutDrop());
                 this.setElevatorYOffset(tile.getYOffest());
                 this.setOverlay(tile.getOverlay());
             }
-            this.worldObj.setBlockToAir(x, y, z);
+            this.worldObj.setBlockToAir(pos);
         }
     }
 
     protected void setTransitBlocks() {
-        int x = MathHelper.floor_double(this.posX);
-        int y = MathHelper.floor_double(this.posY);
-        int z = MathHelper.floor_double(this.posZ);
-
+    	BlockPos pos = EntityHelper.getFlooredPosition(this.posX, this.posY, this.posZ);
         if (this.getCamoItem() != null) {
             Block camouflage = Block.getBlockFromItem(this.getCamoItem().getItem());
             int blockLightValue = camouflage.getLightValue();
-            int blockWeakPower = camouflage.isProvidingWeakPower(this.worldObj, x, y, z, 0)/2; //half the redstone strength
-            y = this.prevPosY < this.posY? y - 1 : y + 1;
-                if (this.worldObj.isAirBlock(x, y, z)) {
-                    this.worldObj.setBlock(x, y, z, ConfigurationLib.blockPoweredLight[blockLightValue], blockWeakPower, 3);
+            int blockWeakPower = camouflage.isProvidingWeakPower(this.worldObj, pos, this.worldObj.getBlockState(pos), EnumFacing.DOWN/*0*/) / 2; //half the redstone strength
+            int yOffset = this.prevPosY < this.posY? -1 : 1;
+                if (this.worldObj.isAirBlock(pos.add(0, yOffset, 0))) {
+                    this.worldObj.setBlockState(pos.add(0, yOffset, 0), ConfigurationLib.blockPoweredLight[blockLightValue].getStateFromMeta(blockWeakPower), 3);
                 }
         }
     }
 
-    public void setDead(ChunkCoordinates parentComputer) {
-        int x = MathHelper.floor_double(this.posX);
-        int z = MathHelper.floor_double(this.posZ);
-        int y = MathHelper.floor_double(this.posY);
+    public void setDead(BlockPos parentComputer) {
+    	BlockPos pos = EntityHelper.getFlooredPosition(this.posX, this.posY, this.posZ);
 
         boolean blockPlaced = !this.worldObj.isRemote
-                && (this.worldObj.getBlock(x, y, z) == ConfigurationLib.blockTransportBase
-                || this.worldObj.canPlaceEntityOnSide(ConfigurationLib.blockTransportBase, x, y, z, true, 1, null, null)
-                && this.worldObj.setBlock(x, y, z, ConfigurationLib.blockTransportBase, BlockLib.BLOCK_ELEVATOR_ID, 3));
+                && (this.worldObj.getBlockState(pos).getBlock() == ConfigurationLib.blockTransportBase
+                || this.worldObj.canBlockBePlaced(ConfigurationLib.blockTransportBase, pos, true, EnumFacing.UP/*1*/, null, null)
+                && this.worldObj.setBlockState(pos, ConfigurationLib.blockTransportBase.getStateFromMeta(BlockLib.BLOCK_ELEVATOR_ID), 3));
 
         if (!this.worldObj.isRemote) {
 
             if (blockPlaced) {
-                TileEntityElevator tile = (TileEntityElevator) this.worldObj.getTileEntity(x,
-                        y,
-                        z);
+                TileEntityElevator tile = (TileEntityElevator) this.worldObj.getTileEntity(pos);
                 if (tile != null) {
                     tile.setParentElevatorComputer(parentComputer);
                     if (this.getCamoItem() != null) {
@@ -233,7 +227,7 @@ public class EntityElevatorPart  extends Entity {
                 }
 
                 double yPos = (this.posY + this.getMountedYOffset())
-                        - rider.boundingBox.minY;
+                        - rider.getBoundingBox().minY;
 
                 rider.motionY = velocity < 0 ? velocity : Math.max(yPos,
                         rider.motionY);
@@ -250,7 +244,7 @@ public class EntityElevatorPart  extends Entity {
 
     @Override
     public AxisAlignedBB getBoundingBox() {
-        return AxisAlignedBB.getBoundingBox(this.posX - 0.5,
+        return AxisAlignedBB.fromBounds(this.posX - 0.5,
                 this.posY - 0.5,
                 this.posZ - 0.5,
                 this.posX + 0.5,
@@ -261,11 +255,11 @@ public class EntityElevatorPart  extends Entity {
     protected boolean isRiding(Entity rider) {
         return rider != null
                 && !rider.isRiding()
-                && rider.boundingBox.maxX >= this.getBoundingBox().minX
-                && rider.boundingBox.minX <= this.getBoundingBox().maxX
-                && rider.boundingBox.maxZ >= this.getBoundingBox().minZ
-                && rider.boundingBox.minZ <= this.getBoundingBox().maxZ
-                && rider.boundingBox.minY <= (this.posY
+                && rider.getBoundingBox().maxX >= this.getBoundingBox().minX
+                && rider.getBoundingBox().minX <= this.getBoundingBox().maxX
+                && rider.getBoundingBox().maxZ >= this.getBoundingBox().minZ
+                && rider.getBoundingBox().minZ <= this.getBoundingBox().maxZ
+                && rider.getBoundingBox().minY <= (this.posY
                 + this.getMountedYOffset() + .5);
     }
 
@@ -276,9 +270,9 @@ public class EntityElevatorPart  extends Entity {
                 Entity rider = entities.next();
                 if (isRiding(rider)) {
                     double yPos = (this.posY + this.getMountedYOffset())
-                            - rider.boundingBox.minY;
+                            - rider.getBoundingBox().minY;
                     double yDif = Math.abs(this.posY + this.getMountedYOffset()
-                            - rider.boundingBox.minY);
+                            - rider.getBoundingBox().minY);
                     if (yDif < 1.0) {
                         rider.motionY = velocity < 0 ? velocity : Math.max(yPos,
                                 rider.motionY);
@@ -303,11 +297,11 @@ public class EntityElevatorPart  extends Entity {
     protected void unmountRiders() {
         for ( Entity rider : this.confirmedRiders) {
             if (rider != null) {
-                rider.boundingBox.offset(0,
+                rider.getBoundingBox().offset(0,
                         this.getMountedYOffset(),
                         0);
                 rider.posY = this.getBoundingBox().maxY
-                        + this.getMountedYOffset() + rider.yOffset;
+                        + this.getMountedYOffset() + rider.getYOffset();
                 rider.isAirBorne = false;
                 rider.onGround = true;
                 rider.fallDistance = 0;

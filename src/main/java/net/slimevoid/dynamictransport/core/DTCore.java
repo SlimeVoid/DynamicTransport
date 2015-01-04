@@ -91,9 +91,9 @@ public class DTCore {
     public static void registerItems() {
         ConfigurationLib.itemElevatorTool = new ItemElevatorTool();
 
-        ConfigurationLib.itemElevatorTool.setUnlocalizedName(BlockLib.ITEM_ELEVATOR_TOOL).setTextureName(CoreLib.MOD_ID
-                                                                                                         + ":"
-                                                                                                         + BlockLib.ITEM_ELEVATOR_TOOL);
+        //ConfigurationLib.itemElevatorTool.setUnlocalizedName(BlockLib.ITEM_ELEVATOR_TOOL).setTextureName(CoreLib.MOD_ID
+        //                                                                                                 + ":"
+        //                                                                                                 + BlockLib.ITEM_ELEVATOR_TOOL);
 
         ConfigurationLib.itemElevatorTool.setCreativeTab(CreativeTabs.tabTransport);
         GameRegistry.registerItem(ConfigurationLib.itemElevatorTool,

@@ -1,6 +1,7 @@
 package net.slimevoid.dynamictransport.tileentity;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -8,6 +9,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.slimevoid.dynamictransport.core.DynamicTransportMod;
 import net.slimevoid.dynamictransport.core.lib.BlockLib;
 import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
@@ -27,9 +29,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
     }
 
     public TileEntityElevatorComputer getParentElevatorComputer() {
-        TileEntity tile = parentTransportBase == null ? null : this.worldObj.getTileEntity(this.parentTransportBase.posX,
-                                                                                           this.parentTransportBase.posY,
-                                                                                           this.parentTransportBase.posZ);
+        TileEntity tile = parentTransportBase == null ? null : this.worldObj.getTileEntity(this.parentTransportBase);
         if (tile == null) {
             parentTransportBase = null;
         } else if (!(tile instanceof TileEntityElevatorComputer)) {
@@ -41,15 +41,13 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
     }
 
     @Override
-    public boolean isSideSolid(BlockBase blockBase, ForgeDirection side) {
+    public boolean isSideSolid(BlockBase blockBase, EnumFacing side) {
         return true;
     }
 
     @Override
-    public void onBlockNeighborChange(Block block) {
-        boolean flag = this.worldObj.isBlockIndirectlyGettingPowered(this.xCoord,
-                                                                     this.yCoord,
-                                                                     this.zCoord);
+    public void onNeighborChange(BlockPos pos) {
+        boolean flag = this.worldObj.isBlockIndirectlyGettingPowered(this.pos) > 0;
 
         if (!this.Powered) {
             if (flag) {
@@ -65,13 +63,13 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 
         TileEntityElevatorComputer comTile = this.getParentElevatorComputer();
         if (comTile != null) {
-            String msg = comTile.callElevator(this.yCoord + this.yOffset,
+            String msg = comTile.callElevator(this.pos.getY() + this.yOffset,
                                               this.floorName);
             if (!this.worldObj.isRemote) {
-                ChatHelper.sendChatMessageToAllNear(this.getWorldObj(),
-                                                    this.xCoord,
-                                                    this.yCoord,
-                                                    this.zCoord,
+                ChatHelper.sendChatMessageToAllNear(this.getWorld(),
+                                                    this.pos.getX(),
+                                                    this.pos.getY(),
+                                                    this.pos.getZ(),
                                                     4,
                                                     msg);
             }
@@ -79,8 +77,8 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
     }
 
     @Override
-    public boolean onBlockActivated(EntityPlayer entityplayer) {
-        if (this.getWorldObj().isRemote) {
+    public boolean onBlockActivated(IBlockState blockState, EntityPlayer entityplayer, EnumFacing side, float xHit, float yHit, float zHit) {
+        if (this.getWorld().isRemote) {
             return true;
         }
         ItemStack heldItem = entityplayer.getHeldItem();
@@ -90,12 +88,12 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
                 && entityplayer.getHeldItem().getTagCompound() != null) {
                 NBTTagCompound tags = entityplayer.getHeldItem().getTagCompound();
                 if (tags != null && tags.hasKey("ComputerX")) {
-                    ChunkCoordinates possibleComputer = new ChunkCoordinates(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ"));
+                    BlockPos possibleComputer = new BlockPos(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ"));
                     if (entityplayer.isSneaking()) {
                         if (possibleComputer.equals(this.parentTransportBase)) {
                             ChatHelper.addMessageToPlayer(entityplayer,
                                                           "slimevoid.DT.dynamicMarker.unbound");// "Block Unbound"
-                            this.getParentElevatorComputer().removeMarkerBlock(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord));
+                            this.getParentElevatorComputer().removeMarkerBlock(this.pos);
                             this.removeParent();
                             return true;
                         } else if (this.parentTransportBase != null) {
@@ -111,9 +109,9 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
                             entityplayer.openGui(DynamicTransportMod.instance,
                                                  GuiLib.GUIID_FLOOR_MARKER,
                                                  this.worldObj,
-                                                 this.xCoord,
-                                                 this.yCoord,
-                                                 this.zCoord);
+                                                 this.pos.getX(),
+                                                 this.pos.getY(),
+                                                 this.pos.getZ());
                             return true;
                         }
                     }
@@ -125,13 +123,13 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
             entityplayer.openGui(DynamicTransportMod.instance,
                                  GuiLib.GUIID_FloorSelection,
                                  this.worldObj,
-                                 this.xCoord,
-                                 this.yCoord,
-                                 this.zCoord);
+                                 this.pos.getX(),
+                                 this.pos.getY(),
+                                 this.pos.getZ());
             return true;
         }
 
-        return super.onBlockActivated(entityplayer);
+        return super.onBlockActivated(blockState, entityplayer, side, xHit, yHit, zHit);
     }
 
     @Override
@@ -139,11 +137,11 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
         super.writeToNBT(nbttagcompound);
         if (parentTransportBase != null) {
             nbttagcompound.setInteger("ParentTransportComputerX",
-                                      parentTransportBase.posX);
+                                      parentTransportBase.getX());
             nbttagcompound.setInteger("ParentTransportComputerY",
-                                      parentTransportBase.posY);
+                                      parentTransportBase.getY());
             nbttagcompound.setInteger("ParentTransportComputerZ",
-                                      parentTransportBase.posZ);
+                                      parentTransportBase.getZ());
         }
         if (this.floorName != null && !this.floorName.isEmpty()) nbttagcompound.setString("FloorName",
                                                                                           floorName);
@@ -157,7 +155,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
     @Override
     public void readFromNBT(NBTTagCompound nbttagcompound) {
         super.readFromNBT(nbttagcompound);
-        this.parentTransportBase = new ChunkCoordinates(nbttagcompound.getInteger("ParentTransportComputerX"), nbttagcompound.getInteger("ParentTransportComputerY"), nbttagcompound.getInteger("ParentTransportComputerZ"));
+        this.parentTransportBase = new BlockPos(nbttagcompound.getInteger("ParentTransportComputerX"), nbttagcompound.getInteger("ParentTransportComputerY"), nbttagcompound.getInteger("ParentTransportComputerZ"));
 
         this.floorName = nbttagcompound.getString("FloorName");
 
@@ -170,26 +168,18 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
         this.updateBlock();
     }
 
-    public void setParentComputer(ChunkCoordinates ComputerLocation, EntityPlayer entityplayer) {
+    public void setParentComputer(BlockPos ComputerLocation, EntityPlayer entityplayer) {
         TileEntityElevatorComputer comTile = getParentElevatorComputer();
+        IBlockState state = this.worldObj.getBlockState(ComputerLocation);
+        if (state.getBlock() == ConfigurationLib.blockTransportBase
+            && Block.getStateId(state) == BlockLib.BLOCK_ELEVATOR_COMPUTER_ID) {
 
-        if (this.worldObj.getBlock(ComputerLocation.posX,
-                                   ComputerLocation.posY,
-                                   ComputerLocation.posZ) == ConfigurationLib.blockTransportBase
-            && this.worldObj.getBlockMetadata(ComputerLocation.posX,
-                                              ComputerLocation.posY,
-                                              ComputerLocation.posZ) == BlockLib.BLOCK_ELEVATOR_COMPUTER_ID) {
-
-            comTile = (TileEntityElevatorComputer) this.worldObj.getTileEntity(ComputerLocation.posX,
-                                                                               ComputerLocation.posY,
-                                                                               ComputerLocation.posZ);
-            if (comTile.addFloorMarker(new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord),
+            comTile = (TileEntityElevatorComputer) this.worldObj.getTileEntity(ComputerLocation);
+            if (comTile.addFloorMarker(this.pos,
                                        entityplayer)) {
                 this.parentTransportBase = ComputerLocation;
                 this.onInventoryChanged();
-                this.getWorldObj().markBlockForUpdate(this.xCoord,
-                                                      this.yCoord,
-                                                      this.zCoord);
+                this.getWorld().markBlockForUpdate(this.pos);
             }
 
         } else {
@@ -208,7 +198,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
     }
 
     public int getFloorY() {
-        return this.yCoord + this.yOffset;
+        return this.pos.getY() + this.yOffset;
     }
 
     public String getFloorName() {
@@ -234,7 +224,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
     }
 
     public void setFloorY(int floorY) {
-        this.yOffset = floorY - this.yCoord;
+        this.yOffset = floorY - this.pos.getY();
         this.onInventoryChanged();
         this.markDirty();
     }
@@ -243,6 +233,6 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
     {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
         this.writeToNBT(nbttagcompound);
-        return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 2, nbttagcompound);
+        return new S35PacketUpdateTileEntity(this.pos, 2, nbttagcompound);
     }
 }

@@ -4,7 +4,9 @@ import java.io.File;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.slimevoid.dynamictransport.container.ContainerDynamicMarker;
 import net.slimevoid.dynamictransport.container.ContainerFloorSelection;
 import net.slimevoid.dynamictransport.core.DynamicTransportMod;
@@ -16,7 +18,6 @@ import net.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
 import net.slimevoid.dynamictransport.tileentity.TileEntityFloorMarker;
 import net.slimevoid.library.ICommonProxy;
 import net.slimevoid.library.util.helpers.BlockHelper;
-import cpw.mods.fml.common.network.NetworkRegistry;
 
 public class CommonProxy implements ICommonProxy {
 
@@ -50,21 +51,20 @@ public class CommonProxy implements ICommonProxy {
 
     @Override
     public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+    	BlockPos pos = new BlockPos(x,
+					    			y,
+					                z);
         switch(ID){
             case GuiLib.GUIID_FloorSelection:
                 TileEntityFloorMarker TE = (TileEntityFloorMarker) BlockHelper.getTileEntity(world,
-                        x,
-                        y,
-                        z,
+                        pos,
                         TileEntityFloorMarker.class);
                 TileEntityElevatorComputer computer = null;
                 if (TE != null) {
                     computer = TE.getParentElevatorComputer();
                 }else{
                     TileEntityElevator tileElevator = (TileEntityElevator) BlockHelper.getTileEntity(world,
-                            x,
-                            y,
-                            z,
+                            pos,
                             TileEntityElevator.class);
                     if (tileElevator != null){
                         computer = tileElevator.getParentElevatorComputer();
@@ -76,9 +76,7 @@ public class CommonProxy implements ICommonProxy {
                 break;
             case GuiLib.GUIID_FLOOR_MARKER:
                 TileEntityFloorMarker floorMarker = (TileEntityFloorMarker) BlockHelper.getTileEntity(world,
-                        x,
-                        y,
-                        z,
+                        pos,
                         TileEntityFloorMarker.class);
                 if (floorMarker != null) {
                     return new ContainerDynamicMarker(player.inventory,floorMarker,world);

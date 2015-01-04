@@ -1,21 +1,22 @@
 package net.slimevoid.dynamictransport.entities;
 
+import java.util.HashSet;
+import java.util.List;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
 import net.slimevoid.library.util.helpers.BlockHelper;
 import net.slimevoid.library.util.helpers.ChatHelper;
 
-import java.util.*;
-
 public class EntityMasterElevator extends Entity {
     protected static final float elevatorAccel          = 0.01F;
     protected static final float minElevatorMovingSpeed = 0.016F;
 
-    private ChunkCoordinates computerPos;
+    private BlockPos computerPos;
     private boolean canBeHalted;
     private boolean slowingDown;
     private int startStops;
@@ -49,15 +50,15 @@ public class EntityMasterElevator extends Entity {
 
     }
 
-    public void setProperties(int destination, String destinationName, float elevatorTopSpeed, ChunkCoordinates computer, boolean haltable, List<ChunkCoordinates> elevatorParts ) {
+    public void setProperties(int destination, String destinationName, float elevatorTopSpeed, BlockPos computer, boolean haltable, List<BlockPos> elevatorParts ) {
         this.setDestinationY(destination);
         this.destFloorName = destinationName != null
                 && !destinationName.trim().equals("") ? destinationName : String.valueOf(destination);
 
         this.computerPos = computer;
         this.canBeHalted = haltable;
-        for (ChunkCoordinates elevatorPart : elevatorParts) {
-            EntityElevatorPart part = new EntityElevatorPart(this.worldObj, this, elevatorPart.posX, elevatorPart.posY + this.posY, elevatorPart.posZ);
+        for (BlockPos elevatorPart : elevatorParts) {
+            EntityElevatorPart part = new EntityElevatorPart(this.worldObj, this, elevatorPart.getX(), elevatorPart.getY() + this.posY, elevatorPart.getZ());
             this.worldObj.spawnEntityInWorld(part);
             this.parts.add(part);
         }
@@ -246,9 +247,9 @@ public class EntityMasterElevator extends Entity {
             nbttagcompound.setString("destName", this.destFloorName);
         }
         nbttagcompound.setBoolean("emerHalt", this.getEmerHalt());
-        nbttagcompound.setInteger("ComputerX", this.computerPos.posX);
-        nbttagcompound.setInteger("ComputerY", this.computerPos.posY);
-        nbttagcompound.setInteger("ComputerZ", this.computerPos.posZ);
+        nbttagcompound.setInteger("ComputerX", this.computerPos.getX());
+        nbttagcompound.setInteger("ComputerY", this.computerPos.getY());
+        nbttagcompound.setInteger("ComputerZ", this.computerPos.getZ());
         nbttagcompound.setFloat("TopSpeed", this.getMaximumSpeed());
         //nbttagcompound.setInteger("PartCount",this.parts.size());
 
@@ -261,7 +262,7 @@ public class EntityMasterElevator extends Entity {
         this.setMaximumSpeed(nbttagcompound.getFloat("TopSpeed"));
         this.setEmerHalt(nbttagcompound.getBoolean("emerHalt"));
         this.destFloorName = nbttagcompound.getString("destName");
-        this.computerPos = new ChunkCoordinates(nbttagcompound.getInteger("ComputerX"), nbttagcompound.getInteger("ComputerY"), nbttagcompound.getInteger("ComputerZ"));
+        this.computerPos = new BlockPos(nbttagcompound.getInteger("ComputerX"), nbttagcompound.getInteger("ComputerY"), nbttagcompound.getInteger("ComputerZ"));
 
 
     }
@@ -270,16 +271,14 @@ public class EntityMasterElevator extends Entity {
         TileEntityElevatorComputer computer = null;
         if (this.computerPos != null) {
             computer = (TileEntityElevatorComputer) BlockHelper.getTileEntity(this.worldObj,
-                    this.computerPos.posX,
-                    this.computerPos.posY,
-                    this.computerPos.posZ,
+                    this.computerPos,
                     TileEntityElevatorComputer.class);
         }
 
         return computer;
     }
 
-    protected ChunkCoordinates getParentElevatorComputerPos() {
+    protected BlockPos getParentElevatorComputerPos() {
         return this.computerPos;
     }
 

@@ -3,9 +3,12 @@ package net.slimevoid.dynamictransport.tileentity;
 import java.util.ArrayList;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IChatComponent;
 import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import net.slimevoid.library.blocks.BlockBase;
 import net.slimevoid.library.tileentity.TileEntityBase;
@@ -60,18 +63,18 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
     }
 
     @Override
-    public boolean onBlockActivated(EntityPlayer entityplayer) {
-        if (this.getWorldObj().isRemote) {
+    public boolean onBlockActivated(IBlockState blockState, EntityPlayer entityplayer, EnumFacing side, float xHit, float yHit, float zHit) {
+        if (this.getWorld().isRemote) {
             return true;
         }
         if (this.isInMaintenanceMode()) {
             ItemStack heldItem = entityplayer.getHeldItem();
             if (this.getCamoItem() == null
                 && ItemHelper.isSolidBlockStack(heldItem,
-                                                this.getWorldObj(),
-                                                this.xCoord,
-                                                this.yCoord,
-                                                this.zCoord)) {
+                                                this.getWorld(),
+                                                this.pos.getX(),
+                                                this.pos.getY(),
+                                                this.pos.getZ())) {
                 this.setCamoItem(heldItem.copy());
                 if (!entityplayer.capabilities.isCreativeMode) {
                     --heldItem.stackSize;
@@ -99,14 +102,12 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
         this.camoItem = itemstack;
         this.camoItem.stackSize = 1;
         this.updateBlock();
-        this.getWorldObj().notifyBlockChange(this.xCoord,this.yCoord,this.zCoord, ConfigurationLib.blockTransportBase);
+        this.getWorld().notifyBlockOfStateChange(this.pos, ConfigurationLib.blockTransportBase);
     }
 
     protected void removeCamoItem() {
-        ItemHelper.dropItem(this.getWorldObj(),
-                            this.xCoord,
-                            this.yCoord,
-                            this.zCoord,
+        ItemHelper.dropItem(this.getWorld(),
+                            this.pos,
                             this.camoItem);
         this.camoItem = null;
         this.updateBlock();
@@ -177,5 +178,35 @@ public abstract class TileEntityTransportBase extends TileEntityBase {
     public boolean isItemValidForSlot(int i, ItemStack itemstack) {
         return i == 0 && ItemHelper.isBlockStack(itemstack);
     }
+
+	@Override
+	public int getField(int id) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setField(int id, int value) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int getFieldCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void clear() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public IChatComponent getDisplayName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }
