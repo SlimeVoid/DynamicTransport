@@ -7,8 +7,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChunkCoordinates;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.BlockPos;
 import net.slimevoid.dynamictransport.core.DynamicTransportMod;
 import net.slimevoid.dynamictransport.core.lib.BlockLib;
 import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
@@ -18,12 +17,12 @@ import net.slimevoid.library.util.helpers.ChatHelper;
 
 public class TileEntityFloorMarker extends TileEntityTransportBase {
 
-    private ChunkCoordinates parentTransportBase;
+    private BlockPos parentTransportBase;
     private String           floorName;
     private boolean          Powered = false;
     private int              yOffset = -2;
 
-    public ChunkCoordinates getParentChunkCoords() {
+    public BlockPos getParentChunkCoords() {
         return this.parentTransportBase;
     }
 

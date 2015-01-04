@@ -1,5 +1,7 @@
 package net.slimevoid.dynamictransport.core.lib;
 
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.slimevoid.dynamictransport.network.PacketMarkerGUIHandler;
 import net.slimevoid.dynamictransport.network.packet.PacketMarkerData;
 import net.slimevoid.dynamictransport.network.packet.executors.ElevatorCallExecutor;
@@ -7,8 +9,6 @@ import net.slimevoid.dynamictransport.network.packet.executors.MarkerConfigurati
 import net.slimevoid.library.network.PacketIds;
 import net.slimevoid.library.network.handlers.PacketPipeline;
 import net.slimevoid.library.util.helpers.PacketHelper;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class PacketLib {
 

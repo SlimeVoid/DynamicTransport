@@ -2,7 +2,7 @@ package net.slimevoid.dynamictransport.core.lib;
 
 import java.io.File;
 
-import cpw.mods.fml.common.registry.LanguageRegistry;
+import net.minecraftforge.fml.common.registry.LanguageRegistry;
 
 public class LocaleLib {
 

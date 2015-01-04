@@ -1,8 +1,5 @@
 package net.slimevoid.dynamictransport.core.lib;
 
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.util.IIcon;
-
 public class BlockLib {
 
     public static final int     BLOCK_MAX_TILES            = 3;
@@ -30,7 +27,7 @@ public class BlockLib {
     public static final String BLOCK_ELEVATOR_SENSOR = BLOCK_TRANSPORT_PREFIX
             + ".sensor";
 
-    public static IIcon[][] registerIcons(IIconRegister iconRegister, IIcon[][] iconList) {
+    /**public static IIcon[][] registerIcons(IIconRegister iconRegister, IIcon[][] iconList) {
         iconList[BLOCK_ELEVATOR_ID][1] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
                                                                    + ":"
                                                                    + BLOCK_ELEVATOR
@@ -105,12 +102,13 @@ public class BlockLib {
                                                                        + ".side");
         return iconList;
     }
+    
     public static IIcon[] registerIconOverLays(IIconRegister iconRegister, IIcon[] iconList) {
         iconList[0] = iconRegister.registerIcon(CoreLib.MOD_RESOURCES
                 + ":"
                 + BLOCK_ELEVATOR
                 + ".overlay");
     return iconList;
-    }
+    }**/
 
 }

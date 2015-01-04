@@ -4,18 +4,18 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.BlockPos;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.slimevoid.dynamictransport.core.DynamicTransportMod;
 import net.slimevoid.dynamictransport.core.lib.BlockLib;
 import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import net.slimevoid.dynamictransport.core.lib.GuiLib;
 import net.slimevoid.library.blocks.BlockBase;
 import net.slimevoid.library.util.helpers.ChatHelper;
-import cpw.mods.fml.common.FMLCommonHandler;
 
 public class TileEntityElevator extends TileEntityTransportBase {
 
-    private ChunkCoordinates ParentElevatorComputer;
+    private BlockPos		 ParentElevatorComputer;
     private int              yOffset = 0;
     private int              maxY    = -1;
     private int              minY    = -1;
@@ -174,7 +174,7 @@ public class TileEntityElevator extends TileEntityTransportBase {
                                          blockBase);
     }
 
-    public ChunkCoordinates getParent() {
+    public BlockPos getParent() {
         return this.ParentElevatorComputer;
     }
 

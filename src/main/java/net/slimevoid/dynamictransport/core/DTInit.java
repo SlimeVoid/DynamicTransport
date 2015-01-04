@@ -1,10 +1,10 @@
 package net.slimevoid.dynamictransport.core;
 
+import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.slimevoid.dynamictransport.core.lib.CoreLib;
 import net.slimevoid.dynamictransport.entities.EntityElevatorPart;
 import net.slimevoid.dynamictransport.entities.EntityMasterElevator;
-import net.slimevoid.library.core.*;
-import cpw.mods.fml.common.registry.EntityRegistry;
+import net.slimevoid.library.core.SlimevoidCore;
 
 public class DTInit {
 

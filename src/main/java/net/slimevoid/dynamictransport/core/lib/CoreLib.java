@@ -1,9 +1,5 @@
 package net.slimevoid.dynamictransport.core.lib;
 
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
 public class CoreLib {
     public static final String MOD_ID              = "DynamicTransport";
     public static final String MOD_RESOURCES       = "dynamictransport";

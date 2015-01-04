@@ -1,19 +1,19 @@
 package net.slimevoid.dynamictransport.blocks;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.slimevoid.dynamictransport.core.lib.BlockLib;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
-import net.minecraft.util.AxisAlignedBB;
 import java.util.ArrayList;
 import java.util.Random;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.Explosion;
-import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import net.slimevoid.dynamictransport.core.lib.CoreLib;
 
 /**
@@ -27,13 +27,13 @@ public class BlockPoweredLight extends Block {
     }
 
     @Override
-    public int isProvidingWeakPower(IBlockAccess world, int x, int y, int z, int side)
+    public int isProvidingWeakPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side)
     {
-        return world.getBlockMetadata(x,y,z);
+        return this.getMetaFromState(state);
     }
 
     @Override
-    public boolean isBlockNormalCube() {
+    public boolean isNormalCube() {
         return false;
     }
 
@@ -43,17 +43,17 @@ public class BlockPoweredLight extends Block {
     }
 
     @Override
-    public boolean canEntityDestroy(IBlockAccess world, int x, int y, int z, Entity e) {
+    public boolean canEntityDestroy(IBlockAccess world, BlockPos pos, Entity e) {
         return false;
     }
 
     @Override
-    public boolean canCollideCheck(int par1, boolean par2) {
+    public boolean canCollideCheck(IBlockState state, boolean par2) {
         return false;
     }
 
     @Override
-    public boolean canBeReplacedByLeaves(IBlockAccess world, int x, int y, int z) {
+    public boolean canBeReplacedByLeaves(IBlockAccess world, BlockPos pos) {
         return true;
     }
 
@@ -63,33 +63,33 @@ public class BlockPoweredLight extends Block {
     }
 
     @Override
-    public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune) {
+    public ArrayList<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
         return new ArrayList<ItemStack>(); // Empty List
     }
 
     @Override
-    public AxisAlignedBB getCollisionBoundingBoxFromPool(World par1World, int par2, int par3, int par4) {
+    public AxisAlignedBB getCollisionBoundingBox(World world, BlockPos pos, IBlockState state) {
         return null;
     }
 
     @Override
-    public boolean isAir(IBlockAccess world, int x, int y, int z) {
+    public boolean isAir(IBlockAccess world, BlockPos pos) {
         return true;
     }
 
     @Override
-    public void updateTick(World world, int x, int y, int z, Random rand) {
-        world.setBlockToAir(x, y, z);
+    public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
+        world.setBlockToAir(pos);
     }
 
     @Override
-    public void onBlockAdded(World world,int x,int y,int z){
-        world.scheduleBlockUpdate(x, y, z, this, 10);
+    public void onBlockAdded(World world, BlockPos pos, IBlockState state){
+        world.scheduleUpdate(pos, this, 10);
     }
 
-    @Override
+    /**@Override
     public void registerBlockIcons(IIconRegister register){
         blockIcon = register.registerIcon(CoreLib.MOD_RESOURCES + ":emptyTexture");
-    }
+    }**/
 
 }

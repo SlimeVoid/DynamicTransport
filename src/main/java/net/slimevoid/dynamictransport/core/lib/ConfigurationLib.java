@@ -3,10 +3,10 @@ package net.slimevoid.dynamictransport.core.lib;
 import java.io.File;
 import java.util.regex.Pattern;
 
-import cpw.mods.fml.client.registry.RenderingRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.client.registry.RenderingRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.slimevoid.dynamictransport.blocks.BlockPoweredLight;
 import net.slimevoid.dynamictransport.blocks.BlockTransportBase;
 import net.slimevoid.dynamictransport.items.ItemElevatorTool;

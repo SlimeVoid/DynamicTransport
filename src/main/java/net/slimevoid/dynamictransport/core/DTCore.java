@@ -1,10 +1,10 @@
 package net.slimevoid.dynamictransport.core;
 
-import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.slimevoid.dynamictransport.blocks.BlockPoweredLight;
 import net.slimevoid.dynamictransport.blocks.BlockTransportBase;
 import net.slimevoid.dynamictransport.core.lib.BlockLib;
@@ -16,7 +16,6 @@ import net.slimevoid.dynamictransport.tileentity.TileEntityElevator;
 import net.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
 import net.slimevoid.dynamictransport.tileentity.TileEntityFloorMarker;
 import net.slimevoid.library.items.ItemBlockBase;
-import cpw.mods.fml.common.registry.GameRegistry;
 
 public class DTCore {
 
