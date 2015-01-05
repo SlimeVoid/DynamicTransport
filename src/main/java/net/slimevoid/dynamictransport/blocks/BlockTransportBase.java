@@ -198,7 +198,7 @@ public class BlockTransportBase extends BlockBase {
                         break;
                     case BlockLib.BLOCK_ELEVATOR_ID:
                         TileEntityElevator elevator = (TileEntityElevator) BlockHelper.getTileEntity(world, pos, TileEntityElevator.class);
-                        if (elevator != null && elevator.getParent().equals(possibleComputer)) {
+                        if (elevator != null && elevator.getConnectionPos().equals(possibleComputer)) {
                             return ConfigurationLib.ElevatorMaintenanceHighlight;
                         }
                         break;

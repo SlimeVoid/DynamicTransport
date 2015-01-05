@@ -13,7 +13,7 @@ import net.slimevoid.dynamictransport.core.lib.CoreLib;
 import net.slimevoid.dynamictransport.core.lib.LocaleLib;
 import net.slimevoid.dynamictransport.items.ItemElevatorTool;
 import net.slimevoid.dynamictransport.tileentity.TileEntityElevator;
-import net.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
+import net.slimevoid.dynamictransport.tileentity.TileEntityTransportComputer;
 import net.slimevoid.dynamictransport.tileentity.TileEntityFloorMarker;
 import net.slimevoid.library.items.ItemBlockBase;
 
@@ -42,7 +42,7 @@ public class DTCore {
                                                        BlockLib.BLOCK_ELEVATOR);
 
         ConfigurationLib.blockTransportBase.addMapping(BlockLib.BLOCK_ELEVATOR_COMPUTER_ID,
-                                                       TileEntityElevatorComputer.class,
+                                                       TileEntityTransportComputer.class,
                                                        BlockLib.BLOCK_ELEVATOR_COMPUTER);
 
         ConfigurationLib.blockTransportBase.addMapping(BlockLib.BLOCK_DYNAMIC_MARK_ID,

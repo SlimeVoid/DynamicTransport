@@ -14,7 +14,7 @@ import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import net.slimevoid.dynamictransport.core.lib.GuiLib;
 import net.slimevoid.dynamictransport.core.lib.PacketLib;
 import net.slimevoid.dynamictransport.tileentity.TileEntityElevator;
-import net.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
+import net.slimevoid.dynamictransport.tileentity.TileEntityTransportComputer;
 import net.slimevoid.dynamictransport.tileentity.TileEntityFloorMarker;
 import net.slimevoid.library.ICommonProxy;
 import net.slimevoid.library.util.helpers.BlockHelper;
@@ -59,7 +59,7 @@ public class CommonProxy implements ICommonProxy {
                 TileEntityFloorMarker TE = (TileEntityFloorMarker) BlockHelper.getTileEntity(world,
                         pos,
                         TileEntityFloorMarker.class);
-                TileEntityElevatorComputer computer = null;
+                TileEntityTransportComputer computer = null;
                 if (TE != null) {
                     computer = TE.getParentElevatorComputer();
                 }else{
@@ -67,7 +67,7 @@ public class CommonProxy implements ICommonProxy {
                             pos,
                             TileEntityElevator.class);
                     if (tileElevator != null){
-                        computer = tileElevator.getParentElevatorComputer();
+                        computer = tileElevator.getConnection();
                     }
                 }
                 if (computer != null) {

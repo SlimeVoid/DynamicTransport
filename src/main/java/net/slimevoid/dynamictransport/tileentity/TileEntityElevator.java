@@ -8,7 +8,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.IChatComponent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.slimevoid.dynamictransport.core.DynamicTransportMod;
 import net.slimevoid.dynamictransport.core.lib.BlockLib;
@@ -19,7 +18,7 @@ import net.slimevoid.library.util.helpers.ChatHelper;
 
 public class TileEntityElevator extends TileEntityTransportBase {
 
-    private BlockPos		 ParentElevatorComputer;
+    private BlockPos		 connectionPos;
     private int              yOffset = 0;
     private int              maxY    = -1;
     private int              minY    = -1;
@@ -68,21 +67,21 @@ public class TileEntityElevator extends TileEntityTransportBase {
                 if (tags != null && tags.hasKey("ComputerX")) {
                     BlockPos possibleComputer = new BlockPos(tags.getInteger("ComputerX"), tags.getInteger("ComputerY"), tags.getInteger("ComputerZ"));
                     if (entityplayer.isSneaking()) {
-                        if (possibleComputer.equals(this.ParentElevatorComputer)) {
+                        if (possibleComputer.equals(this.connectionPos)) {
                             ChatHelper.addMessageToPlayer(entityplayer,
                                                           "slimevoid.DT.elevatorBlock.unbound");// "Block Unbound"
-                            this.getParentElevatorComputer().RemoveElevatorBlock(pos.add(0, -this.pos.getY() + this.getYOffest(), 0));
+                            this.getConnection().RemoveElevatorBlock(pos.add(0, -this.pos.getY() + this.getYOffest(), 0));
                             this.RemoveComputer(possibleComputer);
                             return true;
-                        } else if (this.ParentElevatorComputer != null) {
+                        } else if (this.connectionPos != null) {
                             ChatHelper.addMessageToPlayer(entityplayer,
                                                           "slimevoid.DT.elevatorBlock.boundToOtherComputer");// "Block Bound to Another Elevator"
                         }
                     } else {
-                        if (this.getParent() == null) {
-                            setParentElevatorComputer(possibleComputer,
+                        if (this.getConnectionPos() == null) {
+                            setParent(possibleComputer,
                                     entityplayer);
-                        } else if (possibleComputer.equals(this.getParent())) {
+                        } else if (possibleComputer.equals(this.getConnectionPos())) {
 
                             if ((this.overlay & digitLoc) == digitLoc){
                                 this.overlay = (short)((this.overlay & ~digitLoc) & 127);
@@ -113,30 +112,30 @@ public class TileEntityElevator extends TileEntityTransportBase {
         return super.onBlockActivated(blockState, entityplayer, side, xHit, yHit, zHit);
     }
 
-    public void setParentElevatorComputer(BlockPos ComputerLocation) {
-        TileEntityElevatorComputer comTile = ParentElevatorComputer == null ? null : (TileEntityElevatorComputer) this.worldObj.getTileEntity(this.ParentElevatorComputer);
-        if (comTile == null) this.ParentElevatorComputer = null;
-        IBlockState state = this.worldObj.getBlockState(ComputerLocation);
+    public void setParent(BlockPos pos) {
+        TileEntityTransportComputer comTile = connectionPos == null ? null : (TileEntityTransportComputer) this.worldObj.getTileEntity(this.connectionPos);
+        if (comTile == null) this.connectionPos = null;
+        IBlockState state = this.worldObj.getBlockState(pos);
         if (state.getBlock() == ConfigurationLib.blockTransportBase
             && Block.getStateId(state) == BlockLib.BLOCK_ELEVATOR_COMPUTER_ID) {
-            this.ParentElevatorComputer = ComputerLocation;
+            this.connectionPos = pos;
         }
 
     }
 
-    public void setParentElevatorComputer(BlockPos ComputerLocation, EntityPlayer entityplayer) {
-        TileEntityElevatorComputer comTile = ParentElevatorComputer == null ? null : (TileEntityElevatorComputer) this.worldObj.getTileEntity(this.ParentElevatorComputer);
-        if (comTile == null) this.ParentElevatorComputer = null;
-        IBlockState state = this.worldObj.getBlockState(ComputerLocation);
+    public void setParent(BlockPos pos, EntityPlayer entityplayer) {
+        TileEntityTransportComputer comTile = connectionPos == null ? null : (TileEntityTransportComputer) this.worldObj.getTileEntity(this.connectionPos);
+        if (comTile == null) this.connectionPos = null;
+        IBlockState state = this.worldObj.getBlockState(pos);
 
         if (state.getBlock() == ConfigurationLib.blockTransportBase
             && Block.getStateId(state) == BlockLib.BLOCK_ELEVATOR_COMPUTER_ID) {
 
-            comTile = (TileEntityElevatorComputer) this.worldObj.getTileEntity(ComputerLocation);
+            comTile = (TileEntityTransportComputer) this.worldObj.getTileEntity(pos);
             if (comTile.addElevator(this.pos,
-                                    entityplayer)) this.ParentElevatorComputer = ComputerLocation;
+                                    entityplayer)) this.connectionPos = pos;
 
-            this.yOffset = this.pos.getY() - (ComputerLocation.getY() + 1);
+            this.yOffset = this.pos.getY() - (pos.getY() + 1);
         } else {
             ItemStack heldItem = entityplayer.getHeldItem();
             NBTTagCompound tags = new NBTTagCompound();
@@ -149,41 +148,41 @@ public class TileEntityElevator extends TileEntityTransportBase {
 
     @Override
     public boolean removeBlockByPlayer(EntityPlayer player, BlockBase blockBase, boolean willHarvest) {
-        TileEntityElevatorComputer comTile = ParentElevatorComputer == null ? null : (TileEntityElevatorComputer) this.worldObj.getTileEntity(this.ParentElevatorComputer);
+        TileEntityTransportComputer comTile = connectionPos == null ? null : (TileEntityTransportComputer) this.worldObj.getTileEntity(this.connectionPos);
         if (comTile != null) {
-            ((TileEntityElevatorComputer) comTile).RemoveElevatorBlock(this.pos.add(0, -this.pos.getY() + this.getYOffest(), 0));
+            ((TileEntityTransportComputer) comTile).RemoveElevatorBlock(this.pos.add(0, -this.pos.getY() + this.getYOffest(), 0));
         }
         return super.removeBlockByPlayer(player,
                                          blockBase,
                                          willHarvest);
     }
 
-    public BlockPos getParent() {
-        return this.ParentElevatorComputer;
+    public BlockPos getConnectionPos() {
+        return this.connectionPos;
     }
 
-    public TileEntityElevatorComputer getParentElevatorComputer() {
-        TileEntity tile = ParentElevatorComputer == null ? null : this.worldObj.getTileEntity(this.ParentElevatorComputer);
+    public TileEntityTransportComputer getConnection() {
+        TileEntity tile = connectionPos == null ? null : this.worldObj.getTileEntity(this.connectionPos);
         if (tile == null) {
-            ParentElevatorComputer = null;
-        } else if (!(tile instanceof TileEntityElevatorComputer)) {
+            connectionPos = null;
+        } else if (!(tile instanceof TileEntityTransportComputer)) {
             tile = null;
-            ParentElevatorComputer = null;
+            connectionPos = null;
         }
 
-        return (TileEntityElevatorComputer) tile;
+        return (TileEntityTransportComputer) tile;
     }
 
     @Override
     public void writeToNBT(NBTTagCompound nbttagcompound) {
         super.writeToNBT(nbttagcompound);
-        if (ParentElevatorComputer != null) {
+        if (connectionPos != null) {
             nbttagcompound.setInteger("ParentElevatorComputerX",
-                                      ParentElevatorComputer.getX());
+                                      connectionPos.getX());
             nbttagcompound.setInteger("ParentElevatorComputerY",
-                                      ParentElevatorComputer.getY());
+                                      connectionPos.getY());
             nbttagcompound.setInteger("ParentElevatorComputerZ",
-                                      ParentElevatorComputer.getZ());
+                                      connectionPos.getZ());
             nbttagcompound.setInteger("yOffset",
                                       this.yOffset);
             nbttagcompound.setShort("overLay",
@@ -195,13 +194,13 @@ public class TileEntityElevator extends TileEntityTransportBase {
     @Override
     public void readFromNBT(NBTTagCompound nbttagcompound) {
         super.readFromNBT(nbttagcompound);
-        this.ParentElevatorComputer = new BlockPos(nbttagcompound.getInteger("ParentElevatorComputerX"), nbttagcompound.getInteger("ParentElevatorComputerY"), nbttagcompound.getInteger("ParentElevatorComputerZ"));
+        this.connectionPos = new BlockPos(nbttagcompound.getInteger("ParentElevatorComputerX"), nbttagcompound.getInteger("ParentElevatorComputerY"), nbttagcompound.getInteger("ParentElevatorComputerZ"));
         this.yOffset = nbttagcompound.getInteger("yOffset");
         this.overlay = nbttagcompound.getShort("overLay");
     }
 
     public void RemoveComputer(BlockPos chunkCoordinates) {
-        this.ParentElevatorComputer = null;
+        this.connectionPos = null;
         this.updateBlock();
     }
 
@@ -212,8 +211,8 @@ public class TileEntityElevator extends TileEntityTransportBase {
 
     @Override
     protected boolean isInMaintenanceMode() {
-        return this.getParentElevatorComputer() == null
-               || this.getParentElevatorComputer().isInMaintenanceMode();
+        return this.getConnection() == null
+               || this.getConnection().isInMaintenanceMode();
     }
 
     public void setYOffset(int yOffset) {

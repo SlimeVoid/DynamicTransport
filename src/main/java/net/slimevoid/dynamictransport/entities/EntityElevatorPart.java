@@ -161,7 +161,7 @@ public class EntityElevatorPart  extends Entity {
             if (blockPlaced) {
                 TileEntityElevator tile = (TileEntityElevator) this.worldObj.getTileEntity(pos);
                 if (tile != null) {
-                    tile.setParentElevatorComputer(parentComputer);
+                    tile.setParent(parentComputer);
                     if (this.getCamoItem() != null) {
                         tile.setCamoItem(this.getCamoItem());
                     }

@@ -8,7 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import net.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
+import net.slimevoid.dynamictransport.tileentity.TileEntityTransportComputer;
 import net.slimevoid.library.util.helpers.BlockHelper;
 import net.slimevoid.library.util.helpers.ChatHelper;
 
@@ -141,7 +141,7 @@ public class EntityMasterElevator extends Entity {
                             "slimevoid.DT.entityElevator.arrive",
                             this.destFloorName);
                 }
-                TileEntityElevatorComputer computer = this.getParentElevatorComputer();
+                TileEntityTransportComputer computer = this.getParentElevatorComputer();
                 if (computer != null) {
                     computer.elevatorArrived(this.getDestinationY());
                 }
@@ -267,12 +267,12 @@ public class EntityMasterElevator extends Entity {
 
     }
 
-    protected TileEntityElevatorComputer getParentElevatorComputer() {
-        TileEntityElevatorComputer computer = null;
+    protected TileEntityTransportComputer getParentElevatorComputer() {
+        TileEntityTransportComputer computer = null;
         if (this.computerPos != null) {
-            computer = (TileEntityElevatorComputer) BlockHelper.getTileEntity(this.worldObj,
+            computer = (TileEntityTransportComputer) BlockHelper.getTileEntity(this.worldObj,
                     this.computerPos,
-                    TileEntityElevatorComputer.class);
+                    TileEntityTransportComputer.class);
         }
 
         return computer;

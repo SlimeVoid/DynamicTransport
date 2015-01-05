@@ -10,7 +10,7 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import net.slimevoid.dynamictransport.container.ContainerFloorSelection;
 import net.slimevoid.dynamictransport.core.lib.GuiLib;
 import net.slimevoid.dynamictransport.core.lib.PacketLib;
-import net.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
+import net.slimevoid.dynamictransport.tileentity.TileEntityTransportComputer;
 import net.slimevoid.library.core.SlimevoidCore;
 import net.slimevoid.library.core.lib.CoreLib;
 import net.slimevoid.library.data.Logger;
@@ -21,8 +21,8 @@ public class GuiFloorSelection extends GuiContainer {
     public GuiFloorSelection(ContainerFloorSelection container) {
         super(container);
         if (container.getComputer() != null
-            && container.getComputer() instanceof TileEntityElevatorComputer) {
-            marker = (TileEntityElevatorComputer) container.getComputer();
+            && container.getComputer() instanceof TileEntityTransportComputer) {
+            marker = (TileEntityTransportComputer) container.getComputer();
         } else {
             SlimevoidCore.console(CoreLib.MOD_ID,
                                   "Failed build Floor Marker GUI",
@@ -31,7 +31,7 @@ public class GuiFloorSelection extends GuiContainer {
         this.xSize = 176+39;
     }
 
-    protected TileEntityElevatorComputer marker;
+    protected TileEntityTransportComputer marker;
 
     @Override
     public void initGui() {

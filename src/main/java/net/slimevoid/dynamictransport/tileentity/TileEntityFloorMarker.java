@@ -28,16 +28,16 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
         return this.parentTransportBase;
     }
 
-    public TileEntityElevatorComputer getParentElevatorComputer() {
+    public TileEntityTransportComputer getParentElevatorComputer() {
         TileEntity tile = parentTransportBase == null ? null : this.worldObj.getTileEntity(this.parentTransportBase);
         if (tile == null) {
             parentTransportBase = null;
-        } else if (!(tile instanceof TileEntityElevatorComputer)) {
+        } else if (!(tile instanceof TileEntityTransportComputer)) {
             tile = null;
             parentTransportBase = null;
         }
 
-        return (TileEntityElevatorComputer) tile;
+        return (TileEntityTransportComputer) tile;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 
     private void callElevator() {
 
-        TileEntityElevatorComputer comTile = this.getParentElevatorComputer();
+        TileEntityTransportComputer comTile = this.getParentElevatorComputer();
         if (comTile != null) {
             String msg = comTile.callElevator(this.pos.getY() + this.yOffset,
                                               this.floorName);
@@ -169,12 +169,12 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
     }
 
     public void setParentComputer(BlockPos ComputerLocation, EntityPlayer entityplayer) {
-        TileEntityElevatorComputer comTile = getParentElevatorComputer();
+        TileEntityTransportComputer comTile = getParentElevatorComputer();
         IBlockState state = this.worldObj.getBlockState(ComputerLocation);
         if (state.getBlock() == ConfigurationLib.blockTransportBase
             && Block.getStateId(state) == BlockLib.BLOCK_ELEVATOR_COMPUTER_ID) {
 
-            comTile = (TileEntityElevatorComputer) this.worldObj.getTileEntity(ComputerLocation);
+            comTile = (TileEntityTransportComputer) this.worldObj.getTileEntity(ComputerLocation);
             if (comTile.addFloorMarker(this.pos,
                                        entityplayer)) {
                 this.parentTransportBase = ComputerLocation;

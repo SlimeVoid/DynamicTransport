@@ -26,7 +26,7 @@ import net.slimevoid.library.util.helpers.BlockHelper;
 import net.slimevoid.library.util.helpers.ChatHelper;
 
 @SuppressWarnings("MalformedFormatString")
-public class TileEntityElevatorComputer extends TileEntityTransportBase {
+public class TileEntityTransportComputer extends TileEntityTransportBase {
 
     public enum ElevatorMode {
         Maintenance,
@@ -397,8 +397,8 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
     private boolean validElevatorBlock(BlockPos pos) {
         TileEntity tile = this.worldObj.getTileEntity(pos);
         if (tile != null && tile instanceof TileEntityElevator) {
-            if (((TileEntityElevator) tile).getParentElevatorComputer() != null) {
-                return ((TileEntityElevator) tile).getParent().equals(this.pos);
+            if (((TileEntityElevator) tile).getConnection() != null) {
+                return ((TileEntityElevator) tile).getConnectionPos().equals(this.pos);
 
             }
         }
@@ -623,7 +623,7 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
 
     @Override
     protected boolean isInMaintenanceMode() {
-        return this.getElevatorMode() == TileEntityElevatorComputer.ElevatorMode.Maintenance;
+        return this.getElevatorMode() == TileEntityTransportComputer.ElevatorMode.Maintenance;
     }
 
     @Override
