@@ -5,9 +5,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S02PacketChat;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.IChatComponent;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.slimevoid.dynamictransport.core.DynamicTransportMod;
 import net.slimevoid.dynamictransport.core.lib.BlockLib;
@@ -66,15 +69,15 @@ public class TileEntityFloorMarker extends TileEntityTransportBase {
 
         TileEntityElevatorComputer comTile = this.getParentElevatorComputer();
         if (comTile != null) {
-            String msg = comTile.callElevator(this.yCoord + this.yOffset,
+        	IChatComponent ret = comTile.callElevator(this.yCoord + this.yOffset,
                                               this.floorName);
             if (!this.worldObj.isRemote) {
-                ChatHelper.sendChatMessageToAllNear(this.getWorldObj(),
-                                                    this.xCoord,
-                                                    this.yCoord,
-                                                    this.zCoord,
-                                                    4,
-                                                    msg);
+                MinecraftServer.getServer().getConfigurationManager().sendToAllNear(this.xCoord,
+                																	this.yCoord,
+                																	this.zCoord,
+                																	4,
+                																	this.getWorldObj().provider.dimensionId,
+                																	new S02PacketChat(ret));
             }
         }
     }
