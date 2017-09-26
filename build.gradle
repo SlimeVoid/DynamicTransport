@@ -2,12 +2,12 @@ buildscript {
     repositories {
         mavenCentral()
         maven {
-            name = 'forge'
-            url = 'http://files.minecraftforge.net/maven'
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
         }
         maven {
-            name = 'sonatype'
-            url = 'https://oss.sonatype.org/content/repositories/snapshots/'
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
         }
     }
     dependencies {
@@ -26,29 +26,34 @@ apply plugin: 'maven'
 apply plugin: 'forge'
 apply plugin: 'eclipse'
 
-def slimevoidVersion = '2.0.4.6'
-def forge = '10.13.0.1186'
-def mc = '1.7.10-' + forge
-def pack = 'dynamictransport'
-def github = 'DynamicTransport'
-version = '0.1.2.1'
-group = 'net.slimevoid'
-archivesBaseName = 'DynamicTransport'
+def slimevoidVersion = "2.0.4.6"
+def forge = "10.13.4.1558"
+def mc = "1.7.10-" + forge + "-1.7.10"
+def pack = "dynamictransport"
+def github = "DynamicTransport"
+version = "0.1.2.0"
+group= "net.slimevoid" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "DynamicTransport"
+
+minecraft {
+    version = mc
+    runDir = "eclipse"
+    
+    replaceIn "net/slimevoid/" + pack + "/core/lib/CoreLib.java"
+    replace "@VERSION@", project.version
+    replace "required-after:SlimevoidLib", "required-after:Forge@[" + forge + ",);required-after:SlimevoidLib@[" + slimevoidVersion + ",)"
+}
 
 dependencies {
     compile 'net.slimevoid:SlimevoidLibrary:' + slimevoidVersion + ':dev'
 }
 
-minecraft {
-    version = mc
-    runDir = 'eclipse/assets'
+processResources
+{
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
 
-    replaceIn 'net/slimevoid/' + pack + '/core/lib/CoreLib.java'
-    replace '@VERSION@', project.version
-    replace 'required-after:SlimevoidLib', 'required-after:Forge@[' + forge + ',);required-after:SlimevoidLib@['+ slimevoidVersion + ',)'
-}
-
-processResources {
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'

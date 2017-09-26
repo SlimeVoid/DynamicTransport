@@ -7,6 +7,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import net.slimevoid.dynamictransport.client.event.PlayerTick;
 import net.slimevoid.dynamictransport.client.presentation.gui.GuiDynamicMarker;
 import net.slimevoid.dynamictransport.client.presentation.gui.GuiFloorSelection;
@@ -18,6 +19,7 @@ import net.slimevoid.dynamictransport.core.lib.GuiLib;
 import net.slimevoid.dynamictransport.core.lib.PacketLib;
 import net.slimevoid.dynamictransport.entities.EntityElevatorPart;
 import net.slimevoid.dynamictransport.entities.EntityMasterElevator;
+import net.slimevoid.dynamictransport.event.EntityJoinWorld;
 import net.slimevoid.dynamictransport.proxy.CommonProxy;
 import net.slimevoid.dynamictransport.tileentity.TileEntityElevator;
 import net.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
@@ -90,5 +92,6 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void registerEventHandlers() {
         FMLCommonHandler.instance().bus().register(new PlayerTick());
+        MinecraftForge.EVENT_BUS.register(new EntityJoinWorld());
     }
 }

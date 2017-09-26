@@ -12,7 +12,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.util.MathHelper;
 import net.slimevoid.dynamictransport.core.lib.BlockLib;
 import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
@@ -147,11 +149,11 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
                             if (this.elevatorName != null
                                 && !this.elevatorName.isEmpty()) {
                                 ChatHelper.addMessageToPlayer(entityplayer,
-                                                              String.format("Block Successfully Bound to Elevator: %0$s.",
-                                                                            this.elevatorName));
+                                                              "slimevoid.DT.elevatorcomputer.bindMarkerSuccessWithName",
+                                                              this.elevatorName);
                             } else {
                                 ChatHelper.addMessageToPlayer(entityplayer,
-                                                              "Block Successfully Bound to Elevator");
+                                                              "slimevoid.DT.elevatorcomputer.bindMarkerSuccess");
                             }
                             this.updateBlock();
                             return true;
@@ -159,44 +161,45 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
                             if (this.elevatorName != null
                                 && !this.elevatorName.isEmpty()) {
                                 ChatHelper.addMessageToPlayer(entityplayer,
-                                                              String.format("Block Can Not be Bound to Elevator: %0$s. Block Does Not Seem To Be a Floor Marker",
-                                                                            this.elevatorName));
+                                                              "slimevoid.DT.elevatorcomputer.bindInvalidMarkerWithName",
+                                                              this.elevatorName);
                             } else {
                                 ChatHelper.addMessageToPlayer(entityplayer,
-                                                              "Block Can Not be Bound to Elevator. Block Does Not Seem To Be a Floor Marker");
+                                                              "slimevoid.DT.elevatorcomputer.bindInvalidMarker");
                             }
                         }
                     } else {
                         if (this.elevatorName != null
                             && !this.elevatorName.isEmpty()) {
                             ChatHelper.addMessageToPlayer(entityplayer,
-                                                          String.format("Block Can Not be Bound to Elevator: %0$s. Block Must be set Withing %1$s Meters of an Elevator Block",
-                                                                        this.elevatorName,
-                                                                        ConfigurationLib.MaxBindingRange));
+                                                          "slimevoid.DT.elevatorcomputer.bindMarkerOutOfRangeWithName",
+                                                          this.elevatorName,
+                                                          ConfigurationLib.MaxBindingRange);
                         } else {
                             ChatHelper.addMessageToPlayer(entityplayer,
-                                                          String.format("Block Can Not be Bound to Elevator. Block Must be set Withing %0$s Meters of an Elevator Block",
-                                                                        ConfigurationLib.MaxBindingRange));
+                                                          "slimevoid.DT.elevatorcomputer.bindMarkerOutOfRange",
+                                                          ConfigurationLib.MaxBindingRange);
                         }
                     }
                 } else {
                     if (this.elevatorName != null
                         && !this.elevatorName.isEmpty()) {
                         ChatHelper.addMessageToPlayer(entityplayer,
-                                                      "Block Can Not be Bound to Elevator: %0$s. Must Bind at Least One Elevator Block");
+                                                      "slimevoid.DT.elevatorcomputer.bindMarkerAfterElevatorWithName",
+                                                      this.elevatorName);
                     } else {
                         ChatHelper.addMessageToPlayer(entityplayer,
-                                                      "Block Can Not be Bound to Elevator. Must Bind at Least One Elevator Block");
+                                                      "slimevoid.DT.elevatorcomputer.bindMarkerAfterElevator");
                     }
                 }
             } else {
                 if (this.elevatorName != null && !this.elevatorName.isEmpty()) {
                     ChatHelper.addMessageToPlayer(entityplayer,
-                                                  String.format("Block Already Bound to Elevator: %0$s",
-                                                                this.elevatorName));
+                                                  "slimevoid.DT.elevatorcomputer.bindElevatorAlreadyBoundWithName",
+                                                  this.elevatorName);
                 } else {
                     ChatHelper.addMessageToPlayer(entityplayer,
-                                                  "Block Already Bound to Elevator");
+                                                  "slimevoid.DT.elevatorcomputer.bindElevatorAlreadyBound");
                 }
                 this.updateBlock();
                 return true;
@@ -204,14 +207,14 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
         } else {
             if (this.elevatorName != null && !this.elevatorName.isEmpty()) {
                 ChatHelper.addMessageToPlayer(entityplayer,
-                                              String.format("You are no longer the Technician for the Elevator %0$s",
-                                                            this.elevatorName));
+                                              "slimevoid.DT.elevatorcomputer.bindNoLongerTechWithName",
+                                              this.elevatorName);
             } else {
                 ChatHelper.addMessageToPlayer(entityplayer,
-                                              String.format("You are no longer the Technician for the Elevator at %0$s, %1$s ,%2$s",
-                                                            this.xCoord,
-                                                            this.yCoord,
-                                                            this.zCoord));
+                                              "slimevoid.DT.elevatorcomputer.bindNoLongerTech",
+                                              this.xCoord,
+                                              this.yCoord,
+                                              this.zCoord);
             }
         }
         return false;
@@ -307,13 +310,13 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
                                          blockBase);
     }
 
-    public String callElevator(int i, String Floorname) {
+    public IChatComponent callElevator(int i, String Floorname) {
         return this.callElevator(i,
                                  false,
                                  Floorname);
     }
 
-    private String callElevator(int i, boolean forMaintenance, String floorname) {
+    private IChatComponent callElevator(int i, boolean forMaintenance, String floorname) {
 
         if (this.mode == ElevatorMode.Available) {
             if (forMaintenance) {
@@ -330,34 +333,34 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
                     this.floorSpool.put(i,
                                         floorname);
                 } else {
-                    return "Elevator Already At Floor "
-                           + (floorname == null || floorname.trim().isEmpty() ? i : floorname);
+                    return new ChatComponentTranslation("slimevoid.DT.elevatorcomputer.elevatorAlreadyAtFloor",
+                           floorname == null || floorname.trim().isEmpty() ? i : floorname);
                 }
             }
             this.doCallElevator(i,
                                 floorname);
-            return "Elevator Called to Floor "
-                   + (floorname == null || floorname.trim().isEmpty() ? i : floorname);
+            return new ChatComponentTranslation("slimevoid.DT.elevatorcomputer.elevatorCalledToFloor",
+                   floorname == null || floorname.trim().isEmpty() ? i : floorname);
 
         } else if (this.mode == ElevatorMode.Maintenance) {
             if (forMaintenance) {
                 sendMessageFromAllFloors("slimevoid.DT.elevatorcomputer.alreadyMant");
             }
-            return "Elevator in Maintenance Mode please Try Again Later";
+            return new ChatComponentTranslation("slimevoid.DT.elevatorcomputer.inMant");
         } else if (this.mode == ElevatorMode.TransitUp || this.mode == ElevatorMode.TransitDown) {
             if (forMaintenance) {
                 this.pendingMaintenance = true;
                 sendMessageFromAllFloors("slimevoid.DT.elevatorcomputer.mantQueued");
-                return "Maintenance Mode Request Queued";
+                return new ChatComponentTranslation("slimevoid.DT.elevatorcomputer.mantQueued");
             } else {
                 this.floorSpool.put(i,
                                     floorname);
-                return "Elevator Called to Floor "
-                       + (floorname == null || floorname.trim().isEmpty() ? i : floorname);
+                return new ChatComponentTranslation("slimevoid.DT.elevatorcomputer.elevatorCalledToFloor",
+                       floorname == null || floorname.trim().isEmpty() ? i : floorname);
             }
 
         }
-        return "WTF you should never see me";
+        return new ChatComponentTranslation("WTF you should never see me");
 
     }
 

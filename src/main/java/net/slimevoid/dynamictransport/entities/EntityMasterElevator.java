@@ -19,9 +19,11 @@ public class EntityMasterElevator extends Entity {
     private boolean canBeHalted;
     private boolean slowingDown;
     private int startStops;
+    private List<ChunkCoordinates> boundElevatorBlocks;
     private HashSet<EntityElevatorPart> parts ;
     private String elevatorName;
     private String destFloorName;
+    private boolean flag;
 
     public EntityMasterElevator(World world) {
         super(world);
@@ -30,6 +32,7 @@ public class EntityMasterElevator extends Entity {
         this.entityCollisionReduction = 1.0F;
         this.ignoreFrustumCheck = true;
         this.setSize(0F,0F); //this entity doesn't have a bounding box only the parts
+        this.boundElevatorBlocks = new ArrayList<ChunkCoordinates>();
         this.parts= new HashSet<EntityElevatorPart>();
         this.motionX = 0.0D;
         this.motionY = 0.0D;
@@ -39,6 +42,7 @@ public class EntityMasterElevator extends Entity {
 
     public EntityMasterElevator(World world, double x, double y, double z) {
         this(world);
+        this.flag = true;
         this.prevPosX = x + 0.5F;
         this.prevPosY = y + 0.5F;
         this.prevPosZ = z + 0.5F;
@@ -56,6 +60,7 @@ public class EntityMasterElevator extends Entity {
 
         this.computerPos = computer;
         this.canBeHalted = haltable;
+        this.boundElevatorBlocks = elevatorParts;
         for (ChunkCoordinates elevatorPart : elevatorParts) {
             EntityElevatorPart part = new EntityElevatorPart(this.worldObj, this, elevatorPart.posX, elevatorPart.posY + this.posY, elevatorPart.posZ);
             this.worldObj.spawnEntityInWorld(part);
@@ -151,6 +156,7 @@ public class EntityMasterElevator extends Entity {
 
     @Override
     public void onUpdate() {
+    	this.checkFlag();
         super.onUpdate();
         //get all the flags
 
@@ -252,7 +258,20 @@ public class EntityMasterElevator extends Entity {
         nbttagcompound.setFloat("TopSpeed", this.getMaximumSpeed());
         //nbttagcompound.setInteger("PartCount",this.parts.size());
 
-
+        int BoundElevatorBlocksX[] = new int[boundElevatorBlocks.size()];
+        int BoundElevatorBlocksY[] = new int[boundElevatorBlocks.size()];
+        int BoundElevatorBlocksZ[] = new int[boundElevatorBlocks.size()];
+        for (int i = 0; i < boundElevatorBlocks.size(); i++) {
+            BoundElevatorBlocksX[i] = boundElevatorBlocks.get(i).posX;
+            BoundElevatorBlocksY[i] = boundElevatorBlocks.get(i).posY;
+            BoundElevatorBlocksZ[i] = boundElevatorBlocks.get(i).posZ;
+        }
+        nbttagcompound.setIntArray("BoundElevatorBlocksX",
+        		BoundElevatorBlocksX);
+        nbttagcompound.setIntArray("BoundElevatorBlocksY",
+        		BoundElevatorBlocksY);
+        nbttagcompound.setIntArray("BoundElevatorBlocksZ",
+        		BoundElevatorBlocksZ);
     }
 
     @Override
@@ -263,7 +282,13 @@ public class EntityMasterElevator extends Entity {
         this.destFloorName = nbttagcompound.getString("destName");
         this.computerPos = new ChunkCoordinates(nbttagcompound.getInteger("ComputerX"), nbttagcompound.getInteger("ComputerY"), nbttagcompound.getInteger("ComputerZ"));
 
-
+        int BoundElevatorBlocksX[] = nbttagcompound.getIntArray("BoundElevatorBlocksX");
+        int BoundElevatorBlocksY[] = nbttagcompound.getIntArray("BoundElevatorBlocksY");
+        int BoundElevatorBlocksZ[] = nbttagcompound.getIntArray("BoundElevatorBlocksZ");
+        boundElevatorBlocks.clear();
+        for (int i = 0; i < BoundElevatorBlocksY.length; i++) {
+            boundElevatorBlocks.add(new ChunkCoordinates(BoundElevatorBlocksX[i], BoundElevatorBlocksY[i], BoundElevatorBlocksZ[i]));
+        }
     }
 
     protected TileEntityElevatorComputer getParentElevatorComputer() {
@@ -285,5 +310,16 @@ public class EntityMasterElevator extends Entity {
 
     public float getMinElevatorMovingSpeed() {
         return minElevatorMovingSpeed;
+    }
+    
+    private void checkFlag() {
+    	if (!this.worldObj.isRemote && !this.flag) {
+    		this.flag = true;
+    		for (ChunkCoordinates elevatorPart : boundElevatorBlocks) {
+                EntityElevatorPart part = new EntityElevatorPart(this.worldObj, this, elevatorPart.posX, elevatorPart.posY + this.posY, elevatorPart.posZ);
+                this.worldObj.spawnEntityInWorld(part);
+                this.parts.add(part);
+            }
+    	}
     }
 }
