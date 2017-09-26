@@ -20,9 +20,11 @@ public class EntityElevatorPart  extends Entity {
     public EntityMasterElevator entityElevatorObj;
     private HashSet<Entity> confirmedRiders;
     private int elevatorYOffset;
+    private boolean flag;
 
     public EntityElevatorPart(World par1World,EntityMasterElevator parent, double x,double y, double z) {
         this(par1World);
+        this.flag = true;
         this.prevPosX = x + 0.5F;
         this.prevPosY = y;
         this.prevPosZ = z + 0.5F;
@@ -167,7 +169,9 @@ public class EntityElevatorPart  extends Entity {
                         y,
                         z);
                 if (tile != null) {
-                    tile.setParentElevatorComputer(parentComputer);
+                	if (this.flag) {
+                		tile.setParentElevatorComputer(parentComputer);
+                	}
                     if (this.getCamoItem() != null) {
                         tile.setCamoItem(this.getCamoItem());
                     }
@@ -339,6 +343,12 @@ public class EntityElevatorPart  extends Entity {
 
     public Boolean hasArrived() {
       return  this.getDataWatcher().getWatchableObjectInt(6) == 1;
+    }
+    
+    public void checkFlag() {
+    	if (!this.worldObj.isRemote && !this.flag) {
+        	this.setDead(null);
+        }
     }
 }
 

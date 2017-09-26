@@ -5,12 +5,14 @@ import java.io.File;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import net.slimevoid.dynamictransport.container.ContainerDynamicMarker;
 import net.slimevoid.dynamictransport.container.ContainerFloorSelection;
 import net.slimevoid.dynamictransport.core.DynamicTransportMod;
 import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import net.slimevoid.dynamictransport.core.lib.GuiLib;
 import net.slimevoid.dynamictransport.core.lib.PacketLib;
+import net.slimevoid.dynamictransport.event.EntityJoinWorld;
 import net.slimevoid.dynamictransport.tileentity.TileEntityElevator;
 import net.slimevoid.dynamictransport.tileentity.TileEntityElevatorComputer;
 import net.slimevoid.dynamictransport.tileentity.TileEntityFloorMarker;
@@ -112,6 +114,7 @@ public class CommonProxy implements ICommonProxy {
 
     @Override
     public void registerEventHandlers() {
+    	MinecraftForge.EVENT_BUS.register(new EntityJoinWorld());
     }
 
 }
