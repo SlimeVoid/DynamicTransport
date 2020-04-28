@@ -105,7 +105,7 @@ public class MasterElevatorEntity extends ElevatorEntity {
         if(obstructed != null) {
             while (parts.hasPrevious()) { //rewind all movements
                 Entity part = parts.previous();
-                part.setPosition(part.prevPosX, prevPosY, prevPosZ);
+                part.setPosition(part.prevPosX, part.prevPosY, part.prevPosZ);
             }
             while (parts.hasNext()) { //replay
                 Entity part = parts.next();
