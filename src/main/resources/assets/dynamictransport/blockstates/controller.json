@@ -1,0 +1,8 @@
+{
+  "variants": {
+      "facing=north": { "model": "dynamictransport:block/controller" },
+      "facing=south": { "model": "dynamictransport:block/controller", "y": 180 },
+      "facing=west":  { "model": "dynamictransport:block/controller", "y": 270 },
+      "facing=east":  { "model": "dynamictransport:block/controller", "y": 90 }
+  }
+}

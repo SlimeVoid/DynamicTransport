@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": {"model": "dynamictransport:block/elevator", "uvlock": true}
+  }
+}

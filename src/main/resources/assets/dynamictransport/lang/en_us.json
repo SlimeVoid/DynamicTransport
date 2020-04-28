@@ -1,0 +1,15 @@
+{
+  "item.dynamictransport.elevator_tool": "Elevator Tool",
+  "block.dynamictransport.elevator": "Elevator",
+  "block.dynamictransport.marker": "Destination Marker",
+  "block.dynamictransport.controller": "Elevator Controller",
+  "elevatorController.bind.elevator.success" : "Elevator Block Successfully Bound to Elevator",
+  "elevatorController.bind.elevator.invalid": "Block Can Not be Bound To Elevator. Block Does Not Seem To Be An Elevator",
+  "elevatorController.bind.elevator.inTransit": "Can Not Bind Elevator Block When Elevator Is In Use",
+  "elevatorController.bind.elevator.outOfRange": "Elevator Block Must Be Set Within %1$s Meters, Horizontally, Of Another Elevator Block Or Elevator Computer",
+  "elevatorController.bind.elevator.alreadyBound": "Block Already Bound To Elevator",
+  "elevatorController.bind.marker.success": "Marker Block Successfully Bound To Elevator",
+  "elevatorController.bind.marker.invalid": "Block Can Not be Bound To Elevator. Block Does Not Seem To Be A Marker",
+  "elevatorController.bind.marker.alreadyBound": "Block Already Bound To Elevator",
+  "elevatorController.bind.marker.outOfRange": "Marker Block Must Be Set Within %1$s Meters, Horizontally, Of An Elevator Block"
+}
