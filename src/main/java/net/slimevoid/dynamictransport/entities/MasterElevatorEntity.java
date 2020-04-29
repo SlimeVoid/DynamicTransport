@@ -7,12 +7,14 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MoverType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.NetworkHooks;
+import org.apache.logging.log4j.core.jmx.Server;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -152,10 +154,39 @@ public class MasterElevatorEntity extends ElevatorEntity {
         }
         return obstructed == null;
     }
+
+
+    //====================================================================================================================================================
+    //These stubs may unlock the ability to have the elevator have a single renderer and multiple invisible hitboxes just like how the ender dragon works
+    //====================================================================================================================================================
     @Override
-    public void updatePassenger(Entity passenger) {
-        //passenger.move(MoverType.SELF, passenger.getMotion());
-        //passenger.setPosition( this.getPosX(), this.getPosY() + this.getMountedYOffset() + passenger.getYOffset(), this.getPosZ());
-        //super.updatePassenger(passenger);
+    public void onAddedToWorld() {
+        //add entities to entityids
+        if(!world.isRemote())
+        {
+            for(Entity e : getParts()) {
+                //((ServerWorld)world).entitiesById.put(e.getEntityId(), e);
+            }
+        }
+        super.onAddedToWorld();
+    }
+
+    @Override
+    public void onRemovedFromWorld() {
+        if(!world.isRemote())
+        {
+            //remove parts since we don't track capabilities on them we can just scrap them.
+            for(Entity e: getParts()){
+            //    e.remove(false);
+            }
+        }
+        super.onRemovedFromWorld();
+    }
+
+    @Override
+    public void readSpawnData(PacketBuffer additionalData) {
+        //set part entity ids?
+        super.readSpawnData(additionalData);
+        //newUpParts based on offsets and set entity IDS
     }
 }
