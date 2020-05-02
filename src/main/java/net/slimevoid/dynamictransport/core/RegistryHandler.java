@@ -7,6 +7,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.world.World;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
@@ -39,7 +40,7 @@ public class RegistryHandler {
     @SuppressWarnings("unused")
     public static final RegistryObject<Item> CONTROLLER_ITEM = ITEMS.register("controller", () -> new BlockItem(CONTROLLER_BLOCK.get(), new Item.Properties().group(ItemGroup.TRANSPORTATION)));
     public static final RegistryObject<EntityType<MasterElevatorEntity>> MASTER_ELEVATOR_ENTITY = ENTITIES.register("master_elevator" ,
-            () -> EntityType.Builder.create(MasterElevatorEntity::new, EntityClassification.MISC)
+            () -> EntityType.Builder.create((EntityType.IFactory<MasterElevatorEntity>) MasterElevatorEntity::new, EntityClassification.MISC)
                     .disableSummoning()
                     //.setShouldReceiveVelocityUpdates(false)
                     .immuneToFire()

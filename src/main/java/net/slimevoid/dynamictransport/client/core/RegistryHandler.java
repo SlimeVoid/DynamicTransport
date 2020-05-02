@@ -13,7 +13,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.slimevoid.dynamictransport.client.renderer.block.CamoModel;
 import net.slimevoid.dynamictransport.client.renderer.entity.ElevatorRenderer;
+import net.slimevoid.dynamictransport.client.renderer.entity.MasterElevatorRenderer;
 import net.slimevoid.dynamictransport.core.DynamicTransport;
+import net.slimevoid.dynamictransport.entities.MasterElevatorEntity;
 
 import static net.slimevoid.dynamictransport.core.RegistryHandler.*;
 
@@ -30,7 +32,7 @@ public class RegistryHandler {
     @SubscribeEvent
     public static void registerModels(ModelRegistryEvent e) {
         RenderingRegistry.registerEntityRenderingHandler(ELEVATOR_ENTITY.get(), ElevatorRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(MASTER_ELEVATOR_ENTITY.get(), ElevatorRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(MASTER_ELEVATOR_ENTITY.get(), MasterElevatorRenderer::new);
     }
 
     @SubscribeEvent

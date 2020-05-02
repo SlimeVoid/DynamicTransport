@@ -152,6 +152,7 @@ public class ElevatorEntity extends Entity implements IEntityAdditionalSpawnData
 
     @Override
     public void readSpawnData(PacketBuffer additionalData) {
+
         this.clientCamo = NonNullList.withSize(6, ELEVATOR_BLOCK.get().getDefaultState().with(CAMO, false));
         for(int i=0; i< 6;++i){
             this.clientCamo.set(i,Block.getStateById(additionalData.readInt()));
@@ -203,8 +204,7 @@ public class ElevatorEntity extends Entity implements IEntityAdditionalSpawnData
         //noop
     }
     @Override
-    public void updateRidden() {
-        super.updateRidden();
+    public void updateRidden(){
     }
 
     private void updateLight() {

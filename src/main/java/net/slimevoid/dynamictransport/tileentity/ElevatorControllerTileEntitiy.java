@@ -204,10 +204,9 @@ public class ElevatorControllerTileEntitiy extends TileEntity {
     }
 
     private void doCallElevator(int floorY, String floorName) {
-        this.elevatorPos = OptionalInt.empty();
-        MasterElevatorEntity e = MASTER_ELEVATOR_ENTITY.get().create(getWorld());
-        e.Initialize(boundElevatorBlocks, elevatorPos.getAsInt(), floorY, floorName);
+        MasterElevatorEntity e = new MasterElevatorEntity(getWorld(), boundElevatorBlocks, elevatorPos.getAsInt(), floorY, floorName);
         getWorld().addEntity(e);
+        this.elevatorPos = OptionalInt.empty();
     }
     @Nonnull
     public Stream<BlockPos> getParts() {
