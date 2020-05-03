@@ -125,9 +125,9 @@ public class MasterElevatorEntity extends Entity implements IEntityAdditionalSpa
     }
 
     private void Arrived() {
+        this.remove();
         for (TransportPartEntity part : this.parts) {
             BlockPos bPos = new BlockPos(part);
-            this.remove();
             if (this.world.setBlockState(bPos, ELEVATOR_BLOCK.get().getDefaultState(), 3)) {
                 if(!this.world.isRemote){
                     TileEntity e = this.world.getTileEntity(bPos);
@@ -319,5 +319,9 @@ public class MasterElevatorEntity extends Entity implements IEntityAdditionalSpa
                 rider.fallDistance = 0;
             }
         }
+    }
+
+    public Iterable<? extends BlockPos> getOffsets() {
+        return this.parts.stream().map(p->p.getOffset())::iterator;
     }
 }

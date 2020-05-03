@@ -10,15 +10,18 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.World;
 import net.slimevoid.dynamictransport.entities.MasterElevatorEntity;
 
+import javax.annotation.Nonnull;
+
 public class ElevatorBlock extends BaseTransportPartBlock {
 
 
     @Override
+    @Nonnull
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
         if (player.getHeldItem(handIn).isEmpty() && !player.isCrouching()) {
             if(!worldIn.isRemote) {
                 MasterElevatorEntity e = new MasterElevatorEntity(worldIn,
-                        NonNullList.from(BlockPos.ZERO, pos, pos.west(), pos.south(), pos.south().west()),
+                        NonNullList.from(BlockPos.ZERO, pos, pos.west(2), pos.south(2), pos.south().west()),
                         pos.getY(),
                         30,
                         "");

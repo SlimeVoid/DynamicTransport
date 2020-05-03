@@ -32,35 +32,37 @@ public class MasterElevatorRenderer extends EntityRenderer<MasterElevatorEntity>
     @Override
     public void render(MasterElevatorEntity entity, float f1, float f2, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int i1) {
         //loop through each part
-        matrixStack.push();
-        BlockPos blockpos = new BlockPos(
-                entity.getPosX(), //get x
-                entity.getBoundingBox().maxY,
-                entity.getPosZ() //get z
-        );
-        BlockState blockstate = ELEVATOR_BLOCK.get().getDefaultState();
-        matrixStack.translate(-0.5D, 0.0D, -0.5D); //translate
-        BlockRendererDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRendererDispatcher();
-        for (net.minecraft.client.renderer.RenderType type : getBlockRenderTypes()) { //for each render type
-            if (RenderTypeLookup.canRenderInLayer(blockstate, type)) {
-                net.minecraftforge.client.ForgeHooksClient.setRenderLayer(type);
-                blockrendererdispatcher.getBlockModelRenderer().renderModel(
-                        entity.world,
-                        blockrendererdispatcher.getModelForState(blockstate),
-                        blockstate,
-                        blockpos,
-                        matrixStack,
-                        renderTypeBuffer.getBuffer(type),
-                        false,
-                        new Random(),
-                        blockstate.getPositionRandom(entity.getOrigin()),
-                        OverlayTexture.NO_OVERLAY,
-                        new ModelDataMap.Builder().withInitial(CAMO_STATE, entity.getClientBlockStates().get(0)).build()
-                );
+        for (BlockPos offset:entity.getOffsets()) {
+            matrixStack.push();
+            BlockPos blockpos = new BlockPos(
+                    entity.getPosX(), //get x
+                    entity.getBoundingBox().maxY,
+                    entity.getPosZ() //get z
+            ).add(offset);
+            BlockState blockstate = ELEVATOR_BLOCK.get().getDefaultState();
+            matrixStack.translate(-0.5D + offset.getX(), 0.0D + offset.getY(), -0.5D + offset.getZ()); //translate
+            BlockRendererDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRendererDispatcher();
+            for (net.minecraft.client.renderer.RenderType type : getBlockRenderTypes()) { //for each render type
+                if (RenderTypeLookup.canRenderInLayer(blockstate, type)) {
+                    net.minecraftforge.client.ForgeHooksClient.setRenderLayer(type);
+                    blockrendererdispatcher.getBlockModelRenderer().renderModel(
+                            entity.world,
+                            blockrendererdispatcher.getModelForState(blockstate),
+                            blockstate,
+                            blockpos,
+                            matrixStack,
+                            renderTypeBuffer.getBuffer(type),
+                            false,
+                            new Random(),
+                            blockstate.getPositionRandom(entity.getOrigin()),
+                            OverlayTexture.NO_OVERLAY,
+                            new ModelDataMap.Builder().withInitial(CAMO_STATE, entity.getClientBlockStates().get(0)).build()
+                    );
+                }
             }
+            net.minecraftforge.client.ForgeHooksClient.setRenderLayer(null);
+            matrixStack.pop();
         }
-        net.minecraftforge.client.ForgeHooksClient.setRenderLayer(null);
-        matrixStack.pop();
         super.render(entity, f1, f2, matrixStack, renderTypeBuffer, i1);
     }
     @Override
