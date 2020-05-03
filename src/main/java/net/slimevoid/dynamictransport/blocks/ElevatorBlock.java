@@ -15,13 +15,15 @@ public class ElevatorBlock extends BaseTransportPartBlock {
 
     @Override
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
-        if (!worldIn.isRemote && player.getHeldItem(handIn).isEmpty() && !player.isCrouching()) {
-            MasterElevatorEntity e = new MasterElevatorEntity(worldIn,
-                    NonNullList.from(BlockPos.ZERO, pos, pos.west(),pos.south(),pos.south().west()),
-                    pos.getY(),
-                    30,
-                    "");
-            worldIn.addEntity(e);
+        if (player.getHeldItem(handIn).isEmpty() && !player.isCrouching()) {
+            if(!worldIn.isRemote) {
+                MasterElevatorEntity e = new MasterElevatorEntity(worldIn,
+                        NonNullList.from(BlockPos.ZERO, pos, pos.west(), pos.south(), pos.south().west()),
+                        pos.getY(),
+                        30,
+                        "");
+                worldIn.addEntity(e);
+            }
 
             return ActionResultType.SUCCESS;
         }
