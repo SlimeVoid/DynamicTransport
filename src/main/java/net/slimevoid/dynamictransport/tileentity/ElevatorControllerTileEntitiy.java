@@ -14,7 +14,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.slimevoid.dynamictransport.core.RegistryHandler;
-import net.slimevoid.dynamictransport.entities.MasterElevatorEntity;
+import net.slimevoid.dynamictransport.entities.ElevatorEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -204,7 +204,7 @@ public class ElevatorControllerTileEntitiy extends TileEntity {
     }
 
     private void doCallElevator(int floorY, String floorName) {
-        MasterElevatorEntity e = new MasterElevatorEntity(getWorld(), boundElevatorBlocks, elevatorPos.getAsInt(), floorY, floorName);
+        ElevatorEntity e = new ElevatorEntity(getWorld(), boundElevatorBlocks, elevatorPos.getAsInt(), floorY, floorName);
         getWorld().addEntity(e);
         this.elevatorPos = OptionalInt.empty();
     }

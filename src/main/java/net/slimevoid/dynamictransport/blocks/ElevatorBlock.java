@@ -8,7 +8,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.World;
-import net.slimevoid.dynamictransport.entities.MasterElevatorEntity;
+import net.slimevoid.dynamictransport.entities.ElevatorEntity;
 
 import javax.annotation.Nonnull;
 
@@ -20,7 +20,7 @@ public class ElevatorBlock extends BaseTransportPartBlock {
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
         if (player.getHeldItem(handIn).isEmpty() && !player.isCrouching()) {
             if(!worldIn.isRemote) {
-                MasterElevatorEntity e = new MasterElevatorEntity(worldIn,
+                ElevatorEntity e = new ElevatorEntity(worldIn,
                         NonNullList.from(BlockPos.ZERO, pos, pos.west(2), pos.south(2), pos.south().west()),
                         pos.getY(),
                         30,

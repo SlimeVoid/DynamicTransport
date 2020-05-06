@@ -7,7 +7,6 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.world.World;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
@@ -16,7 +15,6 @@ import net.slimevoid.dynamictransport.blocks.ElevatorBlock;
 import net.slimevoid.dynamictransport.blocks.ElevatorControllerBlock;
 import net.slimevoid.dynamictransport.blocks.MarkerBlock;
 import net.slimevoid.dynamictransport.entities.ElevatorEntity;
-import net.slimevoid.dynamictransport.entities.MasterElevatorEntity;
 import net.slimevoid.dynamictransport.items.ElevatorToolItem;
 import net.slimevoid.dynamictransport.tileentity.ElevatorControllerTileEntitiy;
 import net.slimevoid.dynamictransport.tileentity.TransportPartTileEntity;
@@ -39,18 +37,9 @@ public class RegistryHandler {
     public static final RegistryObject<Block> CONTROLLER_BLOCK = BLOCKS.register("controller", ElevatorControllerBlock::new);
     @SuppressWarnings("unused")
     public static final RegistryObject<Item> CONTROLLER_ITEM = ITEMS.register("controller", () -> new BlockItem(CONTROLLER_BLOCK.get(), new Item.Properties().group(ItemGroup.TRANSPORTATION)));
-    public static final RegistryObject<EntityType<MasterElevatorEntity>> MASTER_ELEVATOR_ENTITY = ENTITIES.register("master_elevator" ,
-            () -> EntityType.Builder.create((EntityType.IFactory<MasterElevatorEntity>) MasterElevatorEntity::new, EntityClassification.MISC)
-                    .disableSummoning()
-                    //.setShouldReceiveVelocityUpdates(false)
-                    .immuneToFire()
-                    .size(1F, 1F)
-                    .setUpdateInterval(2)
-                    .build( DynamicTransport.MOD_ID + ":master_elevator")
-    );
 
-    public static final RegistryObject<EntityType<ElevatorEntity>> ELEVATOR_ENTITY = ENTITIES.register("elevator" ,
-            () -> EntityType.Builder.create(ElevatorEntity::new, EntityClassification.MISC)
+    public static final RegistryObject<EntityType<ElevatorEntity>> ELEVATOR_ENTITY = ENTITIES.register("master_elevator" ,
+            () -> EntityType.Builder.create((EntityType.IFactory<ElevatorEntity>) ElevatorEntity::new, EntityClassification.MISC)
                     .disableSummoning()
                     //.setShouldReceiveVelocityUpdates(false)
                     .immuneToFire()
