@@ -56,7 +56,7 @@ public class ElevatorRenderer extends EntityRenderer<ElevatorEntity> {
                             renderTypeBuffer.getBuffer(type),
                             false,
                             new Random(),
-                            blockstate.getPositionRandom(blockpos),
+                            blockstate.getPositionRandom(entity.getOrigin().add(offset)),
                             OverlayTexture.NO_OVERLAY,
                             new ModelDataMap.Builder().withInitial(CAMO_STATE, part.getClientBlockStates()).build()
                     );

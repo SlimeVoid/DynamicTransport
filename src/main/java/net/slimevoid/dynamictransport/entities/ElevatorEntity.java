@@ -19,16 +19,20 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.network.play.server.SChatPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.ChatType;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.slimevoid.dynamictransport.tileentity.CamoTileEntity;
+import net.slimevoid.dynamictransport.tileentity.ElevatorControllerTileEntitiy;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -47,8 +51,9 @@ public class ElevatorEntity extends Entity implements IEntityAdditionalSpawnData
     private static final DataParameter<BlockPos> ORIGIN = EntityDataManager.createKey(ElevatorEntity.class, DataSerializers.BLOCK_POS);
 
     private int dest;
+    private BlockPos controller;
     private boolean slowingDown;
-    //private String floorName = null;
+    private String floorName = null;
     private Entity obstructed = null;
     private List<TransportPartEntity> parts = new ArrayList<>();
 
@@ -58,11 +63,12 @@ public class ElevatorEntity extends Entity implements IEntityAdditionalSpawnData
     }
 
 
-    public ElevatorEntity(World worldIn, List<BlockPos> parts, int elevatorPos, int floorY, String floorName){
+    public ElevatorEntity(World worldIn,BlockPos controller, List<BlockPos> parts, int elevatorPos, int floorY, String floorName){
         this(ELEVATOR_ENTITY.get(),worldIn);
-        dest = elevatorPos - parts.get(0).getY() + floorY;
-        //this.floorName = floorName;
-        BlockPos center = parts.get(0);
+        dest = floorY;
+        this.controller = controller;
+        this.floorName = floorName;
+        BlockPos center = new BlockPos(controller.getX(),elevatorPos,controller.getZ());
         double x = (double)center.getX() + 0.5D;
         double y = (double)center.getY();
         double z = (double)center.getZ() + 0.5D;
@@ -71,11 +77,11 @@ public class ElevatorEntity extends Entity implements IEntityAdditionalSpawnData
         this.prevPosX = x;
         this.prevPosY = y;
         this.prevPosZ = z;
-
+        this.setOrigin(center);
         for(BlockPos pos: parts){
-            BlockPos offset = pos.subtract(center);
-            TransportPartEntity part = new TransportPartEntity(this,offset);
-            part.setPosition(this.getPosX() + offset.getX(),this.getPosY() + offset.getY(),this.getPosZ() + offset.getZ());
+            TransportPartEntity part = new TransportPartEntity(this,pos);
+            part.setPosition(this.getPosX() + pos.getX(),this.getPosY() + pos.getY(),this.getPosZ() + pos.getZ());
+            BlockState t = this.world.getBlockState(new BlockPos(part));
             part.setItems(((CamoTileEntity)this.world.getTileEntity(new BlockPos(part))).getCamoSides());
             this.parts.add(part);
         }
@@ -105,7 +111,7 @@ public class ElevatorEntity extends Entity implements IEntityAdditionalSpawnData
             }
             CalcVelocity();
             // check whether at the destination or not
-            if (new BlockPos(this).getY() == dest) {
+            if ((MathHelper.abs((float) (dest - this.getPosY())) < MathHelper.abs((float)this.getMotion().getY()))) {
                 Arrived();
 
                 return;
@@ -124,7 +130,7 @@ public class ElevatorEntity extends Entity implements IEntityAdditionalSpawnData
     private void Arrived() {
         this.remove();
         for (TransportPartEntity part : this.parts) {
-            BlockPos bPos = new BlockPos(part);
+            BlockPos bPos = new BlockPos(this.getPosX(),dest,this.getPosZ()).add(part.getOffset());
             if (this.world.setBlockState(bPos, ELEVATOR_BLOCK.get().getDefaultState(), 3)) {
                 if(!this.world.isRemote){
                     TileEntity e = this.world.getTileEntity(bPos);
@@ -141,6 +147,9 @@ public class ElevatorEntity extends Entity implements IEntityAdditionalSpawnData
                 }
             }
         }
+        ((ElevatorControllerTileEntitiy)world.getTileEntity(controller)).elevatorArrived(dest);
+        world.getServer().getPlayerList().sendToAllNearExcept(null, getPosX(),getPosY(),getPosZ(),4,world.getDimension().getType(),
+                new SChatPacket( new TranslationTextComponent("entityElevator.arrive", floorName), ChatType.GAME_INFO));
     }
 
     @Override

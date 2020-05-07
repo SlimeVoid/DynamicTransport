@@ -38,7 +38,8 @@ public class RegistryHandler {
         IBakedModel camoModel = new CamoModel();
         for(int i = 0; i<16; ++i) {
             e.getModelRegistry().put(new ModelResourceLocation(ELEVATOR_BLOCK.getId(), "camo=true,level=" + i), camoModel);
-            e.getModelRegistry().put(new ModelResourceLocation(MARKER_BLOCK.getId(), "camo=true,level=" + i), camoModel);
+            e.getModelRegistry().put(new ModelResourceLocation(MARKER_BLOCK.getId(), "camo=true,level=" + i + "powered=true"), camoModel);
+            e.getModelRegistry().put(new ModelResourceLocation(MARKER_BLOCK.getId(), "camo=true,level=" + i + "powered=false"), camoModel);
         }
     }
 

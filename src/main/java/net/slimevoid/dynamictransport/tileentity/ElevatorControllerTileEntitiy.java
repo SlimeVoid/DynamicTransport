@@ -1,6 +1,7 @@
 package net.slimevoid.dynamictransport.tileentity;
 
 import com.google.common.collect.Streams;
+import jdk.nashorn.internal.ir.Block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
@@ -75,12 +76,12 @@ public class ElevatorControllerTileEntitiy extends TileEntity {
             entityplayer.sendStatusMessage(ELEVATOR_TRANSIT, true);
             return;
         }
-        TransportPartTileEntity partTile = (TransportPartTileEntity)world.getTileEntity(part);
-        if(partTile.getController() != null && !partTile.getController().equals(getPos())){
+        TransportPartTileEntity partTile = (TransportPartTileEntity) world.getTileEntity(part);
+        if (partTile.getController() != null && !partTile.getController().equals(getPos())) {
             entityplayer.sendStatusMessage(ELEVATOR_ANOTHER, true);
             return;
         }
-        BlockPos offsetPos = part.down(this.elevatorPos.getAsInt());
+        BlockPos offsetPos = part.subtract(new BlockPos(this.getPos().getX(), this.elevatorPos.getAsInt(), this.getPos().getZ()));
         if (boundElevatorBlocks.contains(offsetPos)) {
             entityplayer.sendStatusMessage(ELEVATOR_ALREADY, true);
             partTile.setComputer(getPos());
@@ -118,7 +119,7 @@ public class ElevatorControllerTileEntitiy extends TileEntity {
     }
 
     private boolean notInRange(BlockPos bindingBlock, boolean shouldCheckComputer) {
-        Stream<BlockPos> considered = boundElevatorBlocks.stream();
+        Stream<BlockPos> considered = boundElevatorBlocks.stream().map(pos -> pos.add(this.getPos().getX(),this.elevatorPos.getAsInt(),this.getPos().getZ()));
         if(shouldCheckComputer)
             considered = Stream.concat(considered, Stream.of(this.pos));
         return considered.noneMatch((pos) ->
@@ -127,24 +128,27 @@ public class ElevatorControllerTileEntitiy extends TileEntity {
                 ) <= 2);
     }
 
-    private void callElevator(int i, String floorName) {
+    public boolean callElevator(int i, String floorName) {
         if (elevatorPos.isPresent()) {
             if (i != this.elevatorPos.getAsInt()) {
                 this.floorSpool.put(i, floorName);
             } else {
-                return;
+                return false;
             }
             this.doCallElevator(i, floorName);
         }else {
             this.floorSpool.put(i,floorName);
         }
+        return true;
     }
 
     public void elevatorArrived(int destination) {
         this.elevatorPos = OptionalInt.of(destination);
         this.floorSpool.remove(destination);
-        Integer nextFloor = this.floorSpool.keySet().iterator().next();
-        doCallElevator(nextFloor, this.floorSpool.get(nextFloor));
+        if (!this.floorSpool.isEmpty()) {
+            Integer nextFloor = this.floorSpool.keySet().iterator().next();
+            doCallElevator(nextFloor, this.floorSpool.get(nextFloor));
+        }
     }
 
     @Override
@@ -204,7 +208,7 @@ public class ElevatorControllerTileEntitiy extends TileEntity {
     }
 
     private void doCallElevator(int floorY, String floorName) {
-        ElevatorEntity e = new ElevatorEntity(getWorld(), boundElevatorBlocks, elevatorPos.getAsInt(), floorY, floorName);
+        ElevatorEntity e = new ElevatorEntity(getWorld(),this.pos, boundElevatorBlocks, elevatorPos.getAsInt(), floorY, floorName == null? floorName : Integer.toString(floorY));
         getWorld().addEntity(e);
         this.elevatorPos = OptionalInt.empty();
     }

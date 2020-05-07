@@ -6,6 +6,7 @@ import net.minecraft.util.math.BlockPos;
 import net.slimevoid.dynamictransport.core.RegistryHandler;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class TransportPartTileEntity extends CamoTileEntity {
     private BlockPos controller = null;
@@ -31,6 +32,7 @@ public class TransportPartTileEntity extends CamoTileEntity {
         markDirty();
     }
 
+    @Nullable
     public BlockPos getController() {
         return controller;
     }
