@@ -1,0 +1,16 @@
+{
+  "item.dynamictransport.elevator_tool": "엘리베이터 도구",
+  "block.dynamictransport.elevator": "엘리베이터",
+  "block.dynamictransport.marker": "목적지 마커",
+  "block.dynamictransport.controller": "엘리베이터 제어기",
+  "elevatorController.bind.elevator.success" : "엘리베이터 블록이 성공적으로 엘리베이터에 바인딩되었습니다.",
+  "elevatorController.bind.elevator.invalid": "블록은 엘리베이터에 바인딩할 수 없습니다. 블록이 엘리베이터가 아닌 것 같습니다",
+  "elevatorController.bind.elevator.inTransit": "엘리베이터가 사용 중일 때는 엘리베이터 블록을 바인딩할 수 없습니다.",
+  "elevatorController.bind.elevator.outOfRange": "엘리베이터 블록은 다른 엘리베이터 블록 또는 엘리베이터 컴퓨터의 수평 %1$s미터 이내에 설정해야 합니다.",
+  "elevatorController.bind.elevator.alreadyBound": "블록이 이미 엘리베이터에 바인딩되었습니다.",
+  "elevatorController.bind.marker.success": "마커 블록이 엘리베이터에 바인딩되었습니다.",
+  "elevatorController.bind.marker.invalid": "블록은 엘리베이터에 바인딩할 수 없습니다. 블록이 마커로 보이지 않습니다.",
+  "elevatorController.bind.marker.alreadyBound": "블록이 이미 엘리베이터에 바인딩되었습니다.",
+  "elevatorController.bind.marker.outOfRange": "마커 블록은 엘리베이터 블록의 수평, %1$s미터 내에서 설정해야 합니다.",
+  "entityElevator.arrive": "엘리베이터가 %1$s로 도착했습니다."
+}
