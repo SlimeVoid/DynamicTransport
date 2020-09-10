@@ -1,0 +1,6 @@
+{
+  "textures": {
+    "top": "dynamictransport:blocks/dt.transport.elevator.top",
+    "overlay": "dynamictransport:blocks/dt.transport.elevator.overlay"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "parent": "dynamictransport:block/orientable_with_bottom",
+  "textures": {
+    "bottom": "dynamictransport:blocks/dt.transport.controller.bottom",
+    "top": "dynamictransport:blocks/dt.transport.controller.top",
+    "side": "dynamictransport:blocks/dt.transport.controller.side",
+    "front":  "dynamictransport:blocks/dt.transport.controller.front"
+  }
+}

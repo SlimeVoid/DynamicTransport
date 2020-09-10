@@ -1,0 +1,16 @@
+[
+{
+  "modid": "dynamictransport",
+  "name": "Dynamic Transport",
+  "description": "",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Tarig0"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

@@ -1,0 +1,9 @@
+{
+  "parent": "block/cube_bottom_top",
+  "textures": {
+    "bottom": "dynamictransport:blocks/dt.transport.elevator.bottom",
+    "top": "dynamictransport:blocks/dt.transport.elevator.top",
+    "side": "dynamictransport:blocks/dt.transport.elevator.side",
+    "overlay": "dynamictransport:blocks/dt.transport.elevator.overlay"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "dynamictransport:blocks/camo",
+  "textures": {
+    "particle": "dynamictransport:blocks/dt.transport.elevator.top"
+  }
+}

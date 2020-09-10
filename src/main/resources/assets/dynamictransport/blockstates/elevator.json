@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "camo=false": {"model": "dynamictransport:elevator", "uvlock": true},
+    "camo=true": {"model": "dynamictransport:elevator_camo.dt", "uvlock": true}
+  }
+}

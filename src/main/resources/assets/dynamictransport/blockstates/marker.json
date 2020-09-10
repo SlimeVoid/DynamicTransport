@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "camo=false,powered=true": {"model": "dynamictransport:marker", "uvlock": true},
+    "camo=false,powered=false": {"model": "dynamictransport:marker", "uvlock": true},
+    "camo=true,powered=true": {"model": "dynamictransport:marker_camo.dt", "uvlock": true},
+    "camo=true,powered=false": {"model": "dynamictransport:marker_camo.dt", "uvlock": true}
+  }
+}
