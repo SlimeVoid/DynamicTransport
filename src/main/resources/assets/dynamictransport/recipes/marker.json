@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    "III",
+    "IEI",
+    "IRI"
+  ],
+  "key":
+  {
+    "I":
+    {
+      "item": "minecraft:iron_ingot"
+    },
+    "E":
+    {
+      "item": "minecraft:ender_pearl"
+    },
+    "R":
+    {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result":
+  {
+    "item": "dynamicTransport:marker",
+    "count": 4
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    "IDI",
+    "IEI",
+    "IRI"
+  ],
+  "key":
+  {
+    "I":
+    {
+      "item": "minecraft:iron_ingot"
+    },
+    "D":
+    {
+      "type": "forge:ore_dict",
+      "ore": "gemDiamond"
+    },
+    "E":
+    {
+      "item": "minecraft:ender_pearl"
+    },
+    "R":
+    {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result":
+  {
+    "item": "dynamicTransport:elevator",
+    "count": 5
+  }
+}

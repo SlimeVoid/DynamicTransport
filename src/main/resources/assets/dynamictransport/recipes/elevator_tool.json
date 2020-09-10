@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    "LGL",
+    "LRL",
+    "LSL"
+  ],
+  "key":
+  {
+    "L":
+    {
+      "item": "minecraft:dye",
+      "data": 4
+    },
+    "G":
+    {
+      "item": "minecraft:glass_pane"
+    },
+    "S":
+    {
+      "item": "minecraft:string"
+    },
+    "R":
+    {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result":
+  {
+    "item": "dynamicTransport:elevator_tool",
+    "count": 1
+  }
+}

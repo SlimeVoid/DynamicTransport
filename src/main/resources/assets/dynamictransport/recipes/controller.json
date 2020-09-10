@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    "GEG",
+    "GAG",
+    "GRG"
+  ],
+  "key":
+  {
+    "A":
+    {
+      "item": "minecraft:glass"
+    },
+    "G":
+    {
+      "item": "minecraft:gold_ingot"
+    },
+    "E":
+    {
+      "item": "minecraft:ender_pearl"
+    },
+    "R":
+    {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result":
+  {
+    "item": "dynamicTransport:controller",
+    "count": 1
+  }
+}

@@ -22,6 +22,7 @@ public class UnlistedPropertyList<T> implements IUnlistedProperty<List<T>> {
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Class<List<T>> getType() {
         return (Class<List<T>>)(Class<?>)List.class;
